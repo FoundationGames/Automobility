@@ -1,15 +1,12 @@
 package io.github.foundationgames.automobility.automobile.render.frame;
 
 import io.github.foundationgames.automobility.Automobility;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityModelLayerRegistry;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.util.math.MatrixStack;
-
-import java.util.function.Function;
 
 public class StandardFrameModel extends Model {
     public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile_frame/standard"), "main");
@@ -66,7 +63,7 @@ public class StandardFrameModel extends Model {
         setRotationAngle(hood, 0.0F, 0.0F, -0.3927F);
     }
 
-    public void setRotationAngle(ModelPart bone, float x, float y, float z) {
+    private void setRotationAngle(ModelPart bone, float x, float y, float z) {
         bone.pitch = x;
         bone.yaw = y;
         bone.roll = z;

@@ -5,9 +5,6 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-
-import java.util.function.Function;
 
 public class EmptyModel extends Model {
     public EmptyModel(EntityRendererFactory.Context ctx) {

@@ -1,7 +1,6 @@
 package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
-import io.github.foundationgames.automobility.automobile.render.EmptyModel;
 import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.client.model.Model;
@@ -23,7 +22,7 @@ public record AutomobileFrame(
                     Automobility.id("standard_blue"),
                     0.5f,
                     new FrameModel(
-                            Automobility.id("textures/entity/automobile/standard_blue.png"),
+                            Automobility.id("textures/entity/automobile/frame/standard_blue.png"),
                             StandardFrameModel::new,
                             1f,
                             1f

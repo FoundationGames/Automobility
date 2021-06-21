@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.entity;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
+import io.github.foundationgames.automobility.automobile.render.wheel.StandardWheelModel;
 import io.github.foundationgames.automobility.entity.render.AutomobileEntityRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,7 +17,7 @@ public enum AutomobilityEntities {;
     public static final EntityType<AutomobileEntity> AUTOMOBILE = Registry.register(
             Registry.ENTITY_TYPE,
             Automobility.id("automobile"),
-            FabricEntityTypeBuilder.create().dimensions(new EntityDimensions(1.18f, 0.66f, true)).entityFactory(AutomobileEntity::new).build()
+            FabricEntityTypeBuilder.create().dimensions(new EntityDimensions(1.18f, 0.66f, true)).trackRangeBlocks(10).entityFactory(AutomobileEntity::new).build()
     );
 
     public static void init() {
@@ -27,5 +28,7 @@ public enum AutomobilityEntities {;
         EntityRendererRegistry.INSTANCE.register(AUTOMOBILE, AutomobileEntityRenderer::new);
 
         EntityModelLayerRegistry.registerModelLayer(StandardFrameModel.MODEL_LAYER, StandardFrameModel::createModelData);
+
+        EntityModelLayerRegistry.registerModelLayer(StandardWheelModel.MODEL_LAYER, StandardWheelModel::createModelData);
     }
 }
