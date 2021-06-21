@@ -44,6 +44,11 @@ public class AutomobileEntity extends Entity {
     }
 
     @Override
+    public double getMountedHeightOffset() {
+        return (wheels.model().radiusPx() + frame.model().seatHeight() - 4) / 16;
+    }
+
+    @Override
     public boolean collidesWith(Entity other) {
         return BoatEntity.canCollide(this, other);
     }
@@ -53,7 +58,10 @@ public class AutomobileEntity extends Entity {
         return true;
     }
 
-
+    @Override
+    public boolean collides() {
+        return !this.isRemoved();
+    }
 
     @Override
     public boolean isPushable() {

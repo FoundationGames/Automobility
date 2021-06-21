@@ -24,8 +24,9 @@ public record AutomobileFrame(
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/standard_blue.png"),
                             StandardFrameModel::new,
-                            1f,
-                            1f
+                            26,
+                            10,
+                            5
                     )
             )
     );
@@ -39,6 +40,7 @@ public record AutomobileFrame(
             Identifier texture,
             Function<EntityRendererFactory.Context, Model> model,
             float wheelSeparationLong,
-            float wheelSeparationWide
+            float wheelSeparationWide,
+            float seatHeight
     ) {}
 }

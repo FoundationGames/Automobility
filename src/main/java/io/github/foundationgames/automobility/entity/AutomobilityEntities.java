@@ -11,13 +11,14 @@ import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.util.registry.Registry;
 
 public enum AutomobilityEntities {;
     public static final EntityType<AutomobileEntity> AUTOMOBILE = Registry.register(
             Registry.ENTITY_TYPE,
             Automobility.id("automobile"),
-            FabricEntityTypeBuilder.create().dimensions(new EntityDimensions(1.18f, 0.66f, true)).trackRangeBlocks(10).entityFactory(AutomobileEntity::new).build()
+            FabricEntityTypeBuilder.create(SpawnGroup.MISC, AutomobileEntity::new).dimensions(new EntityDimensions(1.18f, 0.66f, true)).trackRangeBlocks(20).build()
     );
 
     public static void init() {
