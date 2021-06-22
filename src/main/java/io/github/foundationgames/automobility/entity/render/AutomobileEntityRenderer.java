@@ -38,12 +38,23 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
         var frame = entity.getFrame();
         float chassisRaise = wheels.model().radiusPx() / 16;
 
-        matrices.translate(0, -1.5 - chassisRaise, 0);
+        matrices.translate(0, -1.5f - chassisRaise, 0);
+
+        float raise = 1.5f - chassisRaise;
+        matrices.translate(0, raise, 0);
+        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(entity.getVerticalTravelPitch(tickDelta)));
+        matrices.translate(0, -raise, 0);
+
+        matrices.push();
         if (entity.updateModels) {
             updateModels(entity);
         }
+        if (entity.hasPassengers()) {
+            matrices.translate(0, Math.cos((entity.world.getTime() + tickDelta) * 2.7) / 156, 0);
+        }
         var frameTexture = frame.model().texture();
         frameModel.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(frameTexture)), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+        matrices.pop();
 
         var wheelBuffer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(entity.getWheels().model().texture()));
         float sLong = frame.model().wheelSeparationLong() / 16;
@@ -51,29 +62,45 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
 
         // WHEELS ----------------------------------------
 
+        float wheelAngle = entity.getWheelAngle(tickDelta);
+
         // Front left
         matrices.push();
         matrices.translate(-(sLong / 2), wheels.model().radiusPx() / 16, -(sWide / 2));
+        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(entity.getSteering(tickDelta) * 27));
+        matrices.translate(0, raise, 0);
+        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(-wheelAngle));
+        matrices.translate(0, -raise, 0);
         wheelModel.render(matrices, wheelBuffer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         matrices.pop();
 
         // Rear left
         matrices.push();
         matrices.translate(sLong / 2, wheels.model().radiusPx() / 16, -(sWide / 2));
-        wheelModel.render(matrices, wheelBuffer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
-        matrices.pop();
-
-        // Front right
-        matrices.push();
-        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
-        matrices.translate(-(sLong / 2), wheels.model().radiusPx() / 16, -(sWide / 2));
+        matrices.translate(0, raise, 0);
+        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(-wheelAngle));
+        matrices.translate(0, -raise, 0);
         wheelModel.render(matrices, wheelBuffer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         matrices.pop();
 
         // Rear right
         matrices.push();
         matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
+        matrices.translate(-(sLong / 2), wheels.model().radiusPx() / 16, -(sWide / 2));
+        matrices.translate(0, raise, 0);
+        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(wheelAngle));
+        matrices.translate(0, -raise, 0);
+        wheelModel.render(matrices, wheelBuffer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+        matrices.pop();
+
+        // Front right
+        matrices.push();
+        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
         matrices.translate(sLong / 2, wheels.model().radiusPx() / 16, -(sWide / 2));
+        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(entity.getSteering(tickDelta) * 27));
+        matrices.translate(0, raise, 0);
+        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(wheelAngle));
+        matrices.translate(0, -raise, 0);
         wheelModel.render(matrices, wheelBuffer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         matrices.pop();
 

@@ -4,8 +4,10 @@
   "package": "io.github.foundationgames.automobility.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+
   ],
   "client": [
+    "ClientPlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

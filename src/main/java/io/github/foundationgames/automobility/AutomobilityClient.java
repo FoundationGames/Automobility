@@ -3,6 +3,7 @@ package io.github.foundationgames.automobility;
 import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.entity.AutomobilityEntities;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
+import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.ClientModInitializer;
 
 public class AutomobilityClient implements ClientModInitializer {
@@ -11,5 +12,6 @@ public class AutomobilityClient implements ClientModInitializer {
         AutomobilityBlocks.initClient();
         AutomobilityItems.initClient();
         AutomobilityEntities.initClient();
+        PayloadPackets.initClient();
     }
 }

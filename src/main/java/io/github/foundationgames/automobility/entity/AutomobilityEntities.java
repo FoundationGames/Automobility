@@ -18,7 +18,7 @@ public enum AutomobilityEntities {;
     public static final EntityType<AutomobileEntity> AUTOMOBILE = Registry.register(
             Registry.ENTITY_TYPE,
             Automobility.id("automobile"),
-            FabricEntityTypeBuilder.create(SpawnGroup.MISC, AutomobileEntity::new).dimensions(new EntityDimensions(1.18f, 0.66f, true)).trackRangeBlocks(20).build()
+            FabricEntityTypeBuilder.create(SpawnGroup.MISC, AutomobileEntity::new).dimensions(new EntityDimensions(1f, 0.66f, true)).trackRangeBlocks(20).build()
     );
 
     public static void init() {
