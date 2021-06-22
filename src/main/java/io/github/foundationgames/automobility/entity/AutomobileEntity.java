@@ -30,6 +30,11 @@ public class AutomobileEntity extends Entity {
     private float boostSpeed = 0;
     private float speedDirection = 0;
 
+    private int boostTimer = 0;
+    private float boostPower = 0;
+
+    private float hSpeed = 0;
+
     private float verticalSpeed = 0;
     private Vec3d addedVelocity = getVelocity();
 
@@ -42,11 +47,14 @@ public class AutomobileEntity extends Entity {
     private float verticalTravelPitch = 0;
     private float lastVTravelPitch = verticalTravelPitch;
 
-    // Duplicating these fields and tracking them manually makes the car not have a seizure every few seconds
+    // Duplicating these fields and tracking them manually makes the automobile not have a seizure every few seconds
     private float yaw = super.getYaw();
     private float lastYaw = yaw;
 
-    private Vec3d lastPos = getPos();
+    private boolean drifting = false;
+    private int driftDir = 0;
+    private int driftTimer = 0;
+    private int lastDriftTimer = driftTimer;
 
     @Override
     protected void readCustomDataFromNbt(NbtCompound nbt) {
@@ -54,11 +62,17 @@ public class AutomobileEntity extends Entity {
         wheels = AutomobileWheel.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("wheels")));
         engineSpeed = nbt.getFloat("engineSpeed");
         boostSpeed = nbt.getFloat("boostSpeed");
+        boostTimer = nbt.getInt("boostTimer");
+        boostPower = nbt.getFloat("boostPower");
         speedDirection = nbt.getFloat("speedDirection");
         verticalSpeed = nbt.getFloat("verticalSpeed");
+        hSpeed = nbt.getFloat("horizontalSpeed");
         addedVelocity = AUtils.v3dFromNbt(nbt.getCompound("addedVelocity"));
         steering = nbt.getFloat("steering");
         wheelAngle = nbt.getFloat("wheelAngle");
+        drifting = nbt.getBoolean("drifting");
+        driftDir = nbt.getInt("driftDir");
+        driftTimer = nbt.getInt("driftTimer");
 
         yaw = nbt.getFloat("yaw");
     }
@@ -71,9 +85,13 @@ public class AutomobileEntity extends Entity {
         nbt.putFloat("boostSpeed", boostSpeed);
         nbt.putFloat("speedDirection", speedDirection);
         nbt.putFloat("verticalSpeed", verticalSpeed);
+        nbt.putFloat("horizontalSpeed", hSpeed);
         nbt.put("addedVelocity", AUtils.v3dToNbt(addedVelocity));
         nbt.putFloat("steering", steering);
         nbt.putFloat("wheelAngle", wheelAngle);
+        nbt.putBoolean("drifting", drifting);
+        nbt.putInt("driftDir", driftDir);
+        nbt.putInt("driftTimer", driftTimer);
 
         nbt.putFloat("yaw", yaw);
     }
@@ -83,6 +101,8 @@ public class AutomobileEntity extends Entity {
     private boolean inLeft = false;
     private boolean inRight = false;
     private boolean inSpace = false;
+
+    private boolean prevSpace = inSpace;
 
     @Environment(EnvType.CLIENT)
     public boolean updateModels = true;
@@ -119,6 +139,10 @@ public class AutomobileEntity extends Entity {
         return 0.42f;
     }
 
+    public float getHSpeed() {
+        return hSpeed;
+    }
+
     @Override
     public void baseTick() {
         super.baseTick();
@@ -127,13 +151,26 @@ public class AutomobileEntity extends Entity {
             inBack = false;
             inLeft = false;
             inRight = false;
+            inSpace = false;
         }
         processSteerInputs();
-        updateVelocity();
+        processDriftInputs();
+        movementTick();
     }
 
-    public void updateVelocity() {
-        lastPos = getPos();
+    // feast your eyes
+    public void movementTick() {
+        if (boostTimer > 0) {
+            boostTimer--;
+            boostSpeed = Math.min(boostPower, boostSpeed + 0.09f);
+        } else {
+            boostSpeed = AUtils.zero(boostSpeed, 0.1f);
+        }
+        if (drifting) {
+            driftTimer++;
+        }
+
+        var lastPos = getPos();
 
         var cumulative = addedVelocity;
         lastWheelAngle = wheelAngle;
@@ -144,21 +181,22 @@ public class AutomobileEntity extends Entity {
             verticalSpeed = Math.max(verticalSpeed - 0.15f, -0.7f);
         }
 
-        cumulative = cumulative.add(0, verticalSpeed * (isSubmergedInWater() ? 0.25f : 1), 0);
+        cumulative = cumulative.add(0, verticalSpeed * (isSubmergedInWater() ? 0.15f : 1), 0);
 
-        // TODO: Add drift physics and proper handling
-        this.speedDirection = getYaw();
+        this.speedDirection = getYaw() - (drifting ? Math.min(driftTimer * 6, 43 + (steering * 12)) * driftDir : 0);
 
         if (inFwd && this.engineSpeed >= 0) {
             // Torque stat will be added when engine types are added
-            this.engineSpeed += calculateAcceleration(this.engineSpeed, getWeight(), this.wheels.size(), 0.5f);
-        } else if (inBack) {
+            this.engineSpeed += this.drifting ? 0 : calculateAcceleration(this.engineSpeed, getWeight(), this.wheels.size(), 0.5f);
+        }
+        if (inBack) {
             this.engineSpeed = Math.max(this.engineSpeed - 0.15f, -0.25f);
-        } else {
+        }
+        if (!inFwd && !inBack) {
             this.engineSpeed = AUtils.zero(this.engineSpeed, (Math.max(0, 1 - getWeight()) * 0.08f) + 0.03f);
         }
 
-        float hSpeed = engineSpeed + boostSpeed;
+        hSpeed = engineSpeed + (boostTimer > 0 ? boostSpeed : 0);
         float angle = (float) Math.toRadians(-speedDirection);
         cumulative = cumulative.add(Math.sin(angle) * hSpeed, 0, Math.cos(angle) * hSpeed);
 
@@ -181,7 +219,7 @@ public class AutomobileEntity extends Entity {
 
         lastYaw = yaw;
         if (hSpeed != 0) {
-            float yawInc = this.steering * ((4 * hSpeed) + (hSpeed > 0 ? 2 : -3.5f));
+            float yawInc = drifting ? ((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir : this.steering * ((4 * hSpeed) + (hSpeed > 0 ? 2 : -3.5f));
             this.setYaw(getYaw() + yawInc);
             for (Entity e : getPassengerList()) {
                 e.setYaw(e.getYaw() + yawInc);
@@ -217,7 +255,8 @@ public class AutomobileEntity extends Entity {
                 fwd == inFwd &&
                 back == inBack &&
                 left == inLeft &&
-                right == inRight
+                right == inRight &&
+                space == inSpace
         )) {
             setInputs(fwd, back, left, right, space);
             PayloadPackets.sendSyncAutomobileInputPacket(this, inFwd, inBack, inLeft, inRight, inSpace);
@@ -225,6 +264,7 @@ public class AutomobileEntity extends Entity {
     }
 
     public void setInputs(boolean fwd, boolean back, boolean left, boolean right, boolean space) {
+        this.prevSpace = this.inSpace;
         this.inFwd = fwd;
         this.inBack = back;
         this.inLeft = left;
@@ -242,6 +282,27 @@ public class AutomobileEntity extends Entity {
         } else {
             this.steering += getHandling();
             this.steering = Math.min(1, this.steering);
+        }
+    }
+
+    private void processDriftInputs() {
+        if (steering != 0) {
+            if (!prevSpace && inSpace && hSpeed > 0.5f) {
+                drifting = true;
+                driftDir = steering > 0 ? 1 : -1;
+                driftTimer = 0;
+            }
+        }
+        if (drifting) {
+            if (prevSpace && !inSpace) {
+                drifting = false;
+                if (driftTimer > 50) {
+                    boostTimer = 45;
+                    boostPower = 0.3f;
+                }
+            } else if (!inFwd || inBack || hSpeed < 0.5f) {
+                drifting = false;
+            }
         }
     }
 
