@@ -15,6 +15,13 @@ public enum AUtils {;
         return in;
     }
 
+    public static boolean haveSameSign(float a, float b) {
+        if (a == 0 || b == 0) {
+            return a == b;
+        }
+        return a / Math.abs(a) == b / Math.abs(b);
+    }
+
     public static NbtCompound v3dToNbt(Vec3d vec) {
         var r = new NbtCompound();
         r.putDouble("x", vec.getX());

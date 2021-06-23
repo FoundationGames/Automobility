@@ -25,7 +25,7 @@ public enum PayloadPackets {;
         ClientPlayNetworking.send(Automobility.id("sync_automobile_inputs"), buf);
     }
 
-    public static void sendSyncAutomobileToClientPacket(AutomobileEntity entity, ServerPlayerEntity player) {
+    public static void sendSyncAutomobileDataPacket(AutomobileEntity entity, ServerPlayerEntity player) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         NbtCompound nbt = new NbtCompound();
         entity.writeCustomDataToNbt(nbt);
@@ -33,9 +33,8 @@ public enum PayloadPackets {;
         buf.writeDouble(entity.getX());
         buf.writeDouble(entity.getY());
         buf.writeDouble(entity.getZ());
-        buf.writeFloat(entity.getYaw());
         buf.writeInt(entity.getId());
-        ServerPlayNetworking.send(player, Automobility.id("sync_automobile"), buf);
+        ServerPlayNetworking.send(player, Automobility.id("sync_automobile_data"), buf);
     }
 
     public static void init() {
@@ -57,19 +56,17 @@ public enum PayloadPackets {;
 
     @Environment(EnvType.CLIENT)
     public static void initClient() {
-        ClientPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile"), (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile_data"), (client, handler, buf, responseSender) -> {
             NbtCompound nbt = buf.readNbt();
             double x = buf.readDouble();
             double y = buf.readDouble();
             double z = buf.readDouble();
-            float yaw = buf.readFloat();
             int entityId = buf.readInt();
             client.execute(() -> {
                 Entity e = client.player.world.getEntityById(entityId);
                 if (e instanceof AutomobileEntity automobile) {
                     automobile.readCustomDataFromNbt(nbt);
                     automobile.setPos(x, y, z);
-                    automobile.setYaw(yaw);
                 }
             });
         });

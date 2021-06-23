@@ -24,7 +24,10 @@ public class AutomobilityClient implements ClientModInitializer {
             var player = MinecraftClient.getInstance().player;
             if (player.getVehicle() instanceof AutomobileEntity auto) {
                 float speed = Math.abs(auto.getHSpeed() * 20);
-                DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, new LiteralText(AUtils.DEC_TWO_PLACES.format(speed) +" m/s"), 20, 20, 0xFFFFFF);
+                int color = 0xFFFFFF;
+                if (auto.getBoostTimer() > 0) color = 0xFF6F00;
+                if (auto.getDriftTimer() > AutomobileEntity.DRIFT_TURBO_TIME) color = 0x7DE9FF;
+                DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, new LiteralText(AUtils.DEC_TWO_PLACES.format(speed) +" m/s"), 20, 20, color);
             }
         });
     }

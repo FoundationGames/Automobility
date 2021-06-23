@@ -155,36 +155,32 @@ public class AutomobileEntity extends Entity {
         return hSpeed;
     }
 
+    public int getBoostTimer() {
+        return boostTimer;
+    }
+
     @Override
     public void baseTick() {
         super.baseTick();
-        if (isLogicalSideForUpdatingMovement()) {
-            if (!this.hasPassengers()) {
-                inFwd = false;
-                inBack = false;
-                inLeft = false;
-                inRight = false;
-                inSpace = false;
-            }
-            steeringTick();
-            driftingTick();
-            movementTick();
-            updateTrackedPosition(getX(), getY(), getZ());
+        if (!this.hasPassengers()) {
+            inFwd = false;
+            inBack = false;
+            inLeft = false;
+            inRight = false;
+            inSpace = false;
         }
+        steeringTick();
+        driftingTick();
+        movementTick();
+        updateTrackedPosition(getX(), getY(), getZ());
 
         if (!world.isClient()) {
             for (PlayerEntity p : world.getPlayers()) {
                 if (p != getFirstPassenger() && p.getPos().distanceTo(getPos()) < 100 && p instanceof ServerPlayerEntity player) {
-                    PayloadPackets.sendSyncAutomobileToClientPacket(this, player);
+                    PayloadPackets.sendSyncAutomobileDataPacket(this, player);
                 }
             }
         }
-    }
-
-    @Nullable
-    @Override
-    public Entity getPrimaryPassenger() {
-        return this.getFirstPassenger();
     }
 
     // feast your eyes
@@ -226,7 +222,18 @@ public class AutomobileEntity extends Entity {
         // Handle acceleration
         if (inFwd) {
             float speed = Math.max(this.engineSpeed, 0);
-            this.engineSpeed += this.drifting ? (this.hSpeed < 0.8 ? 0.001 : 0) : calculateAcceleration(speed, getWeight(), this.wheels.size(), 0.5f);
+            // yeah ...
+            this.engineSpeed +=
+                    // The following conditions check whether the automobile should NOT receive normal acceleration
+                    // It will not receive this acceleration if the automobile is steering or tight-drifting
+                    (
+                            (this.drifting && AUtils.haveSameSign(this.steering, this.driftDir)) ||
+                            (!this.drifting && this.steering != 0 && hSpeed > 0.5)
+                    ) ? (this.hSpeed < 0.8 ? 0.001 : 0) // This will supply a small amount of acceleration if the automobile is moving slowly only
+
+                    // Otherwise, it will receive acceleration as normal
+                    // It will receive this acceleration if the automobile is moving straight or wide-drifting
+                    : calculateAcceleration(speed, getWeight(), this.wheels.size(), 0.5f) * (drifting ? 0.69 : 1);
         }
         // Handle braking/reverse
         if (inBack) {
@@ -235,6 +242,11 @@ public class AutomobileEntity extends Entity {
         // Handle when the automobile is rolling to a stop
         if (!inFwd && !inBack) {
             this.engineSpeed = AUtils.zero(this.engineSpeed, (Math.max(0, 1 - getWeight()) * 0.08f) + 0.03f);
+        }
+
+        // Slow the automobile a bit while steering and moving fast
+        if (!drifting && steering != 0 && hSpeed > 0.8) {
+            engineSpeed -= engineSpeed * 0.00016f;
         }
 
         // Set the horizontal speed
@@ -277,8 +289,14 @@ public class AutomobileEntity extends Entity {
 
         // Adjusts the pitch of the automobile when falling onto a block/climbing up a block
         lastVTravelPitch = verticalTravelPitch;
-        BlockPos below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.05), Math.floor(getZ()));
-        if ((!(verticalSpeed < 0.2 && verticalSpeed > -0.2)) && !world.getBlockState(below).isSideSolid(world, below, Direction.UP, SideShapeType.RIGID)) {
+        var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.01), Math.floor(getZ()));
+        var moreBelow = new BlockPos(Math.floor(getX()), Math.floor(getY() - 1.01), Math.floor(getZ()));
+        if (
+                hSpeed != 0 &&
+                !(verticalSpeed < 0.2 && verticalSpeed > -0.2) &&
+                !world.getBlockState(below).isSideSolid(world, below, Direction.UP, SideShapeType.RIGID) &&
+                world.getBlockState(moreBelow).isSideSolid(world, moreBelow, Direction.UP, SideShapeType.RIGID)
+        ) {
             if (verticalSpeed > 0) {
                 verticalTravelPitch = Math.min(verticalTravelPitch + 13, 45) * (hSpeed > 0 ? 1 : -1);
             } else {
@@ -291,7 +309,7 @@ public class AutomobileEntity extends Entity {
 
     private float calculateAcceleration(float speed, float weight, float wheelSize, float torque) {
         // A somewhat over-engineered function to accelerate the automobile, since I didn't want to add a hard speed cap
-        return (1f / ((350 * speed) + 8f)) * 0.87f;
+        return (1f / ((300 * speed) + 17f)) * 0.85f;
     }
 
     @Environment(EnvType.CLIENT)
@@ -338,8 +356,10 @@ public class AutomobileEntity extends Entity {
             if (!drifting && !prevSpace && inSpace && hSpeed > 0.4f) {
                 drifting = true;
                 driftDir = steering > 0 ? 1 : -1;
+                // Reduce speed when a drift starts, based on how long the last drift was for
+                // This allows you to do a series of short drifts without tanking all your speed, while still reducing your speed when you begin the drift(s)
+                engineSpeed -= (0.028 * (Math.min(driftTimer, 20f) / 20)) * engineSpeed;
                 driftTimer = 0;
-                engineSpeed -= 0.068 * engineSpeed;
             }
         }
         // Handles ending a drift
@@ -358,6 +378,12 @@ public class AutomobileEntity extends Entity {
                 steering = 0;
             }
         }
+    }
+
+    @Nullable
+    @Override
+    public Entity getPrimaryPassenger() {
+        return getFirstPassenger();
     }
 
     @Override
