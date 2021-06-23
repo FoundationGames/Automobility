@@ -15,6 +15,7 @@ import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -23,6 +24,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public class AutomobileEntity extends Entity {
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
@@ -51,17 +53,13 @@ public class AutomobileEntity extends Entity {
     private float verticalTravelPitch = 0;
     private float lastVTravelPitch = verticalTravelPitch;
 
-    // Duplicating these fields and tracking them manually makes the automobile not have a seizure every few seconds
-    private float yaw = super.getYaw();
-    private float lastYaw = yaw;
-
     private boolean drifting = false;
     private int driftDir = 0;
     private int driftTimer = 0;
     private int lastDriftTimer = driftTimer;
 
     @Override
-    protected void readCustomDataFromNbt(NbtCompound nbt) {
+    public void readCustomDataFromNbt(NbtCompound nbt) {
         frame = AutomobileFrame.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("frame")));
         wheels = AutomobileWheel.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("wheels")));
         engineSpeed = nbt.getFloat("engineSpeed");
@@ -77,12 +75,15 @@ public class AutomobileEntity extends Entity {
         drifting = nbt.getBoolean("drifting");
         driftDir = nbt.getInt("driftDir");
         driftTimer = nbt.getInt("driftTimer");
-
-        yaw = nbt.getFloat("yaw");
+        inFwd = nbt.getBoolean("accelerating");
+        inBack = nbt.getBoolean("braking");
+        inLeft = nbt.getBoolean("steeringLeft");
+        inRight = nbt.getBoolean("steeringRight");
+        inSpace = nbt.getBoolean("holdingDrift");
     }
 
     @Override
-    protected void writeCustomDataToNbt(NbtCompound nbt) {
+    public void writeCustomDataToNbt(NbtCompound nbt) {
         nbt.putString("frame", frame.getId().toString());
         nbt.putString("wheels", wheels.getId().toString());
         nbt.putFloat("engineSpeed", engineSpeed);
@@ -96,8 +97,11 @@ public class AutomobileEntity extends Entity {
         nbt.putBoolean("drifting", drifting);
         nbt.putInt("driftDir", driftDir);
         nbt.putInt("driftTimer", driftTimer);
-
-        nbt.putFloat("yaw", yaw);
+        nbt.putBoolean("accelerating", inFwd);
+        nbt.putBoolean("braking", inBack);
+        nbt.putBoolean("steeringLeft", inLeft);
+        nbt.putBoolean("steeringRight", inRight);
+        nbt.putBoolean("holdingDrift", inSpace);
     }
 
     private boolean inFwd = false;
@@ -154,16 +158,33 @@ public class AutomobileEntity extends Entity {
     @Override
     public void baseTick() {
         super.baseTick();
-        if (!this.hasPassengers()) {
-            inFwd = false;
-            inBack = false;
-            inLeft = false;
-            inRight = false;
-            inSpace = false;
+        if (isLogicalSideForUpdatingMovement()) {
+            if (!this.hasPassengers()) {
+                inFwd = false;
+                inBack = false;
+                inLeft = false;
+                inRight = false;
+                inSpace = false;
+            }
+            steeringTick();
+            driftingTick();
+            movementTick();
+            updateTrackedPosition(getX(), getY(), getZ());
         }
-        steeringTick();
-        driftingTick();
-        movementTick();
+
+        if (!world.isClient()) {
+            for (PlayerEntity p : world.getPlayers()) {
+                if (p != getFirstPassenger() && p.getPos().distanceTo(getPos()) < 100 && p instanceof ServerPlayerEntity player) {
+                    PayloadPackets.sendSyncAutomobileToClientPacket(this, player);
+                }
+            }
+        }
+    }
+
+    @Nullable
+    @Override
+    public Entity getPrimaryPassenger() {
+        return this.getFirstPassenger();
     }
 
     // feast your eyes
@@ -245,7 +266,6 @@ public class AutomobileEntity extends Entity {
         }
 
         // Turns the automobile based on steering/drifting
-        lastYaw = yaw;
         if (hSpeed != 0) {
             float yawInc = drifting ? ((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir : this.steering * ((4 * Math.min(hSpeed, 1)) + (hSpeed > 0 ? 2 : -3.5f));
             this.setYaw(getYaw() + yawInc);
@@ -271,7 +291,7 @@ public class AutomobileEntity extends Entity {
 
     private float calculateAcceleration(float speed, float weight, float wheelSize, float torque) {
         // A somewhat over-engineered function to accelerate the automobile, since I didn't want to add a hard speed cap
-        return (1f / ((210 * speed) + 9f)) * 0.7f;
+        return (1f / ((350 * speed) + 8f)) * 0.87f;
     }
 
     @Environment(EnvType.CLIENT)
@@ -368,24 +388,6 @@ public class AutomobileEntity extends Entity {
     @Override
     public boolean isPushable() {
         return true;
-    }
-
-    // Yes, I have duplicated the entire yaw value on purpose because it reduces yaw stuttering somehow
-    // Entities are incredibly janky
-
-    @Override
-    public float getYaw() {
-        return yaw;
-    }
-
-    @Override
-    public float getYaw(float tickDelta) {
-        return MathHelper.lerp(tickDelta, lastYaw, yaw);
-    }
-
-    @Override
-    public void setYaw(float yaw) {
-        this.yaw = yaw;
     }
 
     @Override
