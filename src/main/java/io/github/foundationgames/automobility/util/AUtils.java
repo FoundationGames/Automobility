@@ -3,7 +3,11 @@ package io.github.foundationgames.automobility.util;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Vec3d;
 
+import java.text.DecimalFormat;
+
 public enum AUtils {;
+    public static final DecimalFormat DEC_TWO_PLACES = new DecimalFormat("###0.00");
+
     public static float zero(float in, float by) {
         if (Math.abs(in) < by) return 0;
         if (in > 0) by *= -1;

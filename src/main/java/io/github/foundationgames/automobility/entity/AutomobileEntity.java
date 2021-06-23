@@ -6,7 +6,6 @@ import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.SideShapeType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -19,12 +18,17 @@ import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class AutomobileEntity extends Entity {
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
     private AutomobileWheel wheels = AutomobileWheel.REGISTRY.getOrDefault(null);
+
+    public static final int DRIFT_TURBO_TIME = 50;
 
     private float engineSpeed = 0;
     private float boostSpeed = 0;
@@ -131,6 +135,10 @@ public class AutomobileEntity extends Entity {
         return MathHelper.lerp(tickDelta, lastVTravelPitch, verticalTravelPitch);
     }
 
+    public int getDriftTimer() {
+        return drifting ? driftTimer : 0;
+    }
+
     public float getWeight() {
         return this.frame.weight();
     }
@@ -153,63 +161,82 @@ public class AutomobileEntity extends Entity {
             inRight = false;
             inSpace = false;
         }
-        processSteerInputs();
-        processDriftInputs();
+        steeringTick();
+        driftingTick();
         movementTick();
     }
 
     // feast your eyes
     public void movementTick() {
+        // Handles boosting
         if (boostTimer > 0) {
             boostTimer--;
-            boostSpeed = Math.min(boostPower, boostSpeed + 0.09f);
+            boostSpeed = Math.min(boostPower, boostSpeed + 0.05f);
         } else {
-            boostSpeed = AUtils.zero(boostSpeed, 0.1f);
+            boostSpeed = AUtils.zero(boostSpeed, 0.09f);
         }
+
+        // Handles the drift timer (for drift turbos)
         if (drifting) {
             driftTimer++;
         }
 
+        // Track the last position of the automobile
         var lastPos = getPos();
 
+        // cumulative will be modified by the following code and then the automobile will be moved by it
+        // Currently initialized with the value of addedVelocity (which is a general velocity vector applied to the automobile, i.e. for when it bumps into a wall and is pushed back)
         var cumulative = addedVelocity;
         lastWheelAngle = wheelAngle;
 
+        // Handles gravity
         if (this.isOnGround()) {
             verticalSpeed = 0;
         } else {
             verticalSpeed = Math.max(verticalSpeed - 0.15f, -0.7f);
         }
 
+        // Reduce gravity underwater
         cumulative = cumulative.add(0, verticalSpeed * (isSubmergedInWater() ? 0.15f : 1), 0);
 
-        this.speedDirection = getYaw() - (drifting ? Math.min(driftTimer * 6, 43 + (steering * 12)) * driftDir : 0);
+        // This is the general direction the automobile will move, which is slightly offset to the side when drifting
+        this.speedDirection = getYaw() - (drifting ? Math.min(driftTimer * 6, 43 + (-steering * 12)) * driftDir : 0);
 
-        if (inFwd && this.engineSpeed >= 0) {
-            // Torque stat will be added when engine types are added
-            this.engineSpeed += this.drifting ? 0 : calculateAcceleration(this.engineSpeed, getWeight(), this.wheels.size(), 0.5f);
+        // Handle acceleration
+        if (inFwd) {
+            float speed = Math.max(this.engineSpeed, 0);
+            this.engineSpeed += this.drifting ? (this.hSpeed < 0.8 ? 0.001 : 0) : calculateAcceleration(speed, getWeight(), this.wheels.size(), 0.5f);
         }
+        // Handle braking/reverse
         if (inBack) {
             this.engineSpeed = Math.max(this.engineSpeed - 0.15f, -0.25f);
         }
+        // Handle when the automobile is rolling to a stop
         if (!inFwd && !inBack) {
             this.engineSpeed = AUtils.zero(this.engineSpeed, (Math.max(0, 1 - getWeight()) * 0.08f) + 0.03f);
         }
 
-        hSpeed = engineSpeed + (boostTimer > 0 ? boostSpeed : 0);
+        // Set the horizontal speed
+        hSpeed = engineSpeed + boostSpeed;
+
+        // Apply the horizontal speed to the cumulative movement
         float angle = (float) Math.toRadians(-speedDirection);
         cumulative = cumulative.add(Math.sin(angle) * hSpeed, 0, Math.cos(angle) * hSpeed);
 
+        // Turn the wheels
         wheelAngle += hSpeed * 100f;
 
+        // Move the automobile by the cumulative vector
         this.move(MovementType.SELF, cumulative);
 
+        // Reduce the values of addedVelocity incrementally
         addedVelocity = new Vec3d(
                 AUtils.zero((float)addedVelocity.x, 0.1f),
                 AUtils.zero((float)addedVelocity.y, 0.1f),
                 AUtils.zero((float)addedVelocity.z, 0.1f)
         );
 
+        // This code handles bumping into a wall, yes it is utterly horrendous
         var displacement = getPos().subtract(lastPos);
         if (hSpeed > 0.1 && displacement.length() < hSpeed - 0.17 && verticalSpeed < 0.2 && verticalSpeed > -0.2 && addedVelocity.length() < 0.05) {
             engineSpeed /= 3.6;
@@ -217,9 +244,10 @@ public class AutomobileEntity extends Entity {
             addedVelocity = addedVelocity.add(Math.sin(angle) * knockSpeed, 0, Math.cos(angle) * knockSpeed);
         }
 
+        // Turns the automobile based on steering/drifting
         lastYaw = yaw;
         if (hSpeed != 0) {
-            float yawInc = drifting ? ((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir : this.steering * ((4 * hSpeed) + (hSpeed > 0 ? 2 : -3.5f));
+            float yawInc = drifting ? ((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir : this.steering * ((4 * Math.min(hSpeed, 1)) + (hSpeed > 0 ? 2 : -3.5f));
             this.setYaw(getYaw() + yawInc);
             for (Entity e : getPassengerList()) {
                 e.setYaw(e.getYaw() + yawInc);
@@ -227,6 +255,7 @@ public class AutomobileEntity extends Entity {
             }
         }
 
+        // Adjusts the pitch of the automobile when falling onto a block/climbing up a block
         lastVTravelPitch = verticalTravelPitch;
         BlockPos below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.05), Math.floor(getZ()));
         if ((!(verticalSpeed < 0.2 && verticalSpeed > -0.2)) && !world.getBlockState(below).isSideSolid(world, below, Direction.UP, SideShapeType.RIGID)) {
@@ -240,17 +269,14 @@ public class AutomobileEntity extends Entity {
         }
     }
 
-    @Override
-    protected void onBlockCollision(BlockState state) {
-        super.onBlockCollision(state);
-    }
-
     private float calculateAcceleration(float speed, float weight, float wheelSize, float torque) {
-        return (1f / ((200 * speed) + 9f)) * 0.7f;
+        // A somewhat over-engineered function to accelerate the automobile, since I didn't want to add a hard speed cap
+        return (1f / ((210 * speed) + 9f)) * 0.7f;
     }
 
     @Environment(EnvType.CLIENT)
     public void provideClientInput(boolean fwd, boolean back, boolean left, boolean right, boolean space) {
+        // Receives inputs client-side and sends them to the server
         if (!(
                 fwd == inFwd &&
                 back == inBack &&
@@ -272,7 +298,8 @@ public class AutomobileEntity extends Entity {
         this.inSpace = space;
     }
 
-    private void processSteerInputs() {
+    private void steeringTick() {
+        // Adjust the steering based on the left/right inputs
         this.lastSteering = steering;
         if (inLeft == inRight) {
             this.steering = AUtils.zero(this.steering, getHandling());
@@ -285,23 +312,30 @@ public class AutomobileEntity extends Entity {
         }
     }
 
-    private void processDriftInputs() {
+    private void driftingTick() {
+        // Handles starting a drift
         if (steering != 0) {
-            if (!prevSpace && inSpace && hSpeed > 0.5f) {
+            if (!drifting && !prevSpace && inSpace && hSpeed > 0.4f) {
                 drifting = true;
                 driftDir = steering > 0 ? 1 : -1;
                 driftTimer = 0;
+                engineSpeed -= 0.068 * engineSpeed;
             }
         }
+        // Handles ending a drift
         if (drifting) {
+            // Ending a drift successfully, giving you a turbo boost
             if (prevSpace && !inSpace) {
                 drifting = false;
-                if (driftTimer > 50) {
-                    boostTimer = 45;
-                    boostPower = 0.3f;
+                steering = 0;
+                if (driftTimer > DRIFT_TURBO_TIME) {
+                    boostTimer = 40;
+                    boostPower = 0.38f;
                 }
-            } else if (!inFwd || inBack || hSpeed < 0.5f) {
+            // Ending a drift unsuccessfully, not giving you a boost
+            } else if (hSpeed < 0.33f) {
                 drifting = false;
+                steering = 0;
             }
         }
     }
@@ -313,7 +347,7 @@ public class AutomobileEntity extends Entity {
 
     @Override
     public double getMountedHeightOffset() {
-        return (wheels.model().radiusPx() + frame.model().seatHeight() - 4) / 16;
+        return (wheels.model().radius() + frame.model().seatHeight() - 4) / 16;
     }
 
     @Override
@@ -335,6 +369,9 @@ public class AutomobileEntity extends Entity {
     public boolean isPushable() {
         return true;
     }
+
+    // Yes, I have duplicated the entire yaw value on purpose because it reduces yaw stuttering somehow
+    // Entities are incredibly janky
 
     @Override
     public float getYaw() {

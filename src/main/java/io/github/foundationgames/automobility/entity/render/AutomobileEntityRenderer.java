@@ -1,5 +1,6 @@
 package io.github.foundationgames.automobility.entity.render;
 
+import io.github.foundationgames.automobility.automobile.render.SkidEffectModel;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.OverlayTexture;
@@ -14,12 +15,14 @@ import net.minecraft.util.math.Vec3f;
 public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
     private Model frameModel;
     private Model wheelModel;
+    private final Model skidEffectModel;
 
     private final EntityRendererFactory.Context ctx;
 
     public AutomobileEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
         this.ctx = ctx;
+        this.skidEffectModel = new SkidEffectModel(ctx);
     }
 
     @Override
@@ -36,7 +39,7 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
 
         var wheels = entity.getWheels();
         var frame = entity.getFrame();
-        float chassisRaise = wheels.model().radiusPx() / 16;
+        float chassisRaise = wheels.model().radius() / 16;
 
         matrices.translate(0, -1.5f - chassisRaise, 0);
 
@@ -63,11 +66,12 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
         // WHEELS ----------------------------------------
 
         float wheelAngle = entity.getWheelAngle(tickDelta);
+        float wheelRadius = wheels.model().radius();
 
         if (wheelModel != null) {
             // Front left
             matrices.push();
-            matrices.translate(-(sLong / 2), wheels.model().radiusPx() / 16, -(sWide / 2));
+            matrices.translate(-(sLong / 2), wheelRadius / 16, -(sWide / 2));
             matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(entity.getSteering(tickDelta) * 27));
             matrices.translate(0, raise, 0);
             matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(-wheelAngle));
@@ -77,17 +81,21 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
 
             // Rear left
             matrices.push();
-            matrices.translate(sLong / 2, wheels.model().radiusPx() / 16, -(sWide / 2));
+            matrices.translate(sLong / 2, wheelRadius / 16, -(sWide / 2));
             matrices.translate(0, raise, 0);
             matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(-wheelAngle));
             matrices.translate(0, -raise, 0);
             wheelModel.render(matrices, wheelBuffer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+            if (entity.getDriftTimer() > 0) {
+                matrices.translate(0, 0, -(wheels.model().width() / 16));
+
+            }
             matrices.pop();
 
             // Rear right
             matrices.push();
             matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
-            matrices.translate(-(sLong / 2), wheels.model().radiusPx() / 16, -(sWide / 2));
+            matrices.translate(-(sLong / 2), wheelRadius / 16, -(sWide / 2));
             matrices.translate(0, raise, 0);
             matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(wheelAngle));
             matrices.translate(0, -raise, 0);
@@ -97,12 +105,35 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
             // Front right
             matrices.push();
             matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
-            matrices.translate(sLong / 2, wheels.model().radiusPx() / 16, -(sWide / 2));
+            matrices.translate(sLong / 2, wheelRadius / 16, -(sWide / 2));
             matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(entity.getSteering(tickDelta) * 27));
             matrices.translate(0, raise, 0);
             matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(wheelAngle));
             matrices.translate(0, -raise, 0);
             wheelModel.render(matrices, wheelBuffer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+            matrices.pop();
+        }
+
+        if (entity.getDriftTimer() > 0) {
+            var texes = SkidEffectModel.SMOKE_TEXTURES;
+            boolean bright = false;
+            if (entity.getDriftTimer() > AutomobileEntity.DRIFT_TURBO_TIME) {
+                texes = SkidEffectModel.FLAME_TEXTURES;
+                bright = true;
+            } else if (entity.getDriftTimer() > AutomobileEntity.DRIFT_TURBO_TIME - 20) {
+                texes = SkidEffectModel.SPARK_TEXTURES;
+            }
+            int index = (int)((entity.world.getTime() / 2) % 3);
+            var skidEffectBuffer = vertexConsumers.getBuffer(bright ? RenderLayer.getEyes(texes[index]) : RenderLayer.getEntityTranslucent(texes[index]));
+
+            matrices.push();
+            matrices.translate((sLong / 2) + (wheelRadius / 16), wheelRadius / 16, -((sWide / 2) + (wheels.model().width() / 16)));
+            skidEffectModel.render(matrices, skidEffectBuffer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 0.6f);
+            matrices.pop();
+            matrices.push();
+            matrices.scale(1, 1, -1);
+            matrices.translate((sLong / 2) + (wheelRadius / 16), wheelRadius / 16, -((sWide / 2) + (wheels.model().width() / 16)));
+            skidEffectModel.render(matrices, skidEffectBuffer, light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 0.6f);
             matrices.pop();
         }
 

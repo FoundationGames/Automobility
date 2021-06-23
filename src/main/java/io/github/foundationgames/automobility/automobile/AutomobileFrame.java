@@ -26,7 +26,9 @@ public record AutomobileFrame(
                             StandardFrameModel::new,
                             26,
                             10,
-                            5
+                            5,
+                            20,
+                            20
                     )
             )
     );
@@ -41,6 +43,8 @@ public record AutomobileFrame(
             Function<EntityRendererFactory.Context, Model> model,
             float wheelSeparationLong,
             float wheelSeparationWide,
-            float seatHeight
+            float seatHeight,
+            float enginePosBack,
+            float enginePosUp
     ) {}
 }
