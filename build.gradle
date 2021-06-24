@@ -14,6 +14,7 @@ repositories {
 	maven { url = "https://maven.gegy.dev/" }
 	maven { url = "https://maven.terraformersmc.com/" }
 	maven { url = "https://aperlambda.github.io/maven" }
+	maven { url = "https://hephaestus.dev/release" }
 }
 
 dependencies {
@@ -27,6 +28,10 @@ dependencies {
 
 	// Drive c:arr: with controller
 	modApi "dev.lambdaurora:lambdacontrols:${project.lambdacontrols_version}"
+
+	// OBJ loader, wonder what this could be for ...
+	modImplementation "dev.monarkhes:myron:${project.myron_version}"
+	include "dev.monarkhes:myron:${project.myron_version}"
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.

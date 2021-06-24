@@ -83,6 +83,8 @@ public class AutomobileEntity extends Entity {
         inLeft = nbt.getBoolean("steeringLeft");
         inRight = nbt.getBoolean("steeringRight");
         inSpace = nbt.getBoolean("holdingDrift");
+
+        updateModels = true;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
+import io.github.foundationgames.automobility.automobile.render.frame.DaBabyFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.client.model.Model;
@@ -25,6 +26,22 @@ public record AutomobileFrame(
                             Automobility.id("textures/entity/automobile/frame/standard_blue.png"),
                             StandardFrameModel::new,
                             26,
+                            10,
+                            5,
+                            13,
+                            3
+                    )
+            )
+    );
+
+    public static final AutomobileFrame DABABY = REGISTRY.register(
+            new AutomobileFrame(
+                    Automobility.id("dababy"),
+                    0.5f,
+                    new FrameModel(
+                            Automobility.id("textures/entity/automobile/frame/dababy.png"),
+                            DaBabyFrameModel::new,
+                            35,
                             10,
                             5,
                             13,

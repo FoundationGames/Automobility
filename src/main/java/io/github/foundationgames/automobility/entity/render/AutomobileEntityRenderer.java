@@ -59,15 +59,15 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
         }
         var frameTexture = frame.model().texture();
         var engineTexture = engine.model().texture();
-        if (frameModel != null) frameModel.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(frameTexture)), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+        if (frameModel != null) frameModel.render(matrices, vertexConsumers.getBuffer(frameModel.getLayer(frameTexture)), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         float eBack = 13f / 16;
         float eUp = 3f / 16;
         matrices.translate(eBack, -eUp, 0);
         matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-90));
-        if (engineModel != null) engineModel.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(engineTexture)), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+        if (engineModel != null) engineModel.render(matrices, vertexConsumers.getBuffer(engineModel.getLayer(engineTexture)), light, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
         matrices.pop();
 
-        var wheelBuffer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(entity.getWheels().model().texture()));
+        var wheelBuffer = vertexConsumers.getBuffer(wheelModel.getLayer(entity.getWheels().model().texture()));
         float sLong = frame.model().wheelSeparationLong() / 16;
         float sWide = frame.model().wheelSeparationWide() / 16;
 
