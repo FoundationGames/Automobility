@@ -15,7 +15,7 @@ public class ClientPlayerEntityMixin {
     public Input input;
 
     @Inject(method = "tickRiding", at = @At("TAIL"))
-    public void setCarEntityInputs(CallbackInfo ci) {
+    public void automobility$setAutomobileInputs(CallbackInfo ci) {
         ClientPlayerEntity self = (ClientPlayerEntity)(Object)this;
         if (self.getVehicle() instanceof AutomobileEntity vehicle) {
             vehicle.provideClientInput(input.pressingForward, input.pressingBack, input.pressingLeft, input.pressingRight, input.jumping);

@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.entity;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.SkidEffectModel;
+import io.github.foundationgames.automobility.automobile.render.engine.IronEngineModel;
 import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.StandardWheelModel;
 import io.github.foundationgames.automobility.entity.render.AutomobileEntityRenderer;
@@ -32,6 +33,8 @@ public enum AutomobilityEntities {;
         EntityModelLayerRegistry.registerModelLayer(StandardFrameModel.MODEL_LAYER, StandardFrameModel::createModelData);
 
         EntityModelLayerRegistry.registerModelLayer(StandardWheelModel.MODEL_LAYER, StandardWheelModel::createModelData);
+
+        EntityModelLayerRegistry.registerModelLayer(IronEngineModel.MODEL_LAYER, IronEngineModel::createModelData);
 
         EntityModelLayerRegistry.registerModelLayer(SkidEffectModel.MODEL_LAYER, SkidEffectModel::createModelData);
     }

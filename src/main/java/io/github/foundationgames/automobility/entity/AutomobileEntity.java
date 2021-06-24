@@ -1,5 +1,6 @@
 package io.github.foundationgames.automobility.entity;
 
+import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.util.AUtils;
@@ -29,12 +30,14 @@ import org.jetbrains.annotations.Nullable;
 public class AutomobileEntity extends Entity {
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
     private AutomobileWheel wheels = AutomobileWheel.REGISTRY.getOrDefault(null);
+    private AutomobileEngine engine = AutomobileEngine.REGISTRY.getOrDefault(null);
 
     public static final int DRIFT_TURBO_TIME = 50;
 
     private float engineSpeed = 0;
     private float boostSpeed = 0;
     private float speedDirection = 0;
+    private float lastBoostSpeed = boostSpeed;
 
     private int boostTimer = 0;
     private float boostPower = 0;
@@ -56,12 +59,12 @@ public class AutomobileEntity extends Entity {
     private boolean drifting = false;
     private int driftDir = 0;
     private int driftTimer = 0;
-    private int lastDriftTimer = driftTimer;
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         frame = AutomobileFrame.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("frame")));
         wheels = AutomobileWheel.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("wheels")));
+        engine = AutomobileEngine.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("engine")));
         engineSpeed = nbt.getFloat("engineSpeed");
         boostSpeed = nbt.getFloat("boostSpeed");
         boostTimer = nbt.getInt("boostTimer");
@@ -86,6 +89,7 @@ public class AutomobileEntity extends Entity {
     public void writeCustomDataToNbt(NbtCompound nbt) {
         nbt.putString("frame", frame.getId().toString());
         nbt.putString("wheels", wheels.getId().toString());
+        nbt.putString("engine", engine.getId().toString());
         nbt.putFloat("engineSpeed", engineSpeed);
         nbt.putFloat("boostSpeed", boostSpeed);
         nbt.putFloat("speedDirection", speedDirection);
@@ -127,6 +131,10 @@ public class AutomobileEntity extends Entity {
         return wheels;
     }
 
+    public AutomobileEngine getEngine() {
+        return engine;
+    }
+
     public float getSteering(float tickDelta) {
         return MathHelper.lerp(tickDelta, lastSteering, steering);
     }
@@ -137,6 +145,10 @@ public class AutomobileEntity extends Entity {
 
     public float getVerticalTravelPitch(float tickDelta) {
         return MathHelper.lerp(tickDelta, lastVTravelPitch, verticalTravelPitch);
+    }
+
+    public float getBoostSpeed(float tickDelta) {
+        return MathHelper.lerp(tickDelta, lastBoostSpeed, boostSpeed);
     }
 
     public int getDriftTimer() {
@@ -186,9 +198,10 @@ public class AutomobileEntity extends Entity {
     // feast your eyes
     public void movementTick() {
         // Handles boosting
+        lastBoostSpeed = boostSpeed;
         if (boostTimer > 0) {
             boostTimer--;
-            boostSpeed = Math.min(boostPower, boostSpeed + 0.05f);
+            boostSpeed = Math.min(boostPower, boostSpeed + 0.09f);
         } else {
             boostSpeed = AUtils.zero(boostSpeed, 0.09f);
         }
@@ -232,8 +245,8 @@ public class AutomobileEntity extends Entity {
                     ) ? (this.hSpeed < 0.8 ? 0.001 : 0) // This will supply a small amount of acceleration if the automobile is moving slowly only
 
                     // Otherwise, it will receive acceleration as normal
-                    // It will receive this acceleration if the automobile is moving straight or wide-drifting
-                    : calculateAcceleration(speed, getWeight(), this.wheels.size(), 0.5f) * (drifting ? 0.69 : 1);
+                    // It will receive this acceleration if the automobile is moving straight or wide-drifting (the latter slightly reduces acceleration)
+                    : calculateAcceleration(speed, getWeight(), this.wheels.size(), 0.5f) * (drifting ? 0.86 : 1);
         }
         // Handle braking/reverse
         if (inBack) {
@@ -246,7 +259,7 @@ public class AutomobileEntity extends Entity {
 
         // Slow the automobile a bit while steering and moving fast
         if (!drifting && steering != 0 && hSpeed > 0.8) {
-            engineSpeed -= engineSpeed * 0.00016f;
+            engineSpeed -= engineSpeed * 0.00042f;
         }
 
         // Set the horizontal speed

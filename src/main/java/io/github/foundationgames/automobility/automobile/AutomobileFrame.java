@@ -27,8 +27,8 @@ public record AutomobileFrame(
                             26,
                             10,
                             5,
-                            20,
-                            20
+                            13,
+                            3
                     )
             )
     );

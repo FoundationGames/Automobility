@@ -33,4 +33,8 @@ public enum AUtils {;
     public static Vec3d v3dFromNbt(NbtCompound nbt) {
         return new Vec3d(nbt.getDouble("x"), nbt.getDouble("y"), nbt.getDouble("z"));
     }
+
+    public static float DELETE_THIS_MULTIPLIER() {
+        return 30;
+    }
 }
