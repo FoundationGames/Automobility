@@ -41,9 +41,9 @@ public record AutomobileFrame(
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/dababy.png"),
                             DaBabyFrameModel::new,
-                            35,
-                            10,
-                            5,
+                            40,
+                            8,
+                            22,
                             13,
                             3
                     )

@@ -13,9 +13,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3f;
 
 public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
-    private Model frameModel;
-    private Model wheelModel;
-    private Model engineModel;
     private final Model skidEffectModel;
 
     private final EntityRendererFactory.Context ctx;
@@ -50,10 +47,11 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
         matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(entity.getVerticalTravelPitch(tickDelta)));
         matrices.translate(0, -raise, 0);
 
+        var frameModel = entity.getFrameModel(ctx);
+        var wheelModel = entity.getWheelModel(ctx);
+        var engineModel = entity.getEngineModel(ctx);
+
         matrices.push();
-        if (entity.updateModels) {
-            updateModels(entity);
-        }
         if (entity.hasPassengers()) {
             matrices.translate(0, Math.cos((entity.world.getTime() + tickDelta) * 2.7) / 156, 0);
         }
@@ -148,12 +146,5 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
         // -----------------------------------------------
 
         matrices.pop();
-    }
-
-    private void updateModels(AutomobileEntity entity) {
-        frameModel = entity.getFrame().model().model().apply(this.ctx);
-        wheelModel = entity.getWheels().model().model().apply(this.ctx);
-        engineModel = entity.getEngine().model().model().apply(this.ctx);
-        entity.updateModels = false;
     }
 }

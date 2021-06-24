@@ -4,10 +4,13 @@ import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.util.AUtils;
+import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.SideShapeType;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
@@ -31,6 +34,13 @@ public class AutomobileEntity extends Entity {
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
     private AutomobileWheel wheels = AutomobileWheel.REGISTRY.getOrDefault(null);
     private AutomobileEngine engine = AutomobileEngine.REGISTRY.getOrDefault(null);
+
+    @Environment(EnvType.CLIENT)
+    private Model frameModel = null;
+    @Environment(EnvType.CLIENT)
+    private Model wheelModel = null;
+    @Environment(EnvType.CLIENT)
+    private Model engineModel = null;
 
     public static final int DRIFT_TURBO_TIME = 50;
 
@@ -59,6 +69,8 @@ public class AutomobileEntity extends Entity {
     private boolean drifting = false;
     private int driftDir = 0;
     private int driftTimer = 0;
+
+    private float lockedViewOffset = 0;
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
@@ -292,13 +304,36 @@ public class AutomobileEntity extends Entity {
             addedVelocity = addedVelocity.add(Math.sin(angle) * knockSpeed, 0, Math.cos(angle) * knockSpeed);
         }
 
+        // Handle setting the locked view offset
+        float vOTarget = (drifting ? driftDir * -20 : steering * -10);
+        if (vOTarget == 0) lockedViewOffset = AUtils.zero(lockedViewOffset, 2.5f);
+        else {
+            if (lockedViewOffset < vOTarget) lockedViewOffset = Math.min(lockedViewOffset + 2.5f, vOTarget);
+            else lockedViewOffset = Math.max(lockedViewOffset - 2.5f, vOTarget);
+        }
+
         // Turns the automobile based on steering/drifting
         if (hSpeed != 0) {
             float yawInc = drifting ? ((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir : this.steering * ((4 * Math.min(hSpeed, 1)) + (hSpeed > 0 ? 2 : -3.5f));
             this.setYaw(getYaw() + yawInc);
-            for (Entity e : getPassengerList()) {
-                e.setYaw(e.getYaw() + yawInc);
-                e.setBodyYaw(e.getYaw() + yawInc);
+            if (world.isClient) {
+                var passenger = getFirstPassenger();
+                if (passenger instanceof PlayerEntity player) {
+                    // Will later add a config option to let this view be accessible without a controller
+                    if (inLockedViewMode()) {
+                        player.setYaw(getYaw() + lockedViewOffset);
+                        player.setBodyYaw(getYaw() + lockedViewOffset);
+                    } else {
+                        player.setYaw(player.getYaw() + yawInc);
+                        player.setBodyYaw(player.getYaw() + yawInc);
+                    }
+                }
+            } else {
+                for (Entity e : getPassengerList()) {
+                    if (e == getFirstPassenger()) continue;
+                    e.setYaw(e.getYaw() + yawInc);
+                    e.setBodyYaw(e.getYaw() + yawInc);
+                }
             }
         }
 
@@ -393,6 +428,38 @@ public class AutomobileEntity extends Entity {
                 steering = 0;
             }
         }
+    }
+
+    private static boolean inLockedViewMode() {
+        return ControllerUtils.inControllerMode();
+    }
+
+    @Environment(EnvType.CLIENT)
+    private void updateModels(EntityRendererFactory.Context ctx) {
+        if (updateModels) {
+            frameModel = frame.model().model().apply(ctx);
+            wheelModel = wheels.model().model().apply(ctx);
+            engineModel = engine.model().model().apply(ctx);
+            updateModels = false;
+        }
+    }
+
+    @Environment(EnvType.CLIENT)
+    public Model getWheelModel(EntityRendererFactory.Context ctx) {
+        updateModels(ctx);
+        return wheelModel;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public Model getFrameModel(EntityRendererFactory.Context ctx) {
+        updateModels(ctx);
+        return frameModel;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public Model getEngineModel(EntityRendererFactory.Context ctx) {
+        updateModels(ctx);
+        return engineModel;
     }
 
     @Nullable

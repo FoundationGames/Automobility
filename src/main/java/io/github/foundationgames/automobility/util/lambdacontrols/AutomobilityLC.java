@@ -10,32 +10,35 @@ import dev.lambdaurora.lambdacontrols.client.controller.InputManager;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.client.MinecraftClient;
-
-// WHAT
 import org.aperlambda.lambdacommon.Identifier;
-// WHY
-
 import org.aperlambda.lambdacommon.utils.function.PairPredicate;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
+
+// WHAT
+// WHY
 
 /*
  * Don't access this class directly in other packages, it will likely throw a fit if LambdaControls isn't loaded
  */
 public class AutomobilityLC implements CompatHandler {
-    private static final PairPredicate<MinecraftClient, ButtonBinding> ON_AUTOMOBILE = (client, button) -> client.player != null && client.player.getVehicle() instanceof AutomobileEntity;
+    public static final PairPredicate<MinecraftClient, ButtonBinding> ON_AUTOMOBILE = (client, button) -> client.player != null && client.player.getVehicle() instanceof AutomobileEntity;
 
-    public static final ButtonBinding ACCELERATE = new ButtonBinding.Builder(Automobility.id("accelerate_automobile"))
-            .buttons(GLFW_GAMEPAD_BUTTON_A).filter(ON_AUTOMOBILE).register();
+    public static final Set<ButtonBinding> AUTOMOBILITY_BINDINGS = new HashSet<>();
 
-    public static final ButtonBinding BRAKE = new ButtonBinding.Builder(Automobility.id("brake_automobile"))
-            .buttons(GLFW_GAMEPAD_BUTTON_B).filter(ON_AUTOMOBILE).register();
+    public static final ButtonBinding ACCELERATE = binding(new ButtonBinding.Builder(Automobility.id("accelerate_automobile"))
+            .buttons(GLFW_GAMEPAD_BUTTON_A).filter(ON_AUTOMOBILE).register());
 
-    public static final ButtonBinding DRIFT = new ButtonBinding.Builder(Automobility.id("drift_automobile"))
-            .buttons(ButtonBinding.axisAsButton(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, true)).filter(ON_AUTOMOBILE).register();
+    public static final ButtonBinding BRAKE = binding(new ButtonBinding.Builder(Automobility.id("brake_automobile"))
+            .buttons(GLFW_GAMEPAD_BUTTON_B).filter(ON_AUTOMOBILE).register());
+
+    public static final ButtonBinding DRIFT = binding(new ButtonBinding.Builder(Automobility.id("drift_automobile"))
+            .buttons(ButtonBinding.axisAsButton(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, true)).filter(ON_AUTOMOBILE).register());
 
     //                                                                                       There is 1 impostor among us
     public static final ButtonCategory AUTOMOBILITY_CATEGORY = InputManager.registerCategory(new Identifier(Automobility.MOD_ID, "automobility"));
@@ -50,5 +53,10 @@ public class AutomobilityLC implements CompatHandler {
     public void handle(@NotNull LambdaControlsClient mod) {
         AUTOMOBILITY_CATEGORY.registerAllBindings(ACCELERATE, BRAKE, DRIFT);
         IN_CONTROLLER_MODE = () -> mod.config.getControlsMode() == ControlsMode.CONTROLLER;
+    }
+
+    private static ButtonBinding binding(ButtonBinding binding) {
+        AUTOMOBILITY_BINDINGS.add(binding);
+        return binding;
     }
 }

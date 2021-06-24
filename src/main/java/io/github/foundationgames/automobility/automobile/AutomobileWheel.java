@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.EmptyModel;
+import io.github.foundationgames.automobility.automobile.render.wheel.ConvertibleWheelModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.StandardWheelModel;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.client.model.Model;
@@ -35,6 +36,10 @@ public record AutomobileWheel(
 
     public static final AutomobileWheel INFLATABLE = REGISTRY.register(
             new AutomobileWheel(Automobility.id("inflatable"), 0.75f, new WheelModel(4, 4, TEMP_ID, EmptyModel::new), Ability.HYDROPLANE)
+    );
+
+    public static final AutomobileWheel CONVERTIBLE = REGISTRY.register(
+            new AutomobileWheel(Automobility.id("convertible"), 0.75f, new WheelModel(6f, 4.1f, TEMP_ID, ConvertibleWheelModel::new))
     );
 
     @Override
