@@ -131,7 +131,7 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
             } else if (entity.getDriftTimer() > AutomobileEntity.DRIFT_TURBO_TIME - 20) {
                 texes = SkidEffectModel.SPARK_TEXTURES;
             }
-            int index = (int)Math.floor(((entity.world.getTime() + tickDelta) / 1.5f) % 3);
+            int index = (int)Math.floor(((entity.world.getTime() + tickDelta) / 1.5f) % texes.length);
             var skidEffectBuffer = vertexConsumers.getBuffer(bright ? RenderLayer.getEyes(texes[index]) : RenderLayer.getEntityTranslucent(texes[index]));
 
             matrices.push();

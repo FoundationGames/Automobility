@@ -1,6 +1,7 @@
 package io.github.foundationgames.automobility.mixin;
 
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +19,23 @@ public class ClientPlayerEntityMixin {
     public void automobility$setAutomobileInputs(CallbackInfo ci) {
         ClientPlayerEntity self = (ClientPlayerEntity)(Object)this;
         if (self.getVehicle() instanceof AutomobileEntity vehicle) {
-            vehicle.provideClientInput(input.pressingForward, input.pressingBack, input.pressingLeft, input.pressingRight, input.jumping);
+            if (ControllerUtils.inControllerMode()) {
+                vehicle.provideClientInput(
+                        ControllerUtils.accelerating(),
+                        ControllerUtils.braking(),
+                        input.pressingLeft,
+                        input.pressingRight,
+                        ControllerUtils.drifting()
+                );
+            } else {
+                vehicle.provideClientInput(
+                        input.pressingForward,
+                        input.pressingBack,
+                        input.pressingLeft,
+                        input.pressingRight,
+                        input.jumping
+                );
+            }
         }
     }
 }
