@@ -19,7 +19,11 @@ public record AutomobileEngine(
 
     public static final AutomobileEngine IRON = REGISTRY.register(
             new AutomobileEngine(Automobility.id("iron"), 0.5f,
-                    new EngineModel(Automobility.id("textures/entity/automobile/engine/iron.png"), IronEngineModel::new)
+                    new EngineModel(
+                            Automobility.id("textures/entity/automobile/engine/iron.png"), IronEngineModel::new,
+                            new AutomobileEngine.ExhaustPos(-3.5f, 5.4f, -8f, 26, 0),
+                            new AutomobileEngine.ExhaustPos(3.5f, 5.4f, -8f, 26, 0)
+                    )
             )
     );
 
