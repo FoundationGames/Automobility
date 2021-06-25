@@ -39,7 +39,7 @@ public record AutomobileWheel(
     );
 
     public static final AutomobileWheel CONVERTIBLE = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("convertible"), 0.75f, new WheelModel(6f, 4.1f, TEMP_ID, ConvertibleWheelModel::new))
+            new AutomobileWheel(Automobility.id("convertible"), 0.75f, new WheelModel(5.2f, 4.1f, TEMP_ID, ConvertibleWheelModel::new))
     );
 
     @Override

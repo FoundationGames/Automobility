@@ -24,8 +24,8 @@ public class ConvertibleWheelModel extends Model {
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         if (model == null) return;
         matrices.push();
-        matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(180));
-        matrices.translate(1.35, -1.12, -0.46);
+        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
+        matrices.translate(0, -1.5, 0);
         AUtils.renderMyronObj(model, vertices, matrices, light, overlay);
         matrices.pop();
     }
