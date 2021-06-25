@@ -1,6 +1,6 @@
 package io.github.foundationgames.automobility.automobile.render.frame;
 
-import dev.monarkhēs.myron.api.Myron;
+import dev.monarkhes.myron.api.Myron;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.util.AUtils;
 import net.minecraft.client.model.Model;

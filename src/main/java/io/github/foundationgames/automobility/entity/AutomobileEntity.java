@@ -305,11 +305,13 @@ public class AutomobileEntity extends Entity {
         }
 
         // Handle setting the locked view offset
-        float vOTarget = (drifting ? driftDir * -20 : steering * -10);
-        if (vOTarget == 0) lockedViewOffset = AUtils.zero(lockedViewOffset, 2.5f);
-        else {
-            if (lockedViewOffset < vOTarget) lockedViewOffset = Math.min(lockedViewOffset + 2.5f, vOTarget);
-            else lockedViewOffset = Math.max(lockedViewOffset - 2.5f, vOTarget);
+        if (hSpeed != 0) {
+            float vOTarget = (drifting ? driftDir * -23 : steering * -5.6f);
+            if (vOTarget == 0) lockedViewOffset = AUtils.zero(lockedViewOffset, 2.5f);
+            else {
+                if (lockedViewOffset < vOTarget) lockedViewOffset = Math.min(lockedViewOffset + 2.5f, vOTarget);
+                else lockedViewOffset = Math.max(lockedViewOffset - 2.5f, vOTarget);
+            }
         }
 
         // Turns the automobile based on steering/drifting
