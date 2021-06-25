@@ -6,9 +6,10 @@
   "mixins": [
   ],
   "client": [
-    "lambdacontrols.InputHandlersMixin",
     "ClientPlayerEntityMixin",
-    "GameRendererMixin"
+    "EntityRenderersMixin",
+    "GameRendererMixin",
+    "lambdacontrols.InputHandlersMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -18,21 +18,22 @@ public record AutomobileFrame(
 
     public static final SimpleMapContentRegistry<AutomobileFrame> REGISTRY = new SimpleMapContentRegistry<>();
 
-    public static final AutomobileFrame STANDARD_BLUE = REGISTRY.register(
-            new AutomobileFrame(
-                    Automobility.id("standard_blue"),
-                    0.5f,
-                    new FrameModel(
-                            Automobility.id("textures/entity/automobile/frame/standard_blue.png"),
-                            StandardFrameModel::new,
-                            26,
-                            10,
-                            5,
-                            13,
-                            3
-                    )
-            )
-    );
+    public static final AutomobileFrame STANDARD_WHITE = REGISTRY.register(standard("white"));
+    public static final AutomobileFrame STANDARD_ORANGE = REGISTRY.register(standard("orange"));
+    public static final AutomobileFrame STANDARD_MAGENTA = REGISTRY.register(standard("magenta"));
+    public static final AutomobileFrame STANDARD_LIGHT_BLUE = REGISTRY.register(standard("light_blue"));
+    public static final AutomobileFrame STANDARD_YELLOW = REGISTRY.register(standard("yellow"));
+    public static final AutomobileFrame STANDARD_LIME = REGISTRY.register(standard("lime"));
+    public static final AutomobileFrame STANDARD_PINK = REGISTRY.register(standard("pink"));
+    public static final AutomobileFrame STANDARD_GRAY = REGISTRY.register(standard("gray"));
+    public static final AutomobileFrame STANDARD_LIGHT_GRAY = REGISTRY.register(standard("light_gray"));
+    public static final AutomobileFrame STANDARD_CYAN = REGISTRY.register(standard("cyan"));
+    public static final AutomobileFrame STANDARD_PURPLE = REGISTRY.register(standard("purple"));
+    public static final AutomobileFrame STANDARD_BLUE = REGISTRY.register(standard("blue"));
+    public static final AutomobileFrame STANDARD_BROWN = REGISTRY.register(standard("brown"));
+    public static final AutomobileFrame STANDARD_GREEN = REGISTRY.register(standard("green"));
+    public static final AutomobileFrame STANDARD_RED = REGISTRY.register(standard("red"));
+    public static final AutomobileFrame STANDARD_BLACK = REGISTRY.register(standard("black"));
 
     public static final AutomobileFrame DABABY = REGISTRY.register(
             new AutomobileFrame(
@@ -49,6 +50,22 @@ public record AutomobileFrame(
                     )
             )
     );
+
+    private static AutomobileFrame standard(String color) {
+        return new AutomobileFrame(
+                Automobility.id("standard_"+color),
+                0.5f,
+                new FrameModel(
+                        Automobility.id("textures/entity/automobile/frame/standard_"+color+".png"),
+                        StandardFrameModel::new,
+                        26,
+                        10,
+                        5,
+                        13,
+                        3
+                )
+        );
+    }
 
     @Override
     public Identifier getId() {

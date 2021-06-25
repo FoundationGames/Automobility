@@ -3,6 +3,7 @@ package io.github.foundationgames.automobility.entity;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
+import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
@@ -30,7 +31,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class AutomobileEntity extends Entity {
+public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
     private AutomobileWheel wheels = AutomobileWheel.REGISTRY.getOrDefault(null);
     private AutomobileEngine engine = AutomobileEngine.REGISTRY.getOrDefault(null);
@@ -169,6 +170,11 @@ public class AutomobileEntity extends Entity {
         return drifting ? driftTimer : 0;
     }
 
+    @Override
+    public long getWorldTime() {
+        return world.getTime();
+    }
+
     public float getWeight() {
         return this.frame.weight();
     }
@@ -183,6 +189,13 @@ public class AutomobileEntity extends Entity {
 
     public int getBoostTimer() {
         return boostTimer;
+    }
+
+    public void setComponents(AutomobileFrame frame, AutomobileWheel wheel, AutomobileEngine engine) {
+        this.frame = frame;
+        this.wheels = wheel;
+        this.engine = engine;
+        this.updateModels = true;
     }
 
     @Override
@@ -309,8 +322,8 @@ public class AutomobileEntity extends Entity {
             float vOTarget = (drifting ? driftDir * -23 : steering * -5.6f);
             if (vOTarget == 0) lockedViewOffset = AUtils.zero(lockedViewOffset, 2.5f);
             else {
-                if (lockedViewOffset < vOTarget) lockedViewOffset = Math.min(lockedViewOffset + 2.5f, vOTarget);
-                else lockedViewOffset = Math.max(lockedViewOffset - 2.5f, vOTarget);
+                if (lockedViewOffset < vOTarget) lockedViewOffset = Math.min(lockedViewOffset + 3.7f, vOTarget);
+                else lockedViewOffset = Math.max(lockedViewOffset - 3.7f, vOTarget);
             }
         }
 

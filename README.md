@@ -16,7 +16,7 @@ There are no official releases yet. <br/>
 **Option A:** Clone the repository and run the game in the dev environment. <br/>
 **Option B:** Download a GitHub Actions artifact from this repository, and use the jar not suffixed with `dev` or `sources`. <br/>
 <br/>
-To get an automobile in game, summon one in with `/summon automobility:automobile.` You will need to edit its NBT to change the frame or wheels. <br/>
+To get an automobile in game, summon one in with `/summon automobility:automobile`. You will need to edit its NBT to change the frame or wheels. <br/>
 <br/>
 **Driving with Keyboard/Mouse:**
 - W - Accelerate
