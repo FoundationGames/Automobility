@@ -3,9 +3,10 @@ A Minecraft vehicle mod adding customizable cars. <br/><br/>
 Made for ModFest 1.17
 
 ### Screenshots
-![Standard Car](./md/standard_car.png) <br/>
+![Standard Cars](./md/standard.png) <br/>
 ![Drifting](./md/drifting.png) <br/>
 ![Turbo](./md/turbo.png) <br/>
+![c:arr:](./md/carr.png) <br/>
 ![DaBaby](./md/dababy.png) <br/>
 
 ### Try it out!
