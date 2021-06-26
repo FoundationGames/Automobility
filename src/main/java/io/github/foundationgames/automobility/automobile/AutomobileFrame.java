@@ -1,6 +1,7 @@
 package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
+import io.github.foundationgames.automobility.automobile.render.frame.CARRFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.DaBabyFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
@@ -34,6 +35,22 @@ public record AutomobileFrame(
     public static final AutomobileFrame STANDARD_GREEN = REGISTRY.register(standard("green"));
     public static final AutomobileFrame STANDARD_RED = REGISTRY.register(standard("red"));
     public static final AutomobileFrame STANDARD_BLACK = REGISTRY.register(standard("black"));
+
+    public static final AutomobileFrame C_ARR = REGISTRY.register(
+            new AutomobileFrame(
+                    Automobility.id("c_arr"),
+                    0.5f,
+                    new FrameModel(
+                            Automobility.id("textures/entity/automobile/frame/c_arr.png"),
+                            CARRFrameModel::new,
+                            44.5f,
+                            16,
+                            6f,
+                            19.5f,
+                            10.5f
+                    )
+            )
+    );
 
     public static final AutomobileFrame DABABY = REGISTRY.register(
             new AutomobileFrame(

@@ -4,6 +4,7 @@ import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.ExhaustFumesModel;
 import io.github.foundationgames.automobility.automobile.render.SkidEffectModel;
 import io.github.foundationgames.automobility.automobile.render.engine.IronEngineModel;
+import io.github.foundationgames.automobility.automobile.render.frame.CARRFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.StandardWheelModel;
 import io.github.foundationgames.automobility.entity.render.AutomobileEntityRenderer;
@@ -32,6 +33,7 @@ public enum AutomobilityEntities {;
         EntityRendererRegistry.INSTANCE.register(AUTOMOBILE, AutomobileEntityRenderer::new);
 
         EntityModelLayerRegistry.registerModelLayer(StandardFrameModel.MODEL_LAYER, StandardFrameModel::createModelData);
+        EntityModelLayerRegistry.registerModelLayer(CARRFrameModel.MODEL_LAYER, CARRFrameModel::createModelData);
 
         EntityModelLayerRegistry.registerModelLayer(StandardWheelModel.MODEL_LAYER, StandardWheelModel::createModelData);
 

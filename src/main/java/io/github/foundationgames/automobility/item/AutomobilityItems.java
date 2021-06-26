@@ -35,6 +35,7 @@ public enum AutomobilityItems {;
                 new AutomobilePrefab(Automobility.id("standard_green"), AutomobileFrame.STANDARD_GREEN, AutomobileWheel.STANDARD, AutomobileEngine.IRON),
                 new AutomobilePrefab(Automobility.id("standard_red"), AutomobileFrame.STANDARD_RED, AutomobileWheel.STANDARD, AutomobileEngine.IRON),
                 new AutomobilePrefab(Automobility.id("standard_black"), AutomobileFrame.STANDARD_BLACK, AutomobileWheel.STANDARD, AutomobileEngine.IRON),
+                new AutomobilePrefab(Automobility.id("c_arr"), AutomobileFrame.C_ARR, AutomobileWheel.CONVERTIBLE, AutomobileEngine.IRON),
                 new AutomobilePrefab(Automobility.id("dababy"), AutomobileFrame.DABABY, AutomobileWheel.CONVERTIBLE, AutomobileEngine.IRON)
         );
     }
