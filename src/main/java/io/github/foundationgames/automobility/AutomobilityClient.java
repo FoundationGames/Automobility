@@ -4,6 +4,7 @@ import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.entity.AutomobilityEntities;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
+import io.github.foundationgames.automobility.resource.AutomobilityAssets;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.ClientModInitializer;
@@ -19,6 +20,8 @@ public class AutomobilityClient implements ClientModInitializer {
         AutomobilityItems.initClient();
         AutomobilityEntities.initClient();
         PayloadPackets.initClient();
+
+        AutomobilityAssets.setup();
 
         HudRenderCallback.EVENT.register((matrices, delta) -> {
             var player = MinecraftClient.getInstance().player;

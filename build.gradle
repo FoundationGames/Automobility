@@ -15,6 +15,7 @@ repositories {
 	maven { url = "https://maven.terraformersmc.com/" }
 	maven { url = "https://aperlambda.github.io/maven" }
 	maven { url = "https://hephaestus.dev/release" }
+	maven { url = "https://storage.googleapis.com/devan-maven/" }
 }
 
 dependencies {
@@ -32,6 +33,9 @@ dependencies {
 	// OBJ loader, wonder what this could be for ...
 	modImplementation "dev.monarkhes:myron:${project.myron_version}"
 	include "dev.monarkhes:myron:${project.myron_version}"
+
+	// Screw json
+	modImplementation "net.devtech:arrp:${project.arrp_version}"
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.

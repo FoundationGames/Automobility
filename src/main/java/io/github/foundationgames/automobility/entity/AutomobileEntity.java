@@ -216,10 +216,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         if (!world.isClient()) {
             for (PlayerEntity p : world.getPlayers()) {
                 if (p != getFirstPassenger() && p.getPos().distanceTo(getPos()) < 100 && p instanceof ServerPlayerEntity player) {
-                    PayloadPackets.sendSyncAutomobileDataPacket(this, player);
+                    sync(player);
                 }
             }
         }
+    }
+
+    private void sync(ServerPlayerEntity player) {
+        PayloadPackets.sendSyncAutomobileDataPacket(this, player);
     }
 
     // feast your eyes
@@ -401,6 +405,12 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         this.inSpace = space;
     }
 
+    public void boost(float power, int time) {
+        boostTimer = time;
+        boostPower = power;
+
+    }
+
     private void steeringTick() {
         // Adjust the steering based on the left/right inputs
         this.lastSteering = steering;
@@ -434,8 +444,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 drifting = false;
                 steering = 0;
                 if (driftTimer > DRIFT_TURBO_TIME) {
-                    boostTimer = 40;
-                    boostPower = 0.38f;
+                    boost(0.38f, 32);
                 }
             // Ending a drift unsuccessfully, not giving you a boost
             } else if (hSpeed < 0.33f) {
