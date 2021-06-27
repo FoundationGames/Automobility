@@ -13,6 +13,8 @@ import net.minecraft.util.registry.Registry;
 
 public enum AutomobilityBlocks {;
     public static final Block DASH_PANEL = register("dash_panel", new DashPanelBlock(FabricBlockSettings.copyOf(Blocks.IRON_BLOCK).luminance(1).emissiveLighting((state, world, pos) -> true).noCollision()), ItemGroup.TRANSPORTATION);
+    public static final Block STEEP_STONE_SLOPE = register("steep_stone_slope", new SteepSlopeBlock(FabricBlockSettings.copyOf(Blocks.STONE)), ItemGroup.TRANSPORTATION);
+    public static final Block STEEP_COBBLESTONE_SLOPE = register("steep_cobblestone_slope", new SteepSlopeBlock(FabricBlockSettings.copyOf(Blocks.COBBLESTONE)), ItemGroup.TRANSPORTATION);
 
     public static void init() {
     }

@@ -15,6 +15,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.util.registry.Registry;
 
 public enum AutomobilityItems {;
+    public static final Item CROWBAR = register("crowbar", new Item(new Item.Settings().group(ItemGroup.TRANSPORTATION)));
     public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Settings().group(ItemGroup.TRANSPORTATION)));
 
     public static void init() {

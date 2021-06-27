@@ -142,7 +142,7 @@ public enum AutomobileRenderer {;
         }
 
         // Skid effects
-        if (automobile.getDriftTimer() > 0) {
+        if (automobile.getDriftTimer() > 0 && automobile.automobileOnGround()) {
             var skidTexes = SkidEffectModel.SMOKE_TEXTURES;
             boolean bright = false;
             if (automobile.getDriftTimer() > AutomobileEntity.DRIFT_TURBO_TIME) {

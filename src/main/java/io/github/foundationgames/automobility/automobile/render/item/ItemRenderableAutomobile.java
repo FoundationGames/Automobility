@@ -82,4 +82,9 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     public long getWorldTime() {
         return 0;
     }
+
+    @Override
+    public boolean automobileOnGround() {
+        return true;
+    }
 }

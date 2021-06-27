@@ -1,5 +1,4 @@
 {
-	"credit": "Made with Blockbench",
 	"parent": "minecraft:block/thin_block",
 	"ambientocclusion": false,
 	"textures": {

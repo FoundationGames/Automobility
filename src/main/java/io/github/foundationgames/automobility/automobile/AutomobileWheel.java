@@ -23,7 +23,7 @@ public record AutomobileWheel(
     private static final Identifier TEMP_ID = Automobility.id("temp");
 
     public static final AutomobileWheel STANDARD = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("standard"), 0.5f, new WheelModel(3, 3, Automobility.id("textures/entity/automobile/wheel/standard.png"), StandardWheelModel::new))
+            new AutomobileWheel(Automobility.id("standard"), 0.6f, new WheelModel(3, 3, Automobility.id("textures/entity/automobile/wheel/standard.png"), StandardWheelModel::new))
     );
 
     public static final AutomobileWheel OFF_ROAD = REGISTRY.register(
@@ -31,7 +31,7 @@ public record AutomobileWheel(
     );
 
     public static final AutomobileWheel STEEL = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("steel"), 0.25f, new WheelModel(1.5f, 3, TEMP_ID, EmptyModel::new))
+            new AutomobileWheel(Automobility.id("steel"), 0.55f, new WheelModel(1.5f, 3, TEMP_ID, EmptyModel::new))
     );
 
     public static final AutomobileWheel INFLATABLE = REGISTRY.register(

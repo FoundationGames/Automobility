@@ -25,4 +25,6 @@ public interface RenderableAutomobile {
     int getDriftTimer();
 
     long getWorldTime();
+
+    boolean automobileOnGround();
 }
