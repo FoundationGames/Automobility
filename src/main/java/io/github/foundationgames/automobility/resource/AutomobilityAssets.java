@@ -8,8 +8,13 @@ import net.devtech.arrp.json.blockstate.JState;
 import net.devtech.arrp.json.models.JModel;
 import net.minecraft.util.math.Direction;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
+
 public enum AutomobilityAssets {;
     public static final RuntimeResourcePack PACK = RuntimeResourcePack.create("automobility_assets");
+    private static final Set<Consumer<RuntimeResourcePack>> PROCESSORS = new HashSet<>();
 
     public static void setup() {
         var dashPanel = JState.variant();
@@ -20,6 +25,10 @@ public enum AutomobilityAssets {;
             dashPanel.put("left=true,right=true,facing="+ dir, JState.model(Automobility.id("block/dash_panel_center")).y((int)dir.asRotation() + 180));
         }
         PACK.addBlockState(new JState().add(dashPanel), Automobility.id("dash_panel"));
+
+        for (var p : PROCESSORS) {
+            p.accept(PACK);
+        }
 
         addSlope("stone_slope", "minecraft:block/stone");
         addSlope("cobblestone_slope", "minecraft:block/cobblestone");
@@ -39,5 +48,9 @@ public enum AutomobilityAssets {;
             PACK.addBlockState(new JState().add(variants), Automobility.id(name));
             PACK.addModel(new JModel().parent("automobility:"+path), Automobility.id("item/"+name));
         }
+    }
+
+    public static void addProcessor(Consumer<RuntimeResourcePack> processor) {
+        PROCESSORS.add(processor);
     }
 }

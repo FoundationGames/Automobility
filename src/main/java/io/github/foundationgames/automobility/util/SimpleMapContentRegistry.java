@@ -30,7 +30,7 @@ public class SimpleMapContentRegistry<V extends SimpleMapContentRegistry.Identif
         return entries.getOrDefault(name, entries.get(orderedKeys.get(0)));
     }
 
-    public void iterateEntries(Consumer<V> action) {
+    public void forEach(Consumer<V> action) {
         orderedKeys.forEach(k -> action.accept(entries.get(k)));
     }
 

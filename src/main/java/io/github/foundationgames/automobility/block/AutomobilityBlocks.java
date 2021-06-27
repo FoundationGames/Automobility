@@ -1,6 +1,8 @@
 package io.github.foundationgames.automobility.block;
 
 import io.github.foundationgames.automobility.Automobility;
+import io.github.foundationgames.automobility.item.SteepSlopeBlockItem;
+import io.github.foundationgames.automobility.resource.AutomobilityAssets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -12,11 +14,10 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.util.registry.Registry;
 
 public enum AutomobilityBlocks {;
-    public static final Block DASH_PANEL = register("dash_panel", new DashPanelBlock(FabricBlockSettings.copyOf(Blocks.IRON_BLOCK).luminance(1).emissiveLighting((state, world, pos) -> true).noCollision()), ItemGroup.TRANSPORTATION);
-    public static final Block STEEP_STONE_SLOPE = register("steep_stone_slope", new SteepSlopeBlock(FabricBlockSettings.copyOf(Blocks.STONE)), ItemGroup.TRANSPORTATION);
-    public static final Block STEEP_COBBLESTONE_SLOPE = register("steep_cobblestone_slope", new SteepSlopeBlock(FabricBlockSettings.copyOf(Blocks.COBBLESTONE)), ItemGroup.TRANSPORTATION);
+    public static final Block DASH_PANEL = register("dash_panel", new DashPanelBlock(FabricBlockSettings.copyOf(Blocks.IRON_BLOCK).luminance(1).emissiveLighting((state, world, pos) -> true).noCollision()), Automobility.GROUP);
 
     public static void init() {
+        registerSlopes("minecraft");
     }
 
     @Environment(EnvType.CLIENT)
@@ -30,5 +31,22 @@ public enum AutomobilityBlocks {;
     public static Block register(String name, Block block, ItemGroup group) {
         Registry.register(Registry.ITEM, Automobility.id(name), new BlockItem(block, new Item.Settings().group(group)));
         return register(name, block);
+    }
+
+    public static void registerSlopes(String namespace) {
+        for (var base : Registry.BLOCK) {
+            if (base.getClass().equals(Block.class)) {
+                var id = Registry.BLOCK.getId(base);
+                if (id.getNamespace().equals(namespace)) {
+                    var path = id.getPath()+"_slope";
+                    var steepPath = "steep_"+path;
+                    {
+                        var block = register(steepPath, new SteepSlopeBlock(FabricBlockSettings.copyOf(base)));
+                        Registry.register(Registry.ITEM, Automobility.id(steepPath), new SteepSlopeBlockItem(block, new Item.Settings().group(Automobility.GROUP)));
+                        AutomobilityAssets.addProcessor(pack -> AutomobilityAssets.addSlope(path, namespace+":block/"+id.getPath()));
+                    }
+                }
+            }
+        }
     }
 }

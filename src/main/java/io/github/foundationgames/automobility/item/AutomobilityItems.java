@@ -11,12 +11,11 @@ import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.util.registry.Registry;
 
 public enum AutomobilityItems {;
-    public static final Item CROWBAR = register("crowbar", new Item(new Item.Settings().group(ItemGroup.TRANSPORTATION)));
-    public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Settings().group(ItemGroup.TRANSPORTATION)));
+    public static final Item CROWBAR = register("crowbar", new Item(new Item.Settings().group(Automobility.GROUP)));
+    public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Settings().group(Automobility.PREFABS)));
 
     public static void init() {
         AutomobileItem.addPrefabs(
@@ -36,7 +35,7 @@ public enum AutomobilityItems {;
                 new AutomobilePrefab(Automobility.id("standard_green"), AutomobileFrame.STANDARD_GREEN, AutomobileWheel.STANDARD, AutomobileEngine.IRON),
                 new AutomobilePrefab(Automobility.id("standard_red"), AutomobileFrame.STANDARD_RED, AutomobileWheel.STANDARD, AutomobileEngine.IRON),
                 new AutomobilePrefab(Automobility.id("standard_black"), AutomobileFrame.STANDARD_BLACK, AutomobileWheel.STANDARD, AutomobileEngine.IRON),
-                new AutomobilePrefab(Automobility.id("c_arr"), AutomobileFrame.C_ARR, AutomobileWheel.CONVERTIBLE, AutomobileEngine.IRON),
+                new AutomobilePrefab(Automobility.id("c_arr"), AutomobileFrame.C_ARR, AutomobileWheel.CONVERTIBLE, AutomobileEngine.COPPER),
                 new AutomobilePrefab(Automobility.id("dababy"), AutomobileFrame.DABABY, AutomobileWheel.CONVERTIBLE, AutomobileEngine.IRON)
         );
     }

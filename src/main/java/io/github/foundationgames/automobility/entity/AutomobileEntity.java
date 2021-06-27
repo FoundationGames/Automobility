@@ -4,7 +4,7 @@ import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
-import io.github.foundationgames.automobility.block.SlopedBlock;
+import io.github.foundationgames.automobility.block.Sloped;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
@@ -82,6 +82,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     private boolean automobileOnGround = true;
     private boolean wasOnGround = automobileOnGround;
+
+    private int slopeStickingTimer = 0;
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
@@ -331,6 +333,19 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         // Turn the wheels
         wheelAngle += hSpeed * 100f;
 
+        // Allows for the sticky slope effect to continue for a few ticks after not being on a slope
+        // This prevents the automobile from randomly jumping if it's moving down a slope quickly
+        var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.51), Math.floor(getZ()));
+        var state = world.getBlockState(below);
+        if (state.getBlock() instanceof Sloped slope && slope.isSticky()) {
+            slopeStickingTimer = Math.min(slopeStickingTimer + 1, ((int)hSpeed * 5) + 3);
+        } else {
+            slopeStickingTimer = Math.max(0, slopeStickingTimer--);
+        }
+
+        // Handle sticky slope effect
+        cumulative.add(0, -3, 0);
+
         // Move the automobile by the cumulative vector
         this.move(MovementType.SELF, cumulative);
 
@@ -386,7 +401,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
         // Adjusts the pitch of the automobile when falling onto a block/climbing up a block
         lastVTravelPitch = verticalTravelPitch;
-        var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.01), Math.floor(getZ()));
+        below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.01), Math.floor(getZ()));
         var moreBelow = new BlockPos(Math.floor(getX()), Math.floor(getY() - 1.01), Math.floor(getZ()));
         if (
                 hSpeed != 0 &&
@@ -405,9 +420,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     public void tickClient() {
         lastGroundSlopeX = groundSlopeX;
         lastGroundSlopeZ = groundSlopeZ;
-        var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.6), Math.floor(getZ()));
+        var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.51), Math.floor(getZ()));
         var state = world.getBlockState(below);
-        if (state.getBlock() instanceof SlopedBlock slope) {
+        if (state.getBlock() instanceof Sloped slope) {
             groundSlopeX = AUtils.shift(groundSlopeX, 15, slope.getGroundSlopeX(world, state, below));
             groundSlopeZ = AUtils.shift(groundSlopeZ, 15, slope.getGroundSlopeZ(world, state, below));
         } else {
@@ -546,6 +561,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     @Override
     public double getMountedHeightOffset() {
         return (wheels.model().radius() + frame.model().seatHeight() - 4) / 16;
+    }
+
+    @Override
+    public void updatePassengerPosition(Entity passenger) {
+        super.updatePassengerPosition(passenger);
     }
 
     @Override

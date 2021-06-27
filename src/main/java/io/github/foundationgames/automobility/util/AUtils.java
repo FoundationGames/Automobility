@@ -1,9 +1,16 @@
 package io.github.foundationgames.automobility.util;
 
+import io.github.foundationgames.automobility.Automobility;
+import io.github.foundationgames.automobility.automobile.AutomobileEngine;
+import io.github.foundationgames.automobility.automobile.AutomobileFrame;
+import io.github.foundationgames.automobility.automobile.AutomobilePrefab;
+import io.github.foundationgames.automobility.automobile.AutomobileWheel;
+import io.github.foundationgames.automobility.item.AutomobilityItems;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -19,9 +26,13 @@ public enum AUtils {;
      */
     public static final DecimalFormat DEC_TWO_PLACES = new DecimalFormat("###0.00");
 
-    private static final Random RANDOM = new Random();
-
+    /**
+     * An array of all horizontal directions. Consists of
+     * all directions except UP and DOWN.
+     */
     public static final Direction[] HORIZONTAL_DIRS = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
+
+    private static final Random RANDOM = new Random();
 
     /**
      * Shifts the number 'in' towards zero by the amount 'by'
@@ -30,6 +41,16 @@ public enum AUtils {;
      * @return The result of the shift
      */
     public static float zero(float in, float by) {
+        return shift(in, by, 0);
+    }
+
+    /**
+     * Shifts the number 'in' towards zero by the amount 'by'
+     * @param in The number to shift
+     * @param by The amount to shift it by
+     * @return The result of the shift
+     */
+    public static int zero(int in, int by) {
         return shift(in, by, 0);
     }
 
@@ -48,6 +69,20 @@ public enum AUtils {;
     }
 
     /**
+     * Shifts the number 'in' towards the number 'to' by the amount 'by'
+     * @param in The number to shift
+     * @param by The amount to shift it by
+     * @param to The number to shift it to
+     * @return The result of the shift
+     */
+    public static int shift(int in, int by, int to) {
+        if ((Math.abs(in - to)) < by) return to;
+        if (in > to) by *= -1;
+        in += by;
+        return in;
+    }
+
+    /**
      * Returns whether the two passed values have the same sign (both negative/both positive)
      * @param a The first value
      * @param b The second value
@@ -58,6 +93,16 @@ public enum AUtils {;
             return a == b;
         }
         return a / Math.abs(a) == b / Math.abs(b);
+    }
+
+    /**
+     * Between the passed values a and b, returns the one which is furthest from zero.
+     * @param a The first value
+     * @param b The second value
+     * @return The value which is furthest away from zero
+     */
+    public static float furthestFromZero(float a, float b) {
+        return Math.abs(a) > Math.abs(b) ? a : Math.abs(b) > Math.abs(a) ? b : a;
     }
 
     /**
@@ -94,5 +139,15 @@ public enum AUtils {;
         for (BakedQuad quad : model.getQuads(null, null, RANDOM)) {
             vertices.quad(matrices.peek(), quad, 1, 1, 1, light, overlay);
         }
+    }
+
+    // Placed here because class loading is jank
+
+    public static ItemStack createGroupIcon() {
+        return new ItemStack(AutomobilityItems.CROWBAR);
+    }
+
+    public static ItemStack createPrefabsIcon() {
+        return new AutomobilePrefab(Automobility.id("standard_light_blue"), AutomobileFrame.STANDARD_LIGHT_BLUE, AutomobileWheel.STANDARD, AutomobileEngine.IRON).toStack();
     }
 }

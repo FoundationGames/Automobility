@@ -2,7 +2,6 @@ package io.github.foundationgames.automobility.block;
 
 import io.github.foundationgames.automobility.util.AUtils;
 import net.minecraft.block.*;
-import net.minecraft.block.enums.BlockHalf;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class SteepSlopeBlock extends HorizontalFacingBlock implements Waterloggable, SlopedBlock {
+public class SteepSlopeBlock extends HorizontalFacingBlock implements Waterloggable, Sloped {
     public static final VoxelShape NORTH_SHAPE;
     public static final VoxelShape SOUTH_SHAPE;
     public static final VoxelShape EAST_SHAPE;
@@ -35,7 +34,7 @@ public class SteepSlopeBlock extends HorizontalFacingBlock implements Waterlogga
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return super.getPlacementState(ctx).with(FACING, ctx.getPlayerFacing().getOpposite());
+        return super.getPlacementState(ctx).with(FACING, ctx.getPlayerFacing().getOpposite()).with(WATERLOGGED, ctx.getWorld().getBlockState(ctx.getBlockPos()).isOf(Blocks.WATER));
     }
 
     @Override
@@ -74,10 +73,10 @@ public class SteepSlopeBlock extends HorizontalFacingBlock implements Waterlogga
                 default -> 0;
             };
             var shape = switch (dir) {
-                case NORTH -> Block.createCuboidShape(0, -1, 0, 16, 1, 0.5);
-                case SOUTH -> Block.createCuboidShape(0, -1, 15.5, 16, 1, 16);
-                case EAST -> Block.createCuboidShape(15.5, -1, 0, 16, 1, 16);
-                case WEST -> Block.createCuboidShape(0, -1, 0, 0.5, 1, 16);
+                case NORTH -> Block.createCuboidShape(0, -1.5, 0, 16, 0.5, 0.5);
+                case SOUTH -> Block.createCuboidShape(0, -1.5, 15.5, 16, 0.5, 16);
+                case EAST -> Block.createCuboidShape(15.5, -1.5, 0, 16, 0.5, 16);
+                case WEST -> Block.createCuboidShape(0, -1.5, 0, 0.5, 0.5, 16);
                 default -> VoxelShapes.empty();
             };
             var finalShape = shape;
@@ -108,5 +107,10 @@ public class SteepSlopeBlock extends HorizontalFacingBlock implements Waterlogga
             case EAST -> -45;
             default -> 0;
         };
+    }
+
+    @Override
+    public boolean isSticky() {
+        return true;
     }
 }

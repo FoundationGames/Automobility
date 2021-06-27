@@ -43,16 +43,9 @@ public class AutomobileItem extends Item {
 
     @Override
     public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
-        if (group == getGroup() || group == ItemGroup.SEARCH || group == ItemGroup.TRANSPORTATION) {
+        if (isIn(group) || group == ItemGroup.SEARCH || group == ItemGroup.TRANSPORTATION) {
             for (var prefab : PREFABS) {
-                var stack = new ItemStack(this);
-                var automobile = stack.getOrCreateSubTag("Automobile");
-                automobile.putString("frame", prefab.frame().getId().toString());
-                automobile.putString("wheels", prefab.wheel().getId().toString());
-                automobile.putString("engine", prefab.engine().getId().toString());
-                var display = stack.getOrCreateSubTag("display");
-                display.putString("Name", String.format("{\"translate\":\"prefab.%s.%s\",\"italic\":\"false\"}", prefab.id().getNamespace(), prefab.id().getPath()));
-                stacks.add(stack);
+                stacks.add(prefab.toStack());
             }
         }
     }
