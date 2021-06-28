@@ -48,7 +48,7 @@ public enum AutomobileRenderer {;
         // Frame and engine
         matrices.push();
         if (automobile.hasPassengers()) {
-            matrices.translate(0, Math.cos((automobile.getWorldTime() + tickDelta) * 2.7) / 156, 0);
+            matrices.translate(0, (Math.cos((automobile.getWorldTime() + tickDelta) * 2.7) / 156) + (automobile.getSuspensionBounce(tickDelta) * 0.048f), 0);
         }
         var frameTexture = frame.model().texture();
         var engineTexture = engine.model().texture();

@@ -18,6 +18,8 @@ public interface RenderableAutomobile {
 
     float getSteering(float tickDelta);
 
+    float getSuspensionBounce(float tickDelta);
+
     boolean hasPassengers();
 
     int getBoostTimer();

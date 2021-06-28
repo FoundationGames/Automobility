@@ -64,6 +64,11 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     }
 
     @Override
+    public float getSuspensionBounce(float tickDelta) {
+        return 0;
+    }
+
+    @Override
     public boolean hasPassengers() {
         return false;
     }
