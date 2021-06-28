@@ -1,6 +1,7 @@
 package io.github.foundationgames.automobility.block;
 
 import io.github.foundationgames.automobility.Automobility;
+import io.github.foundationgames.automobility.item.SlopeBlockItem;
 import io.github.foundationgames.automobility.item.SteepSlopeBlockItem;
 import io.github.foundationgames.automobility.resource.AutomobilityAssets;
 import net.fabricmc.api.EnvType;
@@ -40,11 +41,11 @@ public enum AutomobilityBlocks {;
                 if (id.getNamespace().equals(namespace)) {
                     var path = id.getPath()+"_slope";
                     var steepPath = "steep_"+path;
-                    {
-                        var block = register(steepPath, new SteepSlopeBlock(FabricBlockSettings.copyOf(base)));
-                        Registry.register(Registry.ITEM, Automobility.id(steepPath), new SteepSlopeBlockItem(block, new Item.Settings().group(Automobility.GROUP)));
-                        AutomobilityAssets.addProcessor(pack -> AutomobilityAssets.addSlope(path, namespace+":block/"+id.getPath()));
-                    }
+                    var block = register(path, new SlopeBlock(FabricBlockSettings.copyOf(base)));
+                    Registry.register(Registry.ITEM, Automobility.id(path), new SlopeBlockItem(base, block, new Item.Settings().group(Automobility.GROUP)));
+                    block = register(steepPath, new SteepSlopeBlock(FabricBlockSettings.copyOf(base)));
+                    Registry.register(Registry.ITEM, Automobility.id(steepPath), new SteepSlopeBlockItem(base, block, new Item.Settings().group(Automobility.GROUP)));
+                    AutomobilityAssets.addProcessor(pack -> AutomobilityAssets.addSlope(path, namespace+":block/"+id.getPath()));
                 }
             }
         }

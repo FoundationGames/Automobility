@@ -1,7 +1,8 @@
 package io.github.foundationgames.automobility.item;
 
-import io.github.foundationgames.automobility.block.SteepSlopeBlock;
+import io.github.foundationgames.automobility.block.SlopeBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.enums.BlockHalf;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
@@ -17,10 +18,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class SteepSlopeBlockItem extends BlockItem {
+public class SlopeBlockItem extends BlockItem {
     private final Block base;
 
-    public SteepSlopeBlockItem(Block base, Block block, Settings settings) {
+    public SlopeBlockItem(Block base, Block block, Settings settings) {
         super(block, settings);
         this.base = base;
     }
@@ -31,14 +32,15 @@ public class SteepSlopeBlockItem extends BlockItem {
         var hitPos = context.getHitPos();
         var pos = new BlockPos(Math.floor(hitPos.x), Math.floor(hitPos.y), Math.floor(hitPos.z));
         var world = context.getWorld();
-        if (world.getBlockState(pos).getBlock() instanceof SteepSlopeBlock) {
+        if (world.getBlockState(pos).getBlock() instanceof SlopeBlock) {
             var facing = world.getBlockState(pos).get(Properties.HORIZONTAL_FACING);
+            var half = world.getBlockState(pos).get(Properties.BLOCK_HALF);
             var playerFacing = context.getPlayerFacing();
-            var vOffset = playerFacing == facing ? Direction.DOWN : playerFacing == facing.getOpposite() ? Direction.UP : null;
+            var vOffset = playerFacing == facing && half == BlockHalf.BOTTOM ? Direction.DOWN : playerFacing == facing.getOpposite() && half == BlockHalf.TOP ? Direction.UP : null;
             var place = pos.offset(playerFacing);
             if (vOffset != null) place = place.offset(vOffset);
             if (world.getBlockState(place).isAir()) {
-                return new SlopePlacementContext(ItemPlacementContext.offset(context, place, Direction.UP), facing);
+                return new SlopePlacementContext(ItemPlacementContext.offset(context, place, Direction.UP), facing, half == BlockHalf.TOP ? BlockHalf.BOTTOM : BlockHalf.TOP);
             }
         }
         return super.getPlacementContext(context);
@@ -46,7 +48,7 @@ public class SteepSlopeBlockItem extends BlockItem {
 
     @Override
     public String getTranslationKey() {
-        return "block.automobility.steep_slope";
+        return "block.automobility.slope";
     }
 
     @Override

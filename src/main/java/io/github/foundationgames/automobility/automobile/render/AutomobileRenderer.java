@@ -37,6 +37,7 @@ public enum AutomobileRenderer {;
         matrices.translate(0, -1.5f - chassisRaise, 0);
 
         float raise = 1.5f - chassisRaise;
+        float bounce = automobile.getSuspensionBounce(tickDelta) * 0.048f;
         matrices.translate(0, raise, 0);
         matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(automobile.getVerticalTravelPitch(tickDelta)));
         matrices.translate(0, -raise, 0);
@@ -48,7 +49,7 @@ public enum AutomobileRenderer {;
         // Frame and engine
         matrices.push();
         if (automobile.hasPassengers()) {
-            matrices.translate(0, (Math.cos((automobile.getWorldTime() + tickDelta) * 2.7) / 156) + (automobile.getSuspensionBounce(tickDelta) * 0.048f), 0);
+            matrices.translate(0, (Math.cos((automobile.getWorldTime() + tickDelta) * 2.7) / 156) + bounce, 0);
         }
         var frameTexture = frame.model().texture();
         var engineTexture = engine.model().texture();
@@ -73,10 +74,11 @@ public enum AutomobileRenderer {;
             int index = (int)Math.floor(((automobile.getWorldTime() + tickDelta) / 1.5f) % exhaustTexes.length);
             exhaustBuffer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(exhaustTexes[index]));
         }
+        matrices.pop();
         if (exhaustBuffer != null) {
             for (AutomobileEngine.ExhaustPos exhaust : engine.model().exhausts()) {
                 matrices.push();
-                matrices.translate((-exhaust.z() / 16) + eBack, (-exhaust.y() / 16) - eUp + 1.5, exhaust.x() / 16);
+                matrices.translate((-exhaust.z() / 16) + eBack, (-exhaust.y() / 16) - eUp + (1.5 + bounce), exhaust.x() / 16);
                 matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(exhaust.pitch()));
                 matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(exhaust.yaw()));
                 matrices.translate(0, -1.5, 0);
@@ -84,7 +86,6 @@ public enum AutomobileRenderer {;
                 matrices.pop();
             }
         }
-        matrices.pop();
 
         var wheelBuffer = vertexConsumers.getBuffer(wheelModel.getLayer(wheels.model().texture()));
         float sLong = frame.model().wheelSeparationLong() / 16;

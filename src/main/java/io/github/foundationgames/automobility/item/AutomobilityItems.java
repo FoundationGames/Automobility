@@ -11,10 +11,12 @@ import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.item.Item;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.registry.Registry;
 
 public enum AutomobilityItems {;
-    public static final Item CROWBAR = register("crowbar", new Item(new Item.Settings().group(Automobility.GROUP)));
+    public static final Item CROWBAR = register("crowbar", new TooltipItem(new TranslatableText("tooltip.item.automobility.crowbar").formatted(Formatting.BLUE), new Item.Settings().group(Automobility.GROUP)));
     public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Settings().group(Automobility.PREFABS)));
 
     public static void init() {

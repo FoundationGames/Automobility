@@ -20,8 +20,8 @@ public class Automobility implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        AutomobilityBlocks.init();
         AutomobilityItems.init();
+        AutomobilityBlocks.init();
         AutomobilityEntities.init();
         PayloadPackets.init();
 

@@ -33,7 +33,7 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
 
         // yea
         float angle = Math.max(Math.abs(xs), Math.abs(zs));
-        double heightOffset = (Math.sin(Math.toRadians(angle)) * (Math.tan(Math.toRadians(180 - angle)) * hh + hw)) - Math.sin(Math.toRadians(angle) * hw);
+        double heightOffset = (Math.sin(Math.toRadians(angle)) * ((Math.tan(Math.toRadians(180 - angle)) * hh) + hw)) - Math.sin(Math.toRadians(angle) * hw);
 
         matrices.translate(0, hh, 0);
         matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(xs));

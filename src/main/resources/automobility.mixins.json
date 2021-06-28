@@ -10,6 +10,7 @@
     "ClientPlayerEntityMixin",
     "EntityRenderersMixin",
     "GameRendererMixin",
+    "ModelElementDeserializerMixin",
     "lambdacontrols.InputHandlersMixin"
   ],
   "injectors": {

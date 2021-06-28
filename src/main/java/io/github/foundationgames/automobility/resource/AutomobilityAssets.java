@@ -30,13 +30,22 @@ public enum AutomobilityAssets {;
             p.accept(PACK);
         }
 
-        addSlope("stone_slope", "minecraft:block/stone");
-        addSlope("cobblestone_slope", "minecraft:block/cobblestone");
-
         RRPCallback.AFTER_VANILLA.register(a -> a.add(PACK));
     }
 
     public static void addSlope(String name, String texture) {
+        {
+            var path = "block/"+name;
+            PACK.addModel(new JModel().parent("automobility:block/template_slope_bottom").textures(JModel.textures().var("slope", texture)), Automobility.id(path+"_bottom"));
+            PACK.addModel(new JModel().parent("automobility:block/template_slope_top").textures(JModel.textures().var("slope", texture)), Automobility.id(path+"_top"));
+            var variants = JState.variant();
+            for (Direction dir : AUtils.HORIZONTAL_DIRS) {
+                variants.put("half=bottom,facing="+ dir, JState.model(Automobility.id(path)+"_bottom").y((int)dir.asRotation()));
+                variants.put("half=top,facing="+ dir, JState.model(Automobility.id(path)+"_top").y((int)dir.asRotation()));
+            }
+            PACK.addBlockState(new JState().add(variants), Automobility.id(name));
+            PACK.addModel(new JModel().parent("automobility:"+path+"_bottom"), Automobility.id("item/"+name));
+        }
         {
             name = "steep_"+name;
             var path = "block/"+name;

@@ -1,5 +1,6 @@
 package io.github.foundationgames.automobility.block;
 
+import io.github.foundationgames.automobility.item.SlopePlacementContext;
 import io.github.foundationgames.automobility.util.AUtils;
 import net.minecraft.block.*;
 import net.minecraft.fluid.FluidState;
@@ -34,7 +35,14 @@ public class SteepSlopeBlock extends HorizontalFacingBlock implements Waterlogga
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return super.getPlacementState(ctx).with(FACING, ctx.getPlayerFacing().getOpposite()).with(WATERLOGGED, ctx.getWorld().getBlockState(ctx.getBlockPos()).isOf(Blocks.WATER));
+        return ctx instanceof SlopePlacementContext slopeCtx ?
+                super.getPlacementState(ctx)
+                        .with(FACING, slopeCtx.getSlopeFacing())
+                        .with(WATERLOGGED, ctx.getWorld().getBlockState(ctx.getBlockPos()).isOf(Blocks.WATER))
+                :
+                super.getPlacementState(ctx)
+                        .with(FACING, ctx.getPlayerFacing().getOpposite())
+                        .with(WATERLOGGED, ctx.getWorld().getBlockState(ctx.getBlockPos()).isOf(Blocks.WATER));
     }
 
     @Override

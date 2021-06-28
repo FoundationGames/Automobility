@@ -85,9 +85,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private boolean automobileOnGround = true;
     private boolean wasOnGround = automobileOnGround;
 
-    // Prevents jittering (animation-wise and physics-wise) when going down slopes
+    // Prevents jittering when going down slopes
     private int slopeStickingTimer = 0;
-    private int slopeAnimationCooldown = 0;
 
     private int suspensionBounceTimer = 0;
     private int lastSusBounceTimer = suspensionBounceTimer;
@@ -458,15 +457,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.51), Math.floor(getZ()));
         var state = world.getBlockState(below);
         if (state.getBlock() instanceof Sloped slope) {
-            groundSlopeX = AUtils.shift(groundSlopeX, 15, slope.getGroundSlopeX(world, state, below));
-            groundSlopeZ = AUtils.shift(groundSlopeZ, 15, slope.getGroundSlopeZ(world, state, below));
-            slopeAnimationCooldown = 3;
-        } else if (slopeAnimationCooldown == 0) {
+            groundSlopeX = AUtils.shift(groundSlopeX, 10, slope.getGroundSlopeX(world, state, below));
+            groundSlopeZ = AUtils.shift(groundSlopeZ, 10, slope.getGroundSlopeZ(world, state, below));
+        } else if (!state.isAir()) {
             groundSlopeX = AUtils.zero(groundSlopeX, 22);
             groundSlopeZ = AUtils.zero(groundSlopeZ, 22);
-        } else {
-            if (state.isAir()) slopeAnimationCooldown = Math.max(0, slopeAnimationCooldown--);
-            else slopeAnimationCooldown = 0;
         }
     }
 

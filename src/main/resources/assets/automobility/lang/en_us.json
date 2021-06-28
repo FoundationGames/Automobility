@@ -1,0 +1,37 @@
+{
+  "entity.automobility.automobile": "Automobile",
+
+  "itemGroup.automobility.automobility": "Automobility",
+  "itemGroup.automobility.automobility_prefabs": "Automobility: Prefabs",
+
+  "item.automobility.automobile": "Automobile",
+  "item.automobility.crowbar": "Crowbar",
+
+  "tooltip.item.automobility.crowbar": "Use on Automobile to remove",
+
+  "block.automobility.dash_panel": "Dash Panel",
+  "block.automobility.sloped_dash_panel": "Sloped Dash Panel",
+  "block.automobility.steep_sloped_dash_panel": "Steep Sloped Dash Panel",
+
+  "block.automobility.slope": "Slope",
+  "block.automobility.steep_slope": "Steep Slope",
+
+  "prefab.automobility.standard_white": "Standard White",
+  "prefab.automobility.standard_orange": "Standard Orange",
+  "prefab.automobility.standard_magenta": "Standard Magenta",
+  "prefab.automobility.standard_light_blue": "Standard Light Blue",
+  "prefab.automobility.standard_yellow": "Standard Yellow",
+  "prefab.automobility.standard_lime": "Standard Lime",
+  "prefab.automobility.standard_pink": "Standard Pink",
+  "prefab.automobility.standard_gray": "Standard Gray",
+  "prefab.automobility.standard_light_gray": "Standard Light Gray",
+  "prefab.automobility.standard_cyan": "Standard Cyan",
+  "prefab.automobility.standard_purple": "Standard Purple",
+  "prefab.automobility.standard_blue": "Standard Blue",
+  "prefab.automobility.standard_brown": "Standard Brown",
+  "prefab.automobility.standard_green": "Standard Green",
+  "prefab.automobility.standard_red": "Standard Red",
+  "prefab.automobility.standard_black": "Standard Black",
+  "prefab.automobility.c_arr": "c:arr:",
+  "prefab.automobility.dababy": "DaBaby Convertible"
+}
