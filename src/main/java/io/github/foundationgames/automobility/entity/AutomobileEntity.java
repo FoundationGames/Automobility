@@ -205,6 +205,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     }
 
     @Override
+    public boolean engineRunning() {
+        return hasPassengers();
+    }
+
+    @Override
     public int getDriftTimer() {
         return drifting ? driftTimer : 0;
     }
@@ -454,14 +459,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     public void tickClient() {
         lastGroundSlopeX = groundSlopeX;
         lastGroundSlopeZ = groundSlopeZ;
-        var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.51), Math.floor(getZ()));
+        var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.06), Math.floor(getZ()));
         var state = world.getBlockState(below);
         if (state.getBlock() instanceof Sloped slope) {
-            groundSlopeX = AUtils.shift(groundSlopeX, 10, slope.getGroundSlopeX(world, state, below));
-            groundSlopeZ = AUtils.shift(groundSlopeZ, 10, slope.getGroundSlopeZ(world, state, below));
+            groundSlopeX = AUtils.shift(groundSlopeX, 12, slope.getGroundSlopeX(world, state, below));
+            groundSlopeZ = AUtils.shift(groundSlopeZ, 12, slope.getGroundSlopeZ(world, state, below));
         } else if (!state.isAir()) {
-            groundSlopeX = AUtils.zero(groundSlopeX, 22);
-            groundSlopeZ = AUtils.zero(groundSlopeZ, 22);
+            groundSlopeX = AUtils.zero(groundSlopeX, 20);
+            groundSlopeZ = AUtils.zero(groundSlopeZ, 20);
         }
     }
 
@@ -575,6 +580,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     public Model getEngineModel(EntityRendererFactory.Context ctx) {
         updateModels(ctx);
         return engineModel;
+    }
+
+    @Override
+    public float getAutomobileYaw(float tickDelta) {
+        return getYaw(tickDelta);
     }
 
     @Nullable

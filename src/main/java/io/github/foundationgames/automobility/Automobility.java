@@ -25,7 +25,7 @@ public class Automobility implements ModInitializer {
         AutomobilityEntities.init();
         PayloadPackets.init();
 
-        if (ControllerUtils.isLCLoaded()) AutomobilityLC.init();
+        ControllerUtils.initLCHandler();
     }
 
     public static Identifier id(String path) {

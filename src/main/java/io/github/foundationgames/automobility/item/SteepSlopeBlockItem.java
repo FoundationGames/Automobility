@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.item;
 
 import io.github.foundationgames.automobility.block.SteepSlopeBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemPlacementContext;
@@ -37,7 +38,8 @@ public class SteepSlopeBlockItem extends BlockItem {
             var vOffset = playerFacing == facing ? Direction.DOWN : playerFacing == facing.getOpposite() ? Direction.UP : null;
             var place = pos.offset(playerFacing);
             if (vOffset != null) place = place.offset(vOffset);
-            if (world.getBlockState(place).isAir()) {
+            var pState = world.getBlockState(place);
+            if (pState.isAir() || pState.isOf(Blocks.WATER)) {
                 return new SlopePlacementContext(ItemPlacementContext.offset(context, place, Direction.UP), facing);
             }
         }

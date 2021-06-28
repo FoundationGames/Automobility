@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.item;
 
 import io.github.foundationgames.automobility.block.SlopeBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.enums.BlockHalf;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.BlockItem;
@@ -39,7 +40,8 @@ public class SlopeBlockItem extends BlockItem {
             var vOffset = playerFacing == facing && half == BlockHalf.BOTTOM ? Direction.DOWN : playerFacing == facing.getOpposite() && half == BlockHalf.TOP ? Direction.UP : null;
             var place = pos.offset(playerFacing);
             if (vOffset != null) place = place.offset(vOffset);
-            if (world.getBlockState(place).isAir()) {
+            var pState = world.getBlockState(place);
+            if (pState.isAir() || pState.isOf(Blocks.WATER)) {
                 return new SlopePlacementContext(ItemPlacementContext.offset(context, place, Direction.UP), facing, half == BlockHalf.TOP ? BlockHalf.BOTTOM : BlockHalf.TOP);
             }
         }

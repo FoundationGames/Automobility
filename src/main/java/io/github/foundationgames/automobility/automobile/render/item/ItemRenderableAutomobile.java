@@ -44,7 +44,7 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     }
 
     @Override
-    public float getYaw(float tickDelta) {
+    public float getAutomobileYaw(float tickDelta) {
         return 0;
     }
 
@@ -69,7 +69,7 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     }
 
     @Override
-    public boolean hasPassengers() {
+    public boolean engineRunning() {
         return false;
     }
 

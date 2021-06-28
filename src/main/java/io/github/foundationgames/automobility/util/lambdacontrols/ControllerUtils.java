@@ -19,6 +19,10 @@ public enum ControllerUtils {;
         return isLCLoaded() && AutomobilityLC.IN_CONTROLLER_MODE.get();
     }
 
+    public static void initLCHandler() {
+        if (isLCLoaded()) AutomobilityLC.init();
+    }
+
     public static boolean isLCLoaded() {
         return FabricLoader.getInstance().isModLoaded("lambdacontrols");
     }

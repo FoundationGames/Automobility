@@ -30,7 +30,7 @@ public enum AutomobileRenderer {;
         matrices.push();
 
         matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
-        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(automobile.getYaw(tickDelta) + 90));
+        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(automobile.getAutomobileYaw(tickDelta) + 90));
 
         float chassisRaise = wheels.model().radius() / 16;
 
@@ -48,7 +48,7 @@ public enum AutomobileRenderer {;
 
         // Frame and engine
         matrices.push();
-        if (automobile.hasPassengers()) {
+        if (automobile.engineRunning()) {
             matrices.translate(0, (Math.cos((automobile.getWorldTime() + tickDelta) * 2.7) / 156) + bounce, 0);
         }
         var frameTexture = frame.model().texture();
@@ -69,7 +69,7 @@ public enum AutomobileRenderer {;
             exhaustTexes = ExhaustFumesModel.FLAME_TEXTURES;
             int index = (int)(automobile.getWorldTime() % exhaustTexes.length);
             exhaustBuffer = vertexConsumers.getBuffer(RenderLayer.getEyes(exhaustTexes[index]));
-        } else if (automobile.hasPassengers()) {
+        } else if (automobile.engineRunning()) {
             exhaustTexes = ExhaustFumesModel.SMOKE_TEXTURES;
             int index = (int)Math.floor(((automobile.getWorldTime() + tickDelta) / 1.5f) % exhaustTexes.length);
             exhaustBuffer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(exhaustTexes[index]));

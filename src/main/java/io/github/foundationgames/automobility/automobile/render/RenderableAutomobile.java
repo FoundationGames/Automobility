@@ -10,7 +10,7 @@ public interface RenderableAutomobile {
 
     Model getEngineModel(EntityRendererFactory.Context ctx);
 
-    float getYaw(float tickDelta);
+    float getAutomobileYaw(float tickDelta);
 
     float getVerticalTravelPitch(float tickDelta);
 
@@ -20,7 +20,7 @@ public interface RenderableAutomobile {
 
     float getSuspensionBounce(float tickDelta);
 
-    boolean hasPassengers();
+    boolean engineRunning();
 
     int getBoostTimer();
 
