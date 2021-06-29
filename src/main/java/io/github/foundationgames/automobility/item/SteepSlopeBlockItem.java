@@ -48,12 +48,12 @@ public class SteepSlopeBlockItem extends BlockItem {
 
     @Override
     public String getTranslationKey() {
-        return "block.automobility.steep_slope";
+        return base != null ? "block.automobility.steep_slope" : super.getTranslationKey();
     }
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
-        tooltip.add(new TranslatableText(base.getTranslationKey()).formatted(Formatting.BLUE));
+        if (base != null) tooltip.add(new TranslatableText(base.getTranslationKey()).formatted(Formatting.BLUE));
     }
 }

@@ -42,6 +42,10 @@ public record AutomobileEngine(
         return this.id;
     }
 
+    public String getTranslationKey() {
+        return "engine."+id.getNamespace()+"."+id.getPath();
+    }
+
     public static record EngineModel(
             Identifier texture,
             Function<EntityRendererFactory.Context, Model> model,

@@ -26,6 +26,28 @@ public enum AutomobilityAssets {;
         }
         PACK.addBlockState(new JState().add(dashPanel), Automobility.id("dash_panel"));
 
+        var slopedDashPanel = JState.variant();
+        for (Direction dir : AUtils.HORIZONTAL_DIRS) {
+            slopedDashPanel.put("half=bottom,left=false,right=false,facing="+ dir, JState.model(Automobility.id("block/sloped_dash_panel_single_bottom")).y((int)dir.asRotation()));
+            slopedDashPanel.put("half=bottom,left=true,right=false,facing="+ dir, JState.model(Automobility.id("block/sloped_dash_panel_left_bottom")).y((int)dir.asRotation()));
+            slopedDashPanel.put("half=bottom,left=false,right=true,facing="+ dir, JState.model(Automobility.id("block/sloped_dash_panel_right_bottom")).y((int)dir.asRotation()));
+            slopedDashPanel.put("half=bottom,left=true,right=true,facing="+ dir, JState.model(Automobility.id("block/sloped_dash_panel_center_bottom")).y((int)dir.asRotation()));
+            slopedDashPanel.put("half=top,left=false,right=false,facing="+ dir, JState.model(Automobility.id("block/sloped_dash_panel_single_top")).y((int)dir.asRotation()));
+            slopedDashPanel.put("half=top,left=true,right=false,facing="+ dir, JState.model(Automobility.id("block/sloped_dash_panel_left_top")).y((int)dir.asRotation()));
+            slopedDashPanel.put("half=top,left=false,right=true,facing="+ dir, JState.model(Automobility.id("block/sloped_dash_panel_right_top")).y((int)dir.asRotation()));
+            slopedDashPanel.put("half=top,left=true,right=true,facing="+ dir, JState.model(Automobility.id("block/sloped_dash_panel_center_top")).y((int)dir.asRotation()));
+        }
+        PACK.addBlockState(new JState().add(slopedDashPanel), Automobility.id("sloped_dash_panel"));
+
+        var steepDashPanel = JState.variant();
+        for (Direction dir : AUtils.HORIZONTAL_DIRS) {
+            steepDashPanel.put("left=false,right=false,facing="+ dir, JState.model(Automobility.id("block/steep_sloped_dash_panel_single")).y((int)dir.asRotation()));
+            steepDashPanel.put("left=true,right=false,facing="+ dir, JState.model(Automobility.id("block/steep_sloped_dash_panel_left")).y((int)dir.asRotation()));
+            steepDashPanel.put("left=false,right=true,facing="+ dir, JState.model(Automobility.id("block/steep_sloped_dash_panel_right")).y((int)dir.asRotation()));
+            steepDashPanel.put("left=true,right=true,facing="+ dir, JState.model(Automobility.id("block/steep_sloped_dash_panel_center")).y((int)dir.asRotation()));
+        }
+        PACK.addBlockState(new JState().add(steepDashPanel), Automobility.id("steep_sloped_dash_panel"));
+
         for (var p : PROCESSORS) {
             p.accept(PACK);
         }

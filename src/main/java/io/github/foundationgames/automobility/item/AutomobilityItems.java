@@ -43,7 +43,7 @@ public enum AutomobilityItems {;
     }
 
     private static EntityRendererFactory.Context cachedCtx;
-    private static final AutomobileDataReader reader = new AutomobileDataReader();
+    private static final AutomobileData reader = new AutomobileData();
     private static final ItemRenderableAutomobile itemAutomobile = new ItemRenderableAutomobile(reader);
 
     @Environment(EnvType.CLIENT)

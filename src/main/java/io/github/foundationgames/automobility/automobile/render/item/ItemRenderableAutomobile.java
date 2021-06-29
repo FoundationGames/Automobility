@@ -1,6 +1,6 @@
 package io.github.foundationgames.automobility.automobile.render.item;
 
-import io.github.foundationgames.automobility.automobile.AutomobileDataReader;
+import io.github.foundationgames.automobility.automobile.AutomobileData;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.util.EntityRenderHelper;
 import net.minecraft.client.model.Model;
@@ -11,12 +11,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ItemRenderableAutomobile implements RenderableAutomobile {
-    private final AutomobileDataReader reader;
+    private final AutomobileData reader;
     private final Map<Identifier, Model> frameModelCache = new HashMap<>();
     private final Map<Identifier, Model> wheelModelCache = new HashMap<>();
     private final Map<Identifier, Model> engineModelCache = new HashMap<>();
 
-    public ItemRenderableAutomobile(AutomobileDataReader reader) {
+    public ItemRenderableAutomobile(AutomobileData reader) {
         this.reader = reader;
         EntityRenderHelper.registerContextListener(ctx -> {
             frameModelCache.clear();

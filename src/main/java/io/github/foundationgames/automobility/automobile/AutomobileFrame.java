@@ -89,6 +89,10 @@ public record AutomobileFrame(
         return this.id;
     }
 
+    public String getTranslationKey() {
+        return "frame."+id.getNamespace()+"."+id.getPath();
+    }
+
     public static record FrameModel(
             Identifier texture,
             Function<EntityRendererFactory.Context, Model> model,

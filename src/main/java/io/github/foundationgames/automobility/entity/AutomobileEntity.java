@@ -11,6 +11,7 @@ import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtil
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.block.SideShapeType;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -26,12 +27,13 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.function.BooleanBiFunction;
+import net.minecraft.util.math.*;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayDeque;
 
 public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
@@ -46,7 +48,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private Model engineModel = null;
 
     public static final int DRIFT_TURBO_TIME = 50;
-    public static final float TERMINAL_VELOCITY = -0.9f;
+    public static final float COMFORTABLE_SPEED = 0.8f;
+    public static final float TERMINAL_VELOCITY = -1.2f;
 
     private float engineSpeed = 0;
     private float boostSpeed = 0;
@@ -58,7 +61,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     private float hSpeed = 0;
 
-    private float fallSpeed = 0;
     private float verticalSpeed = 0;
     private Vec3d addedVelocity = getVelocity();
 
@@ -91,6 +93,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private int suspensionBounceTimer = 0;
     private int lastSusBounceTimer = suspensionBounceTimer;
 
+    private float prevYDisplacement = 0;
+
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         setComponents(
@@ -103,7 +107,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         boostTimer = nbt.getInt("boostTimer");
         boostPower = nbt.getFloat("boostPower");
         speedDirection = nbt.getFloat("speedDirection");
-        fallSpeed = nbt.getFloat("verticalSpeed");
+        verticalSpeed = nbt.getFloat("verticalSpeed");
         hSpeed = nbt.getFloat("horizontalSpeed");
         addedVelocity = AUtils.v3dFromNbt(nbt.getCompound("addedVelocity"));
         steering = nbt.getFloat("steering");
@@ -130,7 +134,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         nbt.putInt("boostTimer", boostTimer);
         nbt.putFloat("boostPower", boostPower);
         nbt.putFloat("speedDirection", speedDirection);
-        nbt.putFloat("verticalSpeed", fallSpeed);
+        nbt.putFloat("verticalSpeed", verticalSpeed);
         nbt.putFloat("horizontalSpeed", hSpeed);
         nbt.put("addedVelocity", AUtils.v3dToNbt(addedVelocity));
         nbt.putFloat("steering", steering);
@@ -259,6 +263,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             inRight = false;
             inSpace = false;
         }
+        collisionStateTick();
         steeringTick();
         driftingTick();
         movementTick();
@@ -271,7 +276,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 }
             }
         } else {
-            tickClient();
+            clientTick();
         }
     }
 
@@ -279,15 +284,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         PayloadPackets.sendSyncAutomobileDataPacket(this, player);
     }
 
-    // feast your eyes
+    // witness me fighting against minecraft's collision/physics
     public void movementTick() {
-        this.wasOnGround = automobileOnGround;
-        this.automobileOnGround = (fallSpeed < 0.2 && fallSpeed > -0.2) || isOnGround();
-
-        // Allow for gaining air if were on a slope before leaving the ground
-        if (wasOnGround && !automobileOnGround) {
-            verticalSpeed += hSpeed * 10 * (Math.max(Math.abs(groundSlopeX), Math.abs(groundSlopeZ)) / 45);
-        }
+        //this.wasOnGround = automobileOnGround;
+        //this.automobileOnGround = (verticalSpeed < 0.2 && verticalSpeed > -0.2) || isOnGround();
 
         lastSusBounceTimer = suspensionBounceTimer;
         if (suspensionBounceTimer > 0) suspensionBounceTimer--;
@@ -300,6 +300,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         if (boostTimer > 0) {
             boostTimer--;
             boostSpeed = Math.min(boostPower, boostSpeed + 0.09f);
+            if (engineSpeed < COMFORTABLE_SPEED) {
+                engineSpeed += 0.012f;
+            }
         } else {
             boostSpeed = AUtils.zero(boostSpeed, 0.09f);
         }
@@ -312,22 +315,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         var cumulative = addedVelocity;
         lastWheelAngle = wheelAngle;
 
-        // Handles gravity
-        if (this.isOnGround()) {
-            fallSpeed = 0;
-        } else {
-            fallSpeed = Math.max(fallSpeed - 0.08f, TERMINAL_VELOCITY);
-        }
-
-        // Handles additional vertical speed
-        if (automobileOnGround) {
-            verticalSpeed = 0;
-        } else {
-            verticalSpeed = Math.max(fallSpeed - 0.08f, 0);
-        }
-
         // Reduce gravity underwater
-        cumulative = cumulative.add(0, (fallSpeed * (isSubmergedInWater() ? 0.15f : 1)) + verticalSpeed, 0);
+        cumulative = cumulative.add(0, (verticalSpeed * (isSubmergedInWater() ? 0.15f : 1)), 0);
 
         // This is the general direction the automobile will move, which is slightly offset to the side when drifting
         this.speedDirection = getYaw() - (drifting ? Math.min(driftTimer * 6, 43 + (-steering * 12)) * driftDir : 0);
@@ -342,7 +331,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                     (
                             (this.drifting && AUtils.haveSameSign(this.steering, this.driftDir)) ||
                             (!this.drifting && this.steering != 0 && hSpeed > 0.5)
-                    ) ? (this.hSpeed < 0.8 ? 0.001 : 0) // This will supply a small amount of acceleration if the automobile is moving slowly only
+                    ) ? (this.hSpeed < COMFORTABLE_SPEED ? 0.001 : 0) // This will supply a small amount of acceleration if the automobile is moving slowly only
 
                     // Otherwise, it will receive acceleration as normal
                     // It will receive this acceleration if the automobile is moving straight or wide-drifting (the latter slightly reduces acceleration)
@@ -354,23 +343,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         }
         // Handle when the automobile is rolling to a stop
         if (!inFwd && !inBack) {
-            this.engineSpeed = AUtils.zero(this.engineSpeed, 0.019f);
+            this.engineSpeed = AUtils.zero(this.engineSpeed, 0.025f);
         }
 
         // Slow the automobile a bit while steering and moving fast
         if (!drifting && steering != 0 && hSpeed > 0.8) {
             engineSpeed -= engineSpeed * 0.00042f;
         }
-
-        // Set the horizontal speed
-        hSpeed = engineSpeed + boostSpeed;
-
-        // Apply the horizontal speed to the cumulative movement
-        float angle = (float) Math.toRadians(-speedDirection);
-        cumulative = cumulative.add(Math.sin(angle) * hSpeed, 0, Math.cos(angle) * hSpeed);
-
-        // Turn the wheels
-        wheelAngle += hSpeed * 100f;
 
         // Allows for the sticky slope effect to continue for a tick after not being on a slope
         // This prevents the automobile from randomly jumping if it's moving down a slope quickly
@@ -382,8 +361,20 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             slopeStickingTimer = Math.max(0, slopeStickingTimer--);
         }
 
-        // Stick to the slope
-        if (slopeStickingTimer > 0 && verticalSpeed <= 0) cumulative = cumulative.add(0, -wheels.size(), 0);
+        // Set the horizontal speed
+        hSpeed = engineSpeed + boostSpeed;
+
+        // Sticking to sticky slopes
+        if (slopeStickingTimer > 0 && automobileOnGround && prevYDisplacement <= 0) {
+            cumulative = cumulative.add(0, -0.5, 0);
+        }
+
+        // Apply the horizontal speed to the cumulative movement
+        float angle = (float) Math.toRadians(-speedDirection);
+        cumulative = cumulative.add(Math.sin(angle) * hSpeed, 0, Math.cos(angle) * hSpeed);
+
+        // Turn the wheels
+        wheelAngle += hSpeed * (33.333f * wheels.model().radius());
 
         // Move the automobile by the cumulative vector
         this.move(MovementType.SELF, cumulative);
@@ -397,11 +388,30 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
         // This code handles bumping into a wall, yes it is utterly horrendous
         var displacement = new Vec3d(getX(), 0, getZ()).subtract(lastPos.x, 0, lastPos.z);
-        if (hSpeed > 0.1 && displacement.length() < hSpeed * 0.15 && automobileOnGround && addedVelocity.length() < 0.05) {
+        if (hSpeed > 0.1 && displacement.length() < hSpeed * 0.1 && addedVelocity.length() < 0.05) {
             engineSpeed /= 3.6;
             float knockSpeed = ((-0.2f * hSpeed) - 0.5f);
             addedVelocity = addedVelocity.add(Math.sin(angle) * knockSpeed, 0, Math.cos(angle) * knockSpeed);
         }
+
+        double yDisp = getPos().subtract(lastPos).getY();
+
+        // Handles gravity
+        if (automobileOnGround && isOnGround()) {
+            verticalSpeed = 0;
+        } else {
+            verticalSpeed = Math.max(verticalSpeed - 0.08f, TERMINAL_VELOCITY);
+        }
+
+        // Handle launching off slopes
+        if (wasOnGround && !automobileOnGround) {
+            //System.out.println("--------------v");
+            verticalSpeed = prevYDisplacement * 0.87f;
+            //System.out.println("--------------^");
+        }
+
+        // Store previous y displacement to use when launching off slopes
+        prevYDisplacement = (float) yDisp;
 
         // Handle setting the locked view offset
         if (hSpeed != 0) {
@@ -420,7 +430,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             if (world.isClient) {
                 var passenger = getFirstPassenger();
                 if (passenger instanceof PlayerEntity player) {
-                    // Will later add a config option to let this view be accessible without a controller
                     if (inLockedViewMode()) {
                         player.setYaw(getYaw() + lockedViewOffset);
                         player.setBodyYaw(getYaw() + lockedViewOffset);
@@ -444,11 +453,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         var moreBelow = new BlockPos(Math.floor(getX()), Math.floor(getY() - 1.01), Math.floor(getZ()));
         if (
                 hSpeed != 0 &&
-                !(fallSpeed < 0.2 && fallSpeed > -0.2) &&
+                !automobileOnGround &&
                 !world.getBlockState(below).isSideSolid(world, below, Direction.UP, SideShapeType.RIGID) &&
                 world.getBlockState(moreBelow).isSideSolid(world, moreBelow, Direction.UP, SideShapeType.RIGID)
         ) {
-            if (fallSpeed > 0) {
+            if (verticalSpeed > 0) {
                 verticalTravelPitch = Math.min(verticalTravelPitch + 13, 45) * (hSpeed > 0 ? 1 : -1);
             }
         } else {
@@ -456,7 +465,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         }
     }
 
-    public void tickClient() {
+    public void clientTick() {
         lastGroundSlopeX = groundSlopeX;
         lastGroundSlopeZ = groundSlopeZ;
         var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.06), Math.floor(getZ()));
@@ -467,6 +476,28 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         } else if (!state.isAir()) {
             groundSlopeX = AUtils.zero(groundSlopeX, 20);
             groundSlopeZ = AUtils.zero(groundSlopeZ, 20);
+        }
+    }
+
+    public void collisionStateTick() {
+        // scuffed ground check
+        wasOnGround = automobileOnGround;
+        var b = getBoundingBox();
+        var box = new Box(b.minX, b.minY - 0.04, b.minZ, b.maxX, b.minY, b.maxZ);
+        var start = new BlockPos(box.minX + 0.001, box.minY + 0.001, box.minZ + 0.001);
+        var end = new BlockPos(box.maxX - 0.001, box.maxY - 0.001, box.maxZ - 0.001);
+        if (this.world.isRegionLoaded(start, end)) {
+            var pos = new BlockPos.Mutable();
+            for(int x = start.getX(); x <= end.getX(); ++x) {
+                for(int y = start.getY(); y <= end.getY(); ++y) {
+                    for(int z = start.getZ(); z <= end.getZ(); ++z) {
+                        pos.set(x, y, z);
+                        var state = this.world.getBlockState(pos);
+                        var blockShape = state.getCollisionShape(this.world, pos, ShapeContext.of(this)).offset(pos.getX(), pos.getY(), pos.getZ());
+                        automobileOnGround = VoxelShapes.matchesAnywhere(blockShape, VoxelShapes.cuboid(box), BooleanBiFunction.AND);
+                    }
+                }
+            }
         }
     }
 

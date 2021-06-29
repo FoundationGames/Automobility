@@ -34,9 +34,9 @@ public record AutomobileWheel(
             new AutomobileWheel(Automobility.id("steel"), 0.55f, new WheelModel(1.5f, 3, TEMP_ID, EmptyModel::new))
     );
 
-    public static final AutomobileWheel INFLATABLE = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("inflatable"), 0.75f, new WheelModel(4, 4, TEMP_ID, EmptyModel::new), Ability.HYDROPLANE)
-    );
+    // public static final AutomobileWheel INFLATABLE = REGISTRY.register(
+    //         new AutomobileWheel(Automobility.id("inflatable"), 0.75f, new WheelModel(4, 4, TEMP_ID, EmptyModel::new), Ability.HYDROPLANE)
+    // );
 
     public static final AutomobileWheel CONVERTIBLE = REGISTRY.register(
             new AutomobileWheel(Automobility.id("convertible"), 0.75f, new WheelModel(5.2f, 4.1f, TEMP_ID, ConvertibleWheelModel::new))
@@ -47,8 +47,12 @@ public record AutomobileWheel(
         return this.id;
     }
 
+    public String getTranslationKey() {
+        return "wheel."+id.getNamespace()+"."+id.getPath();
+    }
+
     public enum Ability {
-        HYDROPLANE;
+        // HYDROPLANE;
     }
 
     public static record WheelModel(

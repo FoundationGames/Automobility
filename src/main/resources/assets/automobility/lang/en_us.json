@@ -12,6 +12,7 @@
   "block.automobility.dash_panel": "Dash Panel",
   "block.automobility.sloped_dash_panel": "Sloped Dash Panel",
   "block.automobility.steep_sloped_dash_panel": "Steep Sloped Dash Panel",
+  "block.automobility.auto_mechanic_table": "Auto Mechanic Table",
 
   "block.automobility.slope": "Slope",
   "block.automobility.steep_slope": "Steep Slope",
@@ -33,5 +34,36 @@
   "prefab.automobility.standard_red": "Standard Red",
   "prefab.automobility.standard_black": "Standard Black",
   "prefab.automobility.c_arr": "c:arr:",
-  "prefab.automobility.dababy": "DaBaby Convertible"
+  "prefab.automobility.dababy": "DaBaby Convertible",
+
+  "tooltip.automobility.frameLabel": "Frame: ",
+  "tooltip.automobility.wheelLabel": "Wheels: ",
+  "tooltip.automobility.engineLabel": "Engine: ",
+
+  "frame.automobility.standard_white": "Standard White",
+  "frame.automobility.standard_orange": "Standard Orange",
+  "frame.automobility.standard_magenta": "Standard Magenta",
+  "frame.automobility.standard_light_blue": "Standard Light Blue",
+  "frame.automobility.standard_yellow": "Standard Yellow",
+  "frame.automobility.standard_lime": "Standard Lime",
+  "frame.automobility.standard_pink": "Standard Pink",
+  "frame.automobility.standard_gray": "Standard Gray",
+  "frame.automobility.standard_light_gray": "Standard Light Gray",
+  "frame.automobility.standard_cyan": "Standard Cyan",
+  "frame.automobility.standard_purple": "Standard Purple",
+  "frame.automobility.standard_blue": "Standard Blue",
+  "frame.automobility.standard_brown": "Standard Brown",
+  "frame.automobility.standard_green": "Standard Green",
+  "frame.automobility.standard_red": "Standard Red",
+  "frame.automobility.standard_black": "Standard Black",
+  "frame.automobility.c_arr": "c:arr:",
+  "frame.automobility.dababy": "DaBaby",
+
+  "wheel.automobility.standard": "Standard",
+  "wheel.automobility.off_road": "Off-Road",
+  "wheel.automobility.steel": "Steel",
+  "wheel.automobility.convertible": "Convertible",
+
+  "engine.automobility.iron": "Iron",
+  "engine.automobility.copper": "Copper"
 }

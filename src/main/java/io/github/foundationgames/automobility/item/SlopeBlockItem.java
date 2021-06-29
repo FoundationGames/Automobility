@@ -41,8 +41,10 @@ public class SlopeBlockItem extends BlockItem {
             var place = pos.offset(playerFacing);
             if (vOffset != null) place = place.offset(vOffset);
             var pState = world.getBlockState(place);
+            var nHalf = half;
+            if (playerFacing == facing || playerFacing == facing.getOpposite()) nHalf = half == BlockHalf.TOP ? BlockHalf.BOTTOM : BlockHalf.TOP;
             if (pState.isAir() || pState.isOf(Blocks.WATER)) {
-                return new SlopePlacementContext(ItemPlacementContext.offset(context, place, Direction.UP), facing, half == BlockHalf.TOP ? BlockHalf.BOTTOM : BlockHalf.TOP);
+                return new SlopePlacementContext(ItemPlacementContext.offset(context, place, Direction.UP), facing, nHalf);
             }
         }
         return super.getPlacementContext(context);
@@ -50,12 +52,12 @@ public class SlopeBlockItem extends BlockItem {
 
     @Override
     public String getTranslationKey() {
-        return "block.automobility.slope";
+        return base != null ? "block.automobility.slope" : super.getTranslationKey();
     }
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
-        tooltip.add(new TranslatableText(base.getTranslationKey()).formatted(Formatting.BLUE));
+        if (base != null) tooltip.add(new TranslatableText(base.getTranslationKey()).formatted(Formatting.BLUE));
     }
 }
