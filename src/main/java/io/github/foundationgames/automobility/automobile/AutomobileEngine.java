@@ -15,13 +15,14 @@ import java.util.function.Function;
 public record AutomobileEngine(
         Identifier id,
         float torque,
+        float speed,
         EngineModel model
 ) implements SimpleMapContentRegistry.Identifiable {
 
     public static final SimpleMapContentRegistry<AutomobileEngine> REGISTRY = new SimpleMapContentRegistry<>();
 
     public static final AutomobileEngine IRON = REGISTRY.register(
-            new AutomobileEngine(Automobility.id("iron"), 0.5f,
+            new AutomobileEngine(Automobility.id("iron"), 0.5f, 1,
                     new EngineModel(
                             Automobility.id("textures/entity/automobile/engine/iron.png"), IronEngineModel::new,
                             new AutomobileEngine.ExhaustPos(-3.5f, 5.4f, -8, 26, 0),
@@ -31,7 +32,7 @@ public record AutomobileEngine(
     );
 
     public static final AutomobileEngine COPPER = REGISTRY.register(
-            new AutomobileEngine(Automobility.id("copper"), 0.375f,
+            new AutomobileEngine(Automobility.id("copper"), 0.375f, 0.8f,
                     new EngineModel(
                             Automobility.id("textures/entity/automobile/engine/copper.png"), CopperEngineModel::new,
                             new AutomobileEngine.ExhaustPos(2, 1.625f, -8.95f, 26, 0)
@@ -40,7 +41,7 @@ public record AutomobileEngine(
     );
 
     public static final AutomobileEngine GOLD = REGISTRY.register(
-            new AutomobileEngine(Automobility.id("gold"), 0.55f,
+            new AutomobileEngine(Automobility.id("gold"), 0.7f, 0.75f,
                     new EngineModel(
                             Automobility.id("textures/entity/automobile/engine/gold.png"), GoldEngineModel::new,
                             new AutomobileEngine.ExhaustPos(4, 9.3f, -7.75f, 26, 0),

@@ -38,12 +38,17 @@
   "prefab.automobility.standard_green": "Standard Green",
   "prefab.automobility.standard_red": "Standard Red",
   "prefab.automobility.standard_black": "Standard Black",
+  "prefab.automobility.shopping_cart": "Shopping Cart",
   "prefab.automobility.c_arr": "c:arr:",
-  "prefab.automobility.dababy": "DaBaby Convertible",
 
   "tooltip.automobility.frameLabel": "Frame: ",
   "tooltip.automobility.wheelLabel": "Wheels: ",
   "tooltip.automobility.engineLabel": "Engine: ",
+  "tooltip.automobility.shiftForStats": "[SHIFT for stats]",
+  "tooltip.automobility.accelerationLabel": "Acceleration: ",
+  "tooltip.automobility.comfortableSpeedLabel": "Comfortable Speed: ",
+  "tooltip.automobility.handlingLabel": "Handling: ",
+  "tooltip.automobility.gripLabel": "Grip: ",
 
   "frame.automobility.standard_white": "Standard White",
   "frame.automobility.standard_orange": "Standard Orange",

@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.entity;
 
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
+import io.github.foundationgames.automobility.automobile.AutomobileStats;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.block.Sloped;
@@ -41,6 +42,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private AutomobileWheel wheels = AutomobileWheel.REGISTRY.getOrDefault(null);
     private AutomobileEngine engine = AutomobileEngine.REGISTRY.getOrDefault(null);
 
+    private final AutomobileStats stats = new AutomobileStats();
+
     @Environment(EnvType.CLIENT)
     private Model frameModel = null;
     @Environment(EnvType.CLIENT)
@@ -49,7 +52,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private Model engineModel = null;
 
     public static final int DRIFT_TURBO_TIME = 50;
-    public static final float COMFORTABLE_SPEED = 0.8f;
     public static final float TERMINAL_VELOCITY = -1.2f;
 
     private float engineSpeed = 0;
@@ -97,7 +99,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private int suspensionBounceTimer = 0;
     private int lastSusBounceTimer = suspensionBounceTimer;
 
-    private Deque<Double> prevYDisplacements = new ArrayDeque<>();
+    private final Deque<Double> prevYDisplacements = new ArrayDeque<>();
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
@@ -227,14 +229,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         return world.getTime();
     }
 
-    public float getWeight() {
-        return this.frame.weight();
-    }
-
-    public float getHandling() {
-        return 0.42f;
-    }
-
     public float getHSpeed() {
         return hSpeed;
     }
@@ -255,6 +249,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         this.engine = engine;
         this.updateModels = true;
         this.stepHeight = wheels.size();
+        this.stats.from(frame, wheel, engine);
     }
 
     @Override
@@ -304,7 +299,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         if (boostTimer > 0) {
             boostTimer--;
             boostSpeed = Math.min(boostPower, boostSpeed + 0.09f);
-            if (engineSpeed < COMFORTABLE_SPEED) {
+            if (engineSpeed < stats.getComfortableSpeed()) {
                 engineSpeed += 0.012f;
             }
         } else {
@@ -335,11 +330,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                     (
                             (this.drifting && AUtils.haveSameSign(this.steering, this.driftDir)) ||
                             (!this.drifting && this.steering != 0 && hSpeed > 0.5)
-                    ) ? (this.hSpeed < COMFORTABLE_SPEED ? 0.001 : 0) // This will supply a small amount of acceleration if the automobile is moving slowly only
+                    ) ? (this.hSpeed < stats.getComfortableSpeed() ? 0.001 : 0) // This will supply a small amount of acceleration if the automobile is moving slowly only
 
                     // Otherwise, it will receive acceleration as normal
                     // It will receive this acceleration if the automobile is moving straight or wide-drifting (the latter slightly reduces acceleration)
-                    : calculateAcceleration(speed, getWeight(), this.wheels.size(), 0.5f) * (drifting ? 0.86 : 1) * (engineSpeed > COMFORTABLE_SPEED ? 0.2f : 1);
+                    : calculateAcceleration(speed, stats) * (drifting ? 0.86 : 1) * (engineSpeed > stats.getComfortableSpeed() ? 0.25f : 1);
         }
         // Handle braking/reverse
         if (inBack) {
@@ -403,7 +398,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
         // This code handles bumping into a wall, yes it is utterly horrendous
         var displacement = new Vec3d(getX(), 0, getZ()).subtract(lastPos.x, 0, lastPos.z);
-        if (hSpeed > 0.1 && displacement.length() < hSpeed * 0.2 && addedVelocity.length() < 0.05) {
+        if (hSpeed > 0.1 && displacement.length() < hSpeed * 0.5 && addedVelocity.length() <= 0) {
             engineSpeed /= 3.6;
             float knockSpeed = ((-0.2f * hSpeed) - 0.5f);
             addedVelocity = addedVelocity.add(Math.sin(angle) * knockSpeed, 0, Math.cos(angle) * knockSpeed);
@@ -443,7 +438,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
         // Turns the automobile based on steering/drifting
         if (hSpeed != 0) {
-            float yawInc = drifting ? ((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir : this.steering * ((4 * Math.min(hSpeed, 1)) + (hSpeed > 0 ? 2 : -3.5f));
+            float yawInc = (drifting ? (((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir) * (((1 - stats.getGrip()) + 2) / 2.5f) : this.steering * ((4f * Math.min(hSpeed, 1)) + (hSpeed > 0 ? 2 : -3.5f))) * ((stats.getHandling() + 1) / 2);
             this.setYaw(getYaw() + yawInc);
             if (world.isClient) {
                 var passenger = getFirstPassenger();
@@ -497,7 +492,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             targetSlopeX = 0;
             targetSlopeZ = 0;
         }
-        if (automobileOnGround || isFloorDirectlyBelow || onSlope) {
+        if (automobileOnGround || onSlope) {
             groundSlopeX = AUtils.shift(groundSlopeX, 15, targetSlopeX);
             groundSlopeZ = AUtils.shift(groundSlopeZ, 15, targetSlopeZ);
         }
@@ -532,9 +527,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         }
     }
 
-    private float calculateAcceleration(float speed, float weight, float wheelSize, float torque) {
+    private float calculateAcceleration(float speed, AutomobileStats stats) {
         // A somewhat over-engineered function to accelerate the automobile, since I didn't want to add a hard speed cap
-        return (1f / ((300 * speed) + 17f)) * 0.85f;
+        return (1 / ((300 * speed) + (18.5f - (stats.getAcceleration() * 5.3f)))) * (0.9f * ((stats.getAcceleration() + 1) / 2));
     }
 
     @Environment(EnvType.CLIENT)
@@ -572,12 +567,12 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         // Adjust the steering based on the left/right inputs
         this.lastSteering = steering;
         if (inLeft == inRight) {
-            this.steering = AUtils.zero(this.steering, getHandling());
+            this.steering = AUtils.zero(this.steering, 0.42f);
         } else if (inLeft) {
-            this.steering -= getHandling();
+            this.steering -= 0.42f;
             this.steering = Math.max(-1, this.steering);
         } else {
-            this.steering += getHandling();
+            this.steering += 0.42f;
             this.steering = Math.min(1, this.steering);
         }
     }

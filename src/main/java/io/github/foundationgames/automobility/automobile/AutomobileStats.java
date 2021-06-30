@@ -1,12 +1,20 @@
 package io.github.foundationgames.automobility.automobile;
 
-// TODO
 public class AutomobileStats {
-    private float acceleration;     // 0-1
-    private float comfortableSpeed; // Blocks per Tick
-    private float handling;         // 0-1
-    private float drift;            // 0-1
-    private float turbo;            // 0-1
+    private float acceleration = 0;     // 0-1
+    private float comfortableSpeed = 0; // Blocks per Tick
+    private float handling = 0;         // 0-1
+    private float grip = 0;             // 0-1
+
+    public AutomobileStats() {
+    }
+
+    public void from(AutomobileFrame frame, AutomobileWheel wheel, AutomobileEngine engine) {
+        this.acceleration = ((1 - ((frame.weight() + wheel.size()) / 2)) + (2 * engine.torque()) / 3);
+        this.comfortableSpeed = ((engine.speed() * 3) + (engine.speed() * frame.weight()) + (engine.speed() * wheel.size())) / 5;
+        this.handling = ((1 - wheel.size()) + (1 - frame.weight()) + 2) / 4;
+        this.grip = (wheel.grip() + frame.weight()) / 2;
+    }
 
     public float getAcceleration() {
         return acceleration;
@@ -20,11 +28,7 @@ public class AutomobileStats {
         return handling;
     }
 
-    public float getDrift() {
-        return drift;
-    }
-
-    public float getTurbo() {
-        return turbo;
+    public float getGrip() {
+        return grip;
     }
 }

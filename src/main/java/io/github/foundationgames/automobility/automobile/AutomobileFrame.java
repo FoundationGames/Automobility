@@ -40,7 +40,7 @@ public record AutomobileFrame(
     public static final AutomobileFrame SHOPPING_CART = REGISTRY.register(
             new AutomobileFrame(
                     Automobility.id("shopping_cart"),
-                    0.27f,
+                    0.25f,
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/shopping_cart.png"),
                             ShoppingCartFrameModel::new,
@@ -56,7 +56,7 @@ public record AutomobileFrame(
     public static final AutomobileFrame C_ARR = REGISTRY.register(
             new AutomobileFrame(
                     Automobility.id("c_arr"),
-                    0.78f,
+                    0.85f,
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/c_arr.png"),
                             CARRFrameModel::new,
@@ -88,7 +88,7 @@ public record AutomobileFrame(
     private static AutomobileFrame standard(String color) {
         return new AutomobileFrame(
                 Automobility.id("standard_"+color),
-                0.5f,
+                0.6f,
                 new FrameModel(
                         Automobility.id("textures/entity/automobile/frame/standard_"+color+".png"),
                         StandardFrameModel::new,
