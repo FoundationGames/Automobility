@@ -1,7 +1,9 @@
 package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
+import io.github.foundationgames.automobility.automobile.render.EmptyModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CopperEngineModel;
+import io.github.foundationgames.automobility.automobile.render.engine.GoldEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.IronEngineModel;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.client.model.Model;
@@ -22,8 +24,8 @@ public record AutomobileEngine(
             new AutomobileEngine(Automobility.id("iron"), 0.5f,
                     new EngineModel(
                             Automobility.id("textures/entity/automobile/engine/iron.png"), IronEngineModel::new,
-                            new AutomobileEngine.ExhaustPos(-3.5f, 5.4f, -8f, 26, 0),
-                            new AutomobileEngine.ExhaustPos(3.5f, 5.4f, -8f, 26, 0)
+                            new AutomobileEngine.ExhaustPos(-3.5f, 5.4f, -8, 26, 0),
+                            new AutomobileEngine.ExhaustPos(3.5f, 5.4f, -8, 26, 0)
                     )
             )
     );
@@ -32,7 +34,17 @@ public record AutomobileEngine(
             new AutomobileEngine(Automobility.id("copper"), 0.375f,
                     new EngineModel(
                             Automobility.id("textures/entity/automobile/engine/copper.png"), CopperEngineModel::new,
-                            new AutomobileEngine.ExhaustPos(2f, 1.625f, -8.95f, 26, 0)
+                            new AutomobileEngine.ExhaustPos(2, 1.625f, -8.95f, 26, 0)
+                    )
+            )
+    );
+
+    public static final AutomobileEngine GOLD = REGISTRY.register(
+            new AutomobileEngine(Automobility.id("gold"), 0.55f,
+                    new EngineModel(
+                            Automobility.id("textures/entity/automobile/engine/gold.png"), GoldEngineModel::new,
+                            new AutomobileEngine.ExhaustPos(4, 9.3f, -7.75f, 26, 0),
+                            new AutomobileEngine.ExhaustPos(-4, 9.3f, -7.75f, 26, 0)
                     )
             )
     );

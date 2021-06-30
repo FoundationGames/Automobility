@@ -9,7 +9,7 @@ import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class StandardWheelModel extends Model {
-    public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile_wheel/standard"), "main");
+    public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile/wheel/standard"), "main");
 
     private final ModelPart main;
     private final ModelPart tire_top_right;

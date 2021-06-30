@@ -3,6 +3,7 @@ package io.github.foundationgames.automobility.automobile;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.frame.CARRFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.DaBabyFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.ShoppingCartFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.client.model.Model;
@@ -36,10 +37,26 @@ public record AutomobileFrame(
     public static final AutomobileFrame STANDARD_RED = REGISTRY.register(standard("red"));
     public static final AutomobileFrame STANDARD_BLACK = REGISTRY.register(standard("black"));
 
+    public static final AutomobileFrame SHOPPING_CART = REGISTRY.register(
+            new AutomobileFrame(
+                    Automobility.id("shopping_cart"),
+                    0.27f,
+                    new FrameModel(
+                            Automobility.id("textures/entity/automobile/frame/shopping_cart.png"),
+                            ShoppingCartFrameModel::new,
+                            17,
+                            12,
+                            11,
+                            7,
+                            17
+                    )
+            )
+    );
+
     public static final AutomobileFrame C_ARR = REGISTRY.register(
             new AutomobileFrame(
                     Automobility.id("c_arr"),
-                    0.5f,
+                    0.78f,
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/c_arr.png"),
                             CARRFrameModel::new,
@@ -55,7 +72,7 @@ public record AutomobileFrame(
     public static final AutomobileFrame DABABY = REGISTRY.register(
             new AutomobileFrame(
                     Automobility.id("dababy"),
-                    0.5f,
+                    0.93f,
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/dababy.png"),
                             DaBabyFrameModel::new,

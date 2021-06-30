@@ -4,6 +4,11 @@
   "itemGroup.automobility.automobility": "Automobility",
   "itemGroup.automobility.automobility_prefabs": "Automobility: Prefabs",
 
+  "automobility.automobility": "Automobility",
+  "lambdacontrols.action.automobility.accelerate_automobile": "Accelerate",
+  "lambdacontrols.action.automobility.brake_automobile": "Brake/Reverse",
+  "lambdacontrols.action.automobility.drift_automobile": "Drift",
+
   "item.automobility.automobile": "Automobile",
   "item.automobility.crowbar": "Crowbar",
 
@@ -56,6 +61,7 @@
   "frame.automobility.standard_green": "Standard Green",
   "frame.automobility.standard_red": "Standard Red",
   "frame.automobility.standard_black": "Standard Black",
+  "frame.automobility.shopping_cart": "Shopping Cart",
   "frame.automobility.c_arr": "c:arr:",
   "frame.automobility.dababy": "DaBaby",
 
@@ -64,6 +70,7 @@
   "wheel.automobility.steel": "Steel",
   "wheel.automobility.convertible": "Convertible",
 
+  "engine.automobility.copper": "Copper",
   "engine.automobility.iron": "Iron",
-  "engine.automobility.copper": "Copper"
+  "engine.automobility.gold": "Gold"
 }

@@ -10,7 +10,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3f;
 
 public class CopperEngineModel extends Model {
-    public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile_engine/copper"), "main");
+    public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile/engine/copper"), "main");
 
     private final ModelPart main;
     private final ModelPart exhaust;
@@ -43,8 +43,9 @@ public class CopperEngineModel extends Model {
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-        // oops i modeled it facing the wrong way oh well
+        matrices.push();
         matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
         main.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+        matrices.pop();
     }
 }

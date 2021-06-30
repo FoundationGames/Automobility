@@ -171,4 +171,8 @@ public enum AutomobileRenderer {;
 
         matrices.pop();
     }
+
+    public static void renderEngine() {
+
+    }
 }

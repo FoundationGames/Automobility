@@ -30,7 +30,7 @@ public class SteepSlopedDashPanelBlock extends SteepSlopeBlock {
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
         super.onEntityCollision(state, world, pos, entity);
         if (entity instanceof AutomobileEntity auto) {
-            auto.boost(0.6f, 50);
+            auto.boost(0.45f, 50);
         }
     }
 

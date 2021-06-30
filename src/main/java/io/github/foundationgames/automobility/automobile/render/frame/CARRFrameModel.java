@@ -9,7 +9,7 @@ import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class CARRFrameModel extends Model {
-    public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile_frame/c_arr"), "main");
+    public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile/frame/c_arr"), "main");
 
     private final ModelPart main;
     private final ModelPart engine_chain;
