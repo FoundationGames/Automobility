@@ -3,6 +3,7 @@ package io.github.foundationgames.automobility.automobile;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.EmptyModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CopperEngineModel;
+import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.GoldEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.IronEngineModel;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
@@ -46,6 +47,15 @@ public record AutomobileEngine(
                             Automobility.id("textures/entity/automobile/engine/gold.png"), GoldEngineModel::new,
                             new AutomobileEngine.ExhaustPos(4, 9.3f, -7.75f, 26, 0),
                             new AutomobileEngine.ExhaustPos(-4, 9.3f, -7.75f, 26, 0)
+                    )
+            )
+    );
+
+    public static final AutomobileEngine CREATIVE = REGISTRY.register(
+            new AutomobileEngine(Automobility.id("creative"), 1f, 2f,
+                    new EngineModel(
+                            Automobility.id("textures/entity/automobile/engine/creative.png"), CreativeEngineModel::new,
+                            new AutomobileEngine.ExhaustPos(0, 7, -7, 90, 0)
                     )
             )
     );

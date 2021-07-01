@@ -23,7 +23,7 @@ public record AutomobileWheel(
     public static final SimpleMapContentRegistry<AutomobileWheel> REGISTRY = new SimpleMapContentRegistry<>();
 
     public static final AutomobileWheel STANDARD = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("standard"), 0.55f, 0.5f, new WheelModel(3, 3, Automobility.id("textures/entity/automobile/wheel/standard.png"), StandardWheelModel::new))
+            new AutomobileWheel(Automobility.id("standard"), 0.6f, 0.5f, new WheelModel(3, 3, Automobility.id("textures/entity/automobile/wheel/standard.png"), StandardWheelModel::new))
     );
 
     public static final AutomobileWheel OFF_ROAD = REGISTRY.register(
@@ -31,7 +31,7 @@ public record AutomobileWheel(
     );
 
     public static final AutomobileWheel STEEL = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("steel"), 0.6f, 0.4f, new WheelModel(3.625f, 3, Automobility.id("textures/entity/automobile/wheel/steel.png"), SteelWheelModel::new))
+            new AutomobileWheel(Automobility.id("steel"), 0.69f, 0.4f, new WheelModel(3.625f, 3, Automobility.id("textures/entity/automobile/wheel/steel.png"), SteelWheelModel::new))
     );
 
     // public static final AutomobileWheel INFLATABLE = REGISTRY.register(

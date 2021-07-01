@@ -11,7 +11,7 @@ public class AutomobileStats {
 
     public void from(AutomobileFrame frame, AutomobileWheel wheel, AutomobileEngine engine) {
         this.acceleration = ((1 - ((frame.weight() + wheel.size()) / 2)) + (2 * engine.torque()) / 3);
-        this.comfortableSpeed = ((engine.speed() * 3) + (engine.speed() * frame.weight()) + (engine.speed() * wheel.size())) / 5;
+        this.comfortableSpeed = ((engine.speed() * 3) + ((engine.speed() * frame.weight()) * 2) + (engine.speed() * wheel.size())) / 5.7f;
         this.handling = ((1 - wheel.size()) + (1 - frame.weight()) + 2) / 4;
         this.grip = (wheel.grip() + frame.weight()) / 2;
     }
