@@ -1,0 +1,19 @@
+{
+    "replace": false,
+    "values": [
+        "minecraft:boat",
+        "minecraft:donkey",
+        "minecraft:horse",
+        "minecraft:llama",
+        "minecraft:minecart",
+        "minecraft:mule",
+        "minecraft:pig",
+        "minecraft:strider",
+        { "id": "balloonist:balloon", "required": false },
+        { "id": "gravityguns:block", "required": false },
+        { "id": "hyperstellar:ship", "required": false },
+        { "id": "lovely_snails:snail", "required": false },
+        { "id": "wackyvessels:submarine_vessel", "required": false },
+        { "id": "wackyvessels:airship_vessel", "required": false }
+    ]
+}

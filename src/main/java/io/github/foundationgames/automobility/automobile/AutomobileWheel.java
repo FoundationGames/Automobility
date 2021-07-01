@@ -27,7 +27,7 @@ public record AutomobileWheel(
     );
 
     public static final AutomobileWheel OFF_ROAD = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("off_road"), 1.0f, 0.8f, new WheelModel(8.4f, 5, Automobility.id("textures/entity/automobile/wheel/off_road.png"), OffRoadWheelModel::new))
+            new AutomobileWheel(Automobility.id("off_road"), 1.1f, 0.8f, new WheelModel(8.4f, 5, Automobility.id("textures/entity/automobile/wheel/off_road.png"), OffRoadWheelModel::new))
     );
 
     public static final AutomobileWheel STEEL = REGISTRY.register(

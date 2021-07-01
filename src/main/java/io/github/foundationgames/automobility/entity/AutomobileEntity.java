@@ -18,7 +18,9 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -28,6 +30,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.TypeFilter;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShapes;
@@ -35,7 +38,9 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 
 public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
@@ -382,6 +387,18 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
         // Move the automobile by the cumulative vector
         this.move(MovementType.SELF, cumulative);
+
+        // Damage and launch entities that are hit by a moving automobile
+        if (hSpeed > 0.2) {
+            var frontBox = getBoundingBox().offset(cumulative.multiply(0.3));
+            var velAdd = cumulative.add(0, 0.1, 0).multiply(3);
+            for (var entity : world.getEntitiesByType(TypeFilter.instanceOf(Entity.class), frontBox, entity -> entity != this)) {
+                if (entity instanceof LivingEntity living) {
+                    living.damage(AutomobilityEntities.AUTOMOBILE_DAMAGE_SOURCE, hSpeed * 10);
+                }
+                entity.addVelocity(velAdd.x, velAdd.y, velAdd.z);
+            }
+        }
 
         // ############################################################################################################
         // ############################################################################################################

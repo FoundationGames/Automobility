@@ -22,6 +22,9 @@
   "block.automobility.slope": "Slope",
   "block.automobility.steep_slope": "Steep Slope",
 
+  "death.attack.automobile": "%1$s became roadkill",
+  "death.attack.automobile.player": "%1$s was hit by a moving vehicle in an attempt to escape %2$s",
+
   "prefab.automobility.standard_white": "Standard White",
   "prefab.automobility.standard_orange": "Standard Orange",
   "prefab.automobility.standard_magenta": "Standard Magenta",
@@ -77,5 +80,6 @@
 
   "engine.automobility.copper": "Copper",
   "engine.automobility.iron": "Iron",
-  "engine.automobility.gold": "Gold"
+  "engine.automobility.gold": "Gold",
+  "engine.automobility.creative": "Creative"
 }
