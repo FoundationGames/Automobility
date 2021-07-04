@@ -14,6 +14,10 @@
 
   "tooltip.item.automobility.crowbar": "Use on Automobile to remove",
 
+  "block.automobility.grass_off_road": "Grass Off Road",
+  "block.automobility.dirt_off_road": "Dirt Off Road",
+  "block.automobility.sand_off_road": "Sand Off Road",
+  "block.automobility.snow_off_road": "Snow Off Road",
   "block.automobility.dash_panel": "Dash Panel",
   "block.automobility.sloped_dash_panel": "Sloped Dash Panel",
   "block.automobility.steep_sloped_dash_panel": "Steep Sloped Dash Panel",

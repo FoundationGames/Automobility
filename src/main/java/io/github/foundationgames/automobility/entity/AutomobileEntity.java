@@ -5,6 +5,7 @@ import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileStats;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
+import io.github.foundationgames.automobility.block.OffRoadBlock;
 import io.github.foundationgames.automobility.block.Sloped;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import io.github.foundationgames.automobility.util.AUtils;
@@ -20,7 +21,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -38,9 +38,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
-import java.util.List;
 
 public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
@@ -98,6 +96,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private boolean wasOnGround = automobileOnGround;
     private boolean isFloorDirectlyBelow = true;
 
+    private Vec3d lastVelocity = Vec3d.ZERO;
+
     // Prevents jittering when going down slopes
     private int slopeStickingTimer = 0;
 
@@ -105,6 +105,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private int lastSusBounceTimer = suspensionBounceTimer;
 
     private final Deque<Double> prevYDisplacements = new ArrayDeque<>();
+
+    private boolean offRoad = false;
+    private Vec3f debrisColor = new Vec3f();
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
@@ -121,6 +124,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         verticalSpeed = nbt.getFloat("verticalSpeed");
         hSpeed = nbt.getFloat("horizontalSpeed");
         addedVelocity = AUtils.v3dFromNbt(nbt.getCompound("addedVelocity"));
+        lastVelocity = AUtils.v3dFromNbt(nbt.getCompound("lastVelocity"));
         steering = nbt.getFloat("steering");
         wheelAngle = nbt.getFloat("wheelAngle");
         drifting = nbt.getBoolean("drifting");
@@ -148,6 +152,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         nbt.putFloat("verticalSpeed", verticalSpeed);
         nbt.putFloat("horizontalSpeed", hSpeed);
         nbt.put("addedVelocity", AUtils.v3dToNbt(addedVelocity));
+        nbt.put("lastVelocity", AUtils.v3dToNbt(lastVelocity));
         nbt.putFloat("steering", steering);
         nbt.putFloat("wheelAngle", wheelAngle);
         nbt.putBoolean("drifting", drifting);
@@ -248,6 +253,16 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         return automobileOnGround;
     }
 
+    @Override
+    public boolean debris() {
+        return offRoad && hSpeed > 0;
+    }
+
+    @Override
+    public Vec3f debrisColor() {
+        return debrisColor;
+    }
+
     public void setComponents(AutomobileFrame frame, AutomobileWheel wheel, AutomobileEngine engine) {
         this.frame = frame;
         this.wheels = wheel;
@@ -293,6 +308,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         //this.wasOnGround = automobileOnGround;
         //this.automobileOnGround = (verticalSpeed < 0.2 && verticalSpeed > -0.2) || isOnGround();
 
+        // Handle the small suspension bounce effect
         lastSusBounceTimer = suspensionBounceTimer;
         if (suspensionBounceTimer > 0) suspensionBounceTimer--;
         if (!wasOnGround && automobileOnGround) {
@@ -311,6 +327,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             boostSpeed = AUtils.zero(boostSpeed, 0.09f);
         }
 
+        // Get block below's friction
+        var blockBelow = new BlockPos(getX(), getY() - 0.05, getZ());
+        float grip = 1 - ((MathHelper.clamp((world.getBlockState(blockBelow).getBlock().getSlipperiness() - 0.6f) / 0.4f, 0, 1) * (1 - stats.getGrip() * 0.8f)));
+
         // Track the last position of the automobile
         var lastPos = getPos();
 
@@ -322,8 +342,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         // Reduce gravity underwater
         cumulative = cumulative.add(0, (verticalSpeed * (isSubmergedInWater() ? 0.15f : 1)), 0);
 
-        // This is the general direction the automobile will move, which is slightly offset to the side when drifting
-        this.speedDirection = getYaw() - (drifting ? Math.min(driftTimer * 6, 43 + (-steering * 12)) * driftDir : 0);
+        // This is the general direction the automobile will move, which is slightly offset to the side when drifting and delayed when on slippery surface
+        this.speedDirection = MathHelper.lerp(grip, getYaw(), getYaw() - (drifting ? Math.min(driftTimer * 6, 43 + (-steering * 12)) * driftDir : 0));
 
         // Handle acceleration
         if (inFwd) {
@@ -339,7 +359,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
                     // Otherwise, it will receive acceleration as normal
                     // It will receive this acceleration if the automobile is moving straight or wide-drifting (the latter slightly reduces acceleration)
-                    : calculateAcceleration(speed, stats) * (drifting ? 0.86 : 1) * (engineSpeed > stats.getComfortableSpeed() ? 0.25f : 1);
+                    : calculateAcceleration(speed, stats) * (drifting ? 0.86 : 1) * (engineSpeed > stats.getComfortableSpeed() ? 0.25f : 1) * grip;
         }
         // Handle braking/reverse
         if (inBack) {
@@ -365,6 +385,15 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             slopeStickingTimer = Math.max(0, slopeStickingTimer--);
         }
 
+        // Handle being in off-road
+        if (boostSpeed < 0.4f && world.getBlockState(getBlockPos()).getBlock() instanceof OffRoadBlock offRoad) {
+            int layers = world.getBlockState(getBlockPos()).get(OffRoadBlock.LAYERS);
+            float cap = stats.getComfortableSpeed() * (1 - ((float)layers / 3.5f));
+            engineSpeed = Math.min(cap, engineSpeed);
+            this.debrisColor = offRoad.color;
+            this.offRoad = true;
+        } else this.offRoad = false;
+
         // Set the horizontal speed
         hSpeed = engineSpeed + boostSpeed;
 
@@ -383,14 +412,15 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
         // Turn the wheels
         float wheelCircumference = (float)(2 * (wheels.model().radius() / 16) * Math.PI);
-        wheelAngle += 300 * (hSpeed / wheelCircumference); // made it a bit slower intentionally
+        wheelAngle += 300 * (hSpeed / wheelCircumference) + (hSpeed > 0 ? ((1 - grip) * 15) : 0); // made it a bit slower intentionally, also make it spin more when on slippery surface
 
         // Move the automobile by the cumulative vector
         this.move(MovementType.SELF, cumulative);
+        lastVelocity = cumulative;
 
         // Damage and launch entities that are hit by a moving automobile
         if (hSpeed > 0.2) {
-            var frontBox = getBoundingBox().offset(cumulative.multiply(0.3));
+            var frontBox = getBoundingBox().offset(cumulative.multiply(0.5));
             var velAdd = cumulative.add(0, 0.1, 0).multiply(3);
             for (var entity : world.getEntitiesByType(TypeFilter.instanceOf(Entity.class), frontBox, entity -> entity != this)) {
                 if (entity instanceof LivingEntity living) {

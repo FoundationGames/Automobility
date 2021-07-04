@@ -6,6 +6,7 @@ import io.github.foundationgames.automobility.util.EntityRenderHelper;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3f;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,5 +92,15 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     @Override
     public boolean automobileOnGround() {
         return true;
+    }
+
+    @Override
+    public boolean debris() {
+        return false;
+    }
+
+    @Override
+    public Vec3f debrisColor() {
+        return new Vec3f();
     }
 }

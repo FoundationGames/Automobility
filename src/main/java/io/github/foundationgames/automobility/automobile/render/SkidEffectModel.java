@@ -27,6 +27,11 @@ public class SkidEffectModel extends Model {
             Automobility.id("textures/entity/automobile/skid_effect/skid_flames_1.png"),
             Automobility.id("textures/entity/automobile/skid_effect/skid_flames_2.png")
     };
+    public static final Identifier[] DEBRIS_TEXTURES = new Identifier[] {
+            Automobility.id("textures/entity/automobile/skid_effect/skid_debris_0.png"),
+            Automobility.id("textures/entity/automobile/skid_effect/skid_debris_1.png"),
+            Automobility.id("textures/entity/automobile/skid_effect/skid_debris_2.png")
+    };
 
     private final ModelPart main;
     private final ModelPart side;

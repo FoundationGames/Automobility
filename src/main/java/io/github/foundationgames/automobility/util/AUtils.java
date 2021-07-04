@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
 
 import java.text.DecimalFormat;
 import java.util.Random;
@@ -136,9 +137,24 @@ public enum AUtils {;
      * @param overlay The overlay coordinates to render with
      */
     public static void renderMyronObj(BakedModel model, VertexConsumer vertices, MatrixStack matrices, int light, int overlay) {
-        for (BakedQuad quad : model.getQuads(null, null, RANDOM)) {
-            vertices.quad(matrices.peek(), quad, 1, 1, 1, light, overlay);
-        }
+        // For some reason with Iris, model.getQuads() throws a NPE
+        try {
+            for (BakedQuad quad : model.getQuads(null, null, RANDOM)) {
+                vertices.quad(matrices.peek(), quad, 1, 1, 1, light, overlay);
+            }
+        } catch (NullPointerException ignored) {}
+    }
+
+    /**
+     * Turns an RGB color integer into a Vec3f.
+     * @param color An RGB color integer
+     * @return A Vec3f containing the color integer's RGB, with x being r, y being g, and z being b. All values are from 0 to 1.
+     */
+    public static Vec3f colorFromInt(int color) {
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
+        return new Vec3f((float)r / 255, (float)g / 255, (float)b / 255);
     }
 
     // Placed here because class loading is jank

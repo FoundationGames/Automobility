@@ -1,8 +1,13 @@
 package io.github.foundationgames.automobility.block;
 
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import io.github.foundationgames.automobility.entity.AutomobilityEntities;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
@@ -11,6 +16,7 @@ import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
@@ -64,13 +70,25 @@ public class DashPanelBlock extends HorizontalFacingBlock implements Waterloggab
     @Override
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
         super.onEntityCollision(state, world, pos, entity);
-        if (entity instanceof AutomobileEntity auto) {
-            auto.boost(0.45f, 50);
-        }
+        onCollideWithDashPanel(entity);
     }
 
     @Override
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         return SHAPE;
+    }
+
+    public static void onCollideWithDashPanel(Entity entity) {
+        if (entity instanceof AutomobileEntity auto) {
+            auto.boost(0.45f, 50);
+        } else if (AutomobilityEntities.DASH_PANEL_BOOSTABLES.contains(entity.getType())) {
+            if (entity instanceof LivingEntity living) {
+                living.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 50, 20, true, false, false));
+            }
+            Vec3d vel;
+            double yaw = Math.toRadians(entity.getYaw() + 180);
+            vel = new Vec3d(Math.sin(yaw), 0, Math.cos(yaw));
+            entity.addVelocity(vel.x, vel.y, vel.z);
+        }
     }
 }

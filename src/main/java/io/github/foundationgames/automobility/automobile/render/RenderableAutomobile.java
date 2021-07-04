@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.automobile.render;
 
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.util.math.Vec3f;
 
 public interface RenderableAutomobile {
     Model getFrameModel(EntityRendererFactory.Context ctx);
@@ -29,4 +30,8 @@ public interface RenderableAutomobile {
     long getWorldTime();
 
     boolean automobileOnGround();
+
+    boolean debris();
+
+    Vec3f debrisColor();
 }

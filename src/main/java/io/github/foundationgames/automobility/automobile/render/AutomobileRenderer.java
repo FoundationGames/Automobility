@@ -3,6 +3,7 @@ package io.github.foundationgames.automobility.automobile.render;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
+import io.github.foundationgames.automobility.automobile.WheelBase;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.RenderLayer;
@@ -88,83 +89,64 @@ public enum AutomobileRenderer {;
         }
 
         var wheelBuffer = vertexConsumers.getBuffer(wheelModel.getLayer(wheels.model().texture()));
-        float sLong = frame.model().wheelSeparationLong() / 16;
-        float sWide = frame.model().wheelSeparationWide() / 16;
 
         // WHEELS ----------------------------------------
 
         float wheelAngle = automobile.getWheelAngle(tickDelta);
-        float wheelRadius = wheels.model().radius();
+        var wPoses = frame.model().wheelBase().wheels;
 
         if (wheelModel != null) {
-            // Front left
-            matrices.push();
-            matrices.translate(-(sLong / 2), wheelRadius / 16, -(sWide / 2));
-            matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(automobile.getSteering(tickDelta) * 27));
-            matrices.translate(0, raise, 0);
-            matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(-wheelAngle));
-            matrices.translate(0, -raise, 0);
-            wheelModel.render(matrices, wheelBuffer, light, overlay, 1, 1, 1, 1);
-            matrices.pop();
-
-            // Rear left
-            matrices.push();
-            matrices.translate(sLong / 2, wheelRadius / 16, -(sWide / 2));
-            matrices.translate(0, raise, 0);
-            matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(-wheelAngle));
-            matrices.translate(0, -raise, 0);
-            wheelModel.render(matrices, wheelBuffer, light, overlay, 1, 1, 1, 1);
-            if (automobile.getDriftTimer() > 0) {
-                matrices.translate(0, 0, -(wheels.model().width() / 16));
-
+            for (var pos : wPoses) {
+                float scale = pos.scale();
+                float wheelRadius = wheels.model().radius() * scale;
+                matrices.push();
+                matrices.translate(-pos.forward() / 16, wheelRadius / 16, pos.right() / 16);
+                if (pos.end() == WheelBase.WheelEnd.FRONT) matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(automobile.getSteering(tickDelta) * 27));
+                matrices.translate(0, raise, 0);
+                matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(-wheelAngle));
+                matrices.translate(0, -raise, 0);
+                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(pos.yaw()));
+                matrices.scale(scale, scale, scale);
+                wheelModel.render(matrices, wheelBuffer, light, overlay, 1, 1, 1, 1);
+                matrices.pop();
             }
-            matrices.pop();
-
-            // Rear right
-            matrices.push();
-            matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
-            matrices.translate(-(sLong / 2), wheelRadius / 16, -(sWide / 2));
-            matrices.translate(0, raise, 0);
-            matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(wheelAngle));
-            matrices.translate(0, -raise, 0);
-            wheelModel.render(matrices, wheelBuffer, light, overlay, 1, 1, 1, 1);
-            matrices.pop();
-
-            // Front right
-            matrices.push();
-            matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
-            matrices.translate(sLong / 2, wheelRadius / 16, -(sWide / 2));
-            matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(automobile.getSteering(tickDelta) * 27));
-            matrices.translate(0, raise, 0);
-            matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(wheelAngle));
-            matrices.translate(0, -raise, 0);
-            wheelModel.render(matrices, wheelBuffer, light, overlay, 1, 1, 1, 1);
-            matrices.pop();
         }
 
         // Skid effects
-        if (automobile.getDriftTimer() > 0 && automobile.automobileOnGround()) {
+        if ((automobile.getDriftTimer() > 0 || automobile.debris()) && automobile.automobileOnGround()) {
             var skidTexes = SkidEffectModel.SMOKE_TEXTURES;
             boolean bright = false;
+            float r = 1;
+            float g = 1;
+            float b = 1;
             if (automobile.getDriftTimer() > AutomobileEntity.DRIFT_TURBO_TIME) {
                 skidTexes = SkidEffectModel.FLAME_TEXTURES;
                 bright = true;
+            } else if (automobile.debris()) {
+                skidTexes = SkidEffectModel.DEBRIS_TEXTURES;
+                var c = automobile.debrisColor();
+                r = c.getX() * 0.85f;
+                g = c.getY() * 0.85f;
+                b = c.getZ() * 0.85f;
             } else if (automobile.getDriftTimer() > AutomobileEntity.DRIFT_TURBO_TIME - 20) {
                 skidTexes = SkidEffectModel.SPARK_TEXTURES;
             }
             int index = (int)Math.floor(((automobile.getWorldTime() + tickDelta) / 1.5f) % skidTexes.length);
-            var skidEffectBuffer = vertexConsumers.getBuffer(bright ? RenderLayer.getEyes(skidTexes[index]) : RenderLayer.getEntityTranslucent(skidTexes[index]));
+            var skidEffectBuffer = vertexConsumers.getBuffer(bright ? RenderLayer.getEyes(skidTexes[index]) : RenderLayer.getEntityCutout(skidTexes[index]));
 
-            matrices.push();
-            float back = (wheelRadius / 16) - Math.max(0, ((wheelRadius / 16) - (3f / 16)) * 0.75f);
-            matrices.translate((sLong / 2) + back, wheelRadius / 16, -((sWide / 2) + (wheels.model().width() / 16)));
-            skidEffectModel.render(matrices, skidEffectBuffer, light, overlay, 1, 1, 1, 0.6f);
-            matrices.pop();
-            matrices.push();
-            matrices.scale(1, 1, -1);
-            matrices.translate((sLong / 2) + back, wheelRadius / 16, -((sWide / 2) + (wheels.model().width() / 16)));
-            skidEffectModel.render(matrices, skidEffectBuffer, light, overlay, 1, 1, 1, 0.6f);
-            matrices.pop();
+            for (var pos : wPoses) {
+                if (pos.end() == WheelBase.WheelEnd.BACK) {
+                    float scale = pos.scale();
+                    float wheelRadius = wheels.model().radius() * scale;
+                    float wheelWidth =  (wheels.model().width() / 16) * scale;
+                    float back = (wheelRadius / 16) - Math.max(0, ((wheelRadius / 16) - (3f / 16)) * 0.75f);
+                    matrices.push();
+                    matrices.translate((-pos.forward() / 16) + back, wheelRadius / 16, (pos.right() / 16) + (wheelWidth * (pos.side() == WheelBase.WheelSide.RIGHT ? 1 : -1)));
+                    matrices.scale(1, 1, pos.side() == WheelBase.WheelSide.RIGHT ? -1 : 1);
+                    skidEffectModel.render(matrices, skidEffectBuffer, light, overlay, r, g, b, 0.6f);
+                    matrices.pop();
+                }
+            }
         }
 
         // -----------------------------------------------

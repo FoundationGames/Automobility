@@ -44,8 +44,8 @@ public record AutomobileFrame(
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/shopping_cart.png"),
                             ShoppingCartFrameModel::new,
+                            WheelBase.basic(17, 12),
                             17,
-                            12,
                             11,
                             7,
                             17
@@ -60,8 +60,8 @@ public record AutomobileFrame(
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/c_arr.png"),
                             CARRFrameModel::new,
+                            WheelBase.basic(44.5f, 16),
                             44.5f,
-                            16,
                             6f,
                             19.5f,
                             10.5f
@@ -76,8 +76,8 @@ public record AutomobileFrame(
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/dababy.png"),
                             DaBabyFrameModel::new,
+                            WheelBase.basic(40, 8),
                             40,
-                            8,
                             22,
                             13,
                             3
@@ -92,8 +92,8 @@ public record AutomobileFrame(
                 new FrameModel(
                         Automobility.id("textures/entity/automobile/frame/standard_"+color+".png"),
                         StandardFrameModel::new,
+                        WheelBase.basic(26, 10),
                         26,
-                        10,
                         5,
                         13,
                         3
@@ -113,8 +113,8 @@ public record AutomobileFrame(
     public static record FrameModel(
             Identifier texture,
             Function<EntityRendererFactory.Context, Model> model,
-            float wheelSeparationLong,
-            float wheelSeparationWide,
+            WheelBase wheelBase,
+            float lengthPx,
             float seatHeight,
             float enginePosBack,
             float enginePosUp

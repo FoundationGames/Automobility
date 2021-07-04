@@ -52,7 +52,7 @@ public enum AutomobilityItems {;
         BuiltinItemRendererRegistry.INSTANCE.register(AUTOMOBILE, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
             if (cachedCtx != null) {
                 reader.read(stack.getOrCreateSubTag("Automobile"));
-                float wheelDist = reader.getFrame().model().wheelSeparationLong();
+                float wheelDist = reader.getFrame().model().lengthPx();
                 float scale = 1;
                 if (wheelDist > 16) {
                     scale = Math.max(0, scale - (wheelDist - 16) * 0.02f);

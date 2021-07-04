@@ -1,6 +1,5 @@
 package io.github.foundationgames.automobility.block;
 
-import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -29,9 +28,7 @@ public class SteepSlopedDashPanelBlock extends SteepSlopeBlock {
     @Override
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
         super.onEntityCollision(state, world, pos, entity);
-        if (entity instanceof AutomobileEntity auto) {
-            auto.boost(0.45f, 50);
-        }
+        DashPanelBlock.onCollideWithDashPanel(entity);
     }
 
     @Override
