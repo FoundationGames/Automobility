@@ -4,6 +4,7 @@ import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.entity.AutomobilityEntities;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
+import io.github.foundationgames.automobility.render.AutomobilityModels;
 import io.github.foundationgames.automobility.resource.AutomobilityAssets;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
@@ -16,6 +17,7 @@ import net.minecraft.text.LiteralText;
 public class AutomobilityClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
+        AutomobilityModels.init();
         AutomobilityBlocks.initClient();
         AutomobilityItems.initClient();
         AutomobilityEntities.initClient();

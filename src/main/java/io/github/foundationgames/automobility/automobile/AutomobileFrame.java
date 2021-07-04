@@ -2,7 +2,10 @@ package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.frame.*;
+import io.github.foundationgames.automobility.render.AutomobilityModels;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.util.Identifier;
@@ -45,7 +48,7 @@ public record AutomobileFrame(
                     0.25f,
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/shopping_cart.png"),
-                            ShoppingCartFrameModel::new,
+                            Automobility.id("frame_shopping_cart"),
                             WheelBase.basic(17, 12),
                             17,
                             11,
@@ -61,7 +64,7 @@ public record AutomobileFrame(
                     0.85f,
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/c_arr.png"),
-                            CARRFrameModel::new,
+                            Automobility.id("frame_c_arr"),
                             WheelBase.basic(44.5f, 16),
                             44.5f,
                             6f,
@@ -77,7 +80,7 @@ public record AutomobileFrame(
                     0.75f,
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/pineapple.png"),
-                            PineappleFrameModel::new,
+                            Automobility.id("frame_pineapple"),
                             WheelBase.basic(10, 18),
                             12,
                             16,
@@ -93,7 +96,7 @@ public record AutomobileFrame(
                     0.93f,
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/dababy.png"),
-                            DaBabyFrameModel::new,
+                            Automobility.id("frame_dababy"),
                             WheelBase.basic(40, 8),
                             40,
                             22,
@@ -109,7 +112,7 @@ public record AutomobileFrame(
                 0.6f,
                 new FrameModel(
                         Automobility.id("textures/entity/automobile/frame/standard_"+color+".png"),
-                        StandardFrameModel::new,
+                        Automobility.id("frame_standard"),
                         WheelBase.basic(26, 10),
                         26,
                         5,
@@ -125,7 +128,7 @@ public record AutomobileFrame(
                 0.9f,
                 new FrameModel(
                         Automobility.id("textures/entity/automobile/frame/"+color+"_tractor.png"),
-                        TractorFrameModel::new,
+                        Automobility.id("frame_tractor"),
                         new WheelBase(
                                 new WheelBase.WheelPos(-2, -7, 1.8f, 0, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.LEFT),
                                 new WheelBase.WheelPos(-2, 7, 1.8f, 180, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.RIGHT),
@@ -151,11 +154,16 @@ public record AutomobileFrame(
 
     public static record FrameModel(
             Identifier texture,
-            Function<EntityRendererFactory.Context, Model> model,
+            Identifier modelId,
             WheelBase wheelBase,
             float lengthPx,
             float seatHeight,
             float enginePosBack,
             float enginePosUp
-    ) {}
+    ) {
+        @Environment(EnvType.CLIENT)
+        public Function<EntityRendererFactory.Context, Model> model() {
+            return AutomobilityModels.MODELS.get(modelId);
+        }
+    }
 }

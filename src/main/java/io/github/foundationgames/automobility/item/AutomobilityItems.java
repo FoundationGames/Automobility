@@ -47,12 +47,13 @@ public enum AutomobilityItems {;
         );
     }
 
+    @Environment(EnvType.CLIENT)
     private static EntityRendererFactory.Context cachedCtx;
     private static final AutomobileData reader = new AutomobileData();
-    private static final ItemRenderableAutomobile itemAutomobile = new ItemRenderableAutomobile(reader);
 
     @Environment(EnvType.CLIENT)
     public static void initClient() {
+        var itemAutomobile = new ItemRenderableAutomobile(reader);
         EntityRenderHelper.registerContextListener(ctx -> cachedCtx = ctx);
         BuiltinItemRendererRegistry.INSTANCE.register(AUTOMOBILE, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
             if (cachedCtx != null) {

@@ -133,6 +133,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         inLeft = nbt.getBoolean("steeringLeft");
         inRight = nbt.getBoolean("steeringRight");
         inSpace = nbt.getBoolean("holdingDrift");
+        groundSlopeX = nbt.getFloat("angleX");
+        groundSlopeZ = nbt.getFloat("angleZ");
 
         updateModels = true;
     }
@@ -161,6 +163,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         nbt.putBoolean("steeringLeft", inLeft);
         nbt.putBoolean("steeringRight", inRight);
         nbt.putBoolean("holdingDrift", inSpace);
+        nbt.putFloat("angleX", groundSlopeX);
+        nbt.putFloat("angleZ", groundSlopeZ);
     }
 
     private boolean inFwd = false;
@@ -292,9 +296,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                     sync(player);
                 }
             }
-        } else {
-            slopeAngleTick();
         }
+
+        slopeAngleTick();
     }
 
     private void sync(ServerPlayerEntity player) {
