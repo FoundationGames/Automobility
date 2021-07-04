@@ -98,15 +98,15 @@ public enum AutomobileRenderer {;
         if (wheelModel != null) {
             for (var pos : wPoses) {
                 float scale = pos.scale();
-                float wheelRadius = wheels.model().radius() * scale;
+                float wheelRadius = wheels.model().radius() - (wheels.model().radius() * (scale - 1));
                 matrices.push();
                 matrices.translate(-pos.forward() / 16, wheelRadius / 16, pos.right() / 16);
                 if (pos.end() == WheelBase.WheelEnd.FRONT) matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(automobile.getSteering(tickDelta) * 27));
                 matrices.translate(0, raise, 0);
                 matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(-wheelAngle));
+                matrices.scale(scale, scale, scale);
                 matrices.translate(0, -raise, 0);
                 matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(pos.yaw()));
-                matrices.scale(scale, scale, scale);
                 wheelModel.render(matrices, wheelBuffer, light, overlay, 1, 1, 1, 1);
                 matrices.pop();
             }
@@ -137,11 +137,12 @@ public enum AutomobileRenderer {;
             for (var pos : wPoses) {
                 if (pos.end() == WheelBase.WheelEnd.BACK) {
                     float scale = pos.scale();
+                    float heightOffset = wheels.model().radius();
                     float wheelRadius = wheels.model().radius() * scale;
                     float wheelWidth =  (wheels.model().width() / 16) * scale;
-                    float back = (wheelRadius / 16) - Math.max(0, ((wheelRadius / 16) - (3f / 16)) * 0.75f);
+                    float back = (wheelRadius / 16) - Math.max(0, ((wheelRadius / 16) - (3f / 16)) * 0.45f);
                     matrices.push();
-                    matrices.translate((-pos.forward() / 16) + back, wheelRadius / 16, (pos.right() / 16) + (wheelWidth * (pos.side() == WheelBase.WheelSide.RIGHT ? 1 : -1)));
+                    matrices.translate((-pos.forward() / 16) + back, heightOffset / 16, (pos.right() / 16) + (wheelWidth * (pos.side() == WheelBase.WheelSide.RIGHT ? 1 : -1)));
                     matrices.scale(1, 1, pos.side() == WheelBase.WheelSide.RIGHT ? -1 : 1);
                     skidEffectModel.render(matrices, skidEffectBuffer, light, overlay, r, g, b, 0.6f);
                     matrices.pop();
@@ -152,9 +153,5 @@ public enum AutomobileRenderer {;
         // -----------------------------------------------
 
         matrices.pop();
-    }
-
-    public static void renderEngine() {
-
     }
 }

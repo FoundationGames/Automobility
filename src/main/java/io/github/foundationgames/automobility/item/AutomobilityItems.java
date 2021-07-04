@@ -16,8 +16,8 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.registry.Registry;
 
 public enum AutomobilityItems {;
-    public static final Item CROWBAR = register("crowbar", new TooltipItem(new TranslatableText("tooltip.item.automobility.crowbar").formatted(Formatting.BLUE), new Item.Settings().group(Automobility.GROUP)));
-    public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Settings().group(Automobility.PREFABS)));
+    public static final Item CROWBAR = register("crowbar", new TooltipItem(new TranslatableText("tooltip.item.automobility.crowbar").formatted(Formatting.BLUE), new Item.Settings().maxCount(1).group(Automobility.GROUP)));
+    public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Settings().maxCount(1).group(Automobility.PREFABS)));
 
     public static void init() {
         AutomobileItem.addPrefabs(
@@ -37,8 +37,13 @@ public enum AutomobilityItems {;
                 new AutomobilePrefab(Automobility.id("standard_green"), AutomobileFrame.STANDARD_GREEN, AutomobileWheel.STANDARD, AutomobileEngine.IRON),
                 new AutomobilePrefab(Automobility.id("standard_red"), AutomobileFrame.STANDARD_RED, AutomobileWheel.STANDARD, AutomobileEngine.IRON),
                 new AutomobilePrefab(Automobility.id("standard_black"), AutomobileFrame.STANDARD_BLACK, AutomobileWheel.STANDARD, AutomobileEngine.IRON),
+                new AutomobilePrefab(Automobility.id("red_tractor"), AutomobileFrame.RED_TRACTOR, AutomobileWheel.TRACTOR, AutomobileEngine.COPPER),
+                new AutomobilePrefab(Automobility.id("yellow_tractor"), AutomobileFrame.YELLOW_TRACTOR, AutomobileWheel.TRACTOR, AutomobileEngine.COPPER),
+                new AutomobilePrefab(Automobility.id("green_tractor"), AutomobileFrame.GREEN_TRACTOR, AutomobileWheel.TRACTOR, AutomobileEngine.COPPER),
+                new AutomobilePrefab(Automobility.id("blue_tractor"), AutomobileFrame.BLUE_TRACTOR, AutomobileWheel.TRACTOR, AutomobileEngine.COPPER),
                 new AutomobilePrefab(Automobility.id("shopping_cart"), AutomobileFrame.SHOPPING_CART, AutomobileWheel.STEEL, AutomobileEngine.COPPER),
-                new AutomobilePrefab(Automobility.id("c_arr"), AutomobileFrame.C_ARR, AutomobileWheel.OFF_ROAD, AutomobileEngine.GOLD)
+                new AutomobilePrefab(Automobility.id("c_arr"), AutomobileFrame.C_ARR, AutomobileWheel.OFF_ROAD, AutomobileEngine.GOLD),
+                new AutomobilePrefab(Automobility.id("pineapple"), AutomobileFrame.PINEAPPLE, AutomobileWheel.TRACTOR, AutomobileEngine.GOLD)
         );
     }
 

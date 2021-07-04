@@ -17,12 +17,10 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.block.SideShapeType;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MovementType;
+import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
@@ -255,7 +253,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     @Override
     public boolean debris() {
-        return offRoad && hSpeed > 0;
+        return offRoad && hSpeed != 0;
     }
 
     @Override
@@ -295,7 +293,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 }
             }
         } else {
-            clientTick();
+            slopeAngleTick();
         }
     }
 
@@ -303,11 +301,23 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         PayloadPackets.sendSyncAutomobileDataPacket(this, player);
     }
 
+    public ItemStack asItem() {
+        var stack = new ItemStack(AutomobilityItems.AUTOMOBILE);
+        var automobile = stack.getOrCreateSubTag("Automobile");
+        automobile.putString("frame", frame.getId().toString());
+        automobile.putString("wheels", wheels.getId().toString());
+        automobile.putString("engine", engine.getId().toString());
+        return stack;
+    }
+
+    @Nullable
+    @Override
+    public ItemStack getPickBlockStack() {
+        return asItem();
+    }
+
     // witness me fighting against minecraft's collision/physics
     public void movementTick() {
-        //this.wasOnGround = automobileOnGround;
-        //this.automobileOnGround = (verticalSpeed < 0.2 && verticalSpeed > -0.2) || isOnGround();
-
         // Handle the small suspension bounce effect
         lastSusBounceTimer = suspensionBounceTimer;
         if (suspensionBounceTimer > 0) suspensionBounceTimer--;
@@ -422,7 +432,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         if (hSpeed > 0.2) {
             var frontBox = getBoundingBox().offset(cumulative.multiply(0.5));
             var velAdd = cumulative.add(0, 0.1, 0).multiply(3);
-            for (var entity : world.getEntitiesByType(TypeFilter.instanceOf(Entity.class), frontBox, entity -> entity != this)) {
+            for (var entity : world.getEntitiesByType(TypeFilter.instanceOf(Entity.class), frontBox, entity -> entity != this && entity != getFirstPassenger())) {
                 if (entity instanceof LivingEntity living) {
                     living.damage(AutomobilityEntities.AUTOMOBILE_DAMAGE_SOURCE, hSpeed * 10);
                 }
@@ -464,8 +474,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
         // Handles gravity
         verticalSpeed = Math.max(verticalSpeed - 0.08f, !automobileOnGround ? TERMINAL_VELOCITY : -0.01f);
-
-        //if (verticalSpeed == 0) System.out.println("ZERO V SPEED");
 
         // Store previous y displacement to use when launching off slopes
         prevYDisplacements.push(yDisp);
@@ -525,7 +533,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         }
     }
 
-    public void clientTick() {
+    public void slopeAngleTick() {
         lastGroundSlopeX = groundSlopeX;
         lastGroundSlopeZ = groundSlopeZ;
         var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.06), Math.floor(getZ()));
@@ -700,6 +708,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
         if (player.getStackInHand(hand).isOf(AutomobilityItems.CROWBAR)) {
+            var pos = getPos().add(0, 0.3, 0);
+            if (!player.isCreative()) world.spawnEntity(new ItemEntity(world, pos.x, pos.y, pos.z, asItem()));
             this.remove(RemovalReason.KILLED);
             return ActionResult.success(world.isClient);
         }

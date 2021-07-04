@@ -1,10 +1,7 @@
 package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
-import io.github.foundationgames.automobility.automobile.render.frame.CARRFrameModel;
-import io.github.foundationgames.automobility.automobile.render.frame.DaBabyFrameModel;
-import io.github.foundationgames.automobility.automobile.render.frame.ShoppingCartFrameModel;
-import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.*;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -36,6 +33,11 @@ public record AutomobileFrame(
     public static final AutomobileFrame STANDARD_GREEN = REGISTRY.register(standard("green"));
     public static final AutomobileFrame STANDARD_RED = REGISTRY.register(standard("red"));
     public static final AutomobileFrame STANDARD_BLACK = REGISTRY.register(standard("black"));
+
+    public static final AutomobileFrame RED_TRACTOR = REGISTRY.register(tractor("red"));
+    public static final AutomobileFrame YELLOW_TRACTOR = REGISTRY.register(tractor("yellow"));
+    public static final AutomobileFrame GREEN_TRACTOR = REGISTRY.register(tractor("green"));
+    public static final AutomobileFrame BLUE_TRACTOR = REGISTRY.register(tractor("blue"));
 
     public static final AutomobileFrame SHOPPING_CART = REGISTRY.register(
             new AutomobileFrame(
@@ -69,6 +71,22 @@ public record AutomobileFrame(
             )
     );
 
+    public static final AutomobileFrame PINEAPPLE = REGISTRY.register(
+            new AutomobileFrame(
+                    Automobility.id("pineapple"),
+                    0.75f,
+                    new FrameModel(
+                            Automobility.id("textures/entity/automobile/frame/pineapple.png"),
+                            PineappleFrameModel::new,
+                            WheelBase.basic(10, 18),
+                            12,
+                            16,
+                            8,
+                            6
+                    )
+            )
+    );
+
     public static final AutomobileFrame DABABY = REGISTRY.register(
             new AutomobileFrame(
                     Automobility.id("dababy"),
@@ -97,6 +115,27 @@ public record AutomobileFrame(
                         5,
                         13,
                         3
+                )
+        );
+    }
+
+    private static AutomobileFrame tractor(String color) {
+        return new AutomobileFrame(
+                Automobility.id(color+"_tractor"),
+                0.9f,
+                new FrameModel(
+                        Automobility.id("textures/entity/automobile/frame/"+color+"_tractor.png"),
+                        TractorFrameModel::new,
+                        new WheelBase(
+                                new WheelBase.WheelPos(-2, -7, 1.8f, 0, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.LEFT),
+                                new WheelBase.WheelPos(-2, 7, 1.8f, 180, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.RIGHT),
+                                new WheelBase.WheelPos(15, -1, 1, 0, WheelBase.WheelEnd.FRONT, WheelBase.WheelSide.LEFT),
+                                new WheelBase.WheelPos(15, 1, 1, 180, WheelBase.WheelEnd.FRONT, WheelBase.WheelSide.RIGHT)
+                        ),
+                        20,
+                        9,
+                        9,
+                        8
                 )
         );
     }

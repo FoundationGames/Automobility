@@ -1,10 +1,7 @@
 package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
-import io.github.foundationgames.automobility.automobile.render.wheel.ConvertibleWheelModel;
-import io.github.foundationgames.automobility.automobile.render.wheel.OffRoadWheelModel;
-import io.github.foundationgames.automobility.automobile.render.wheel.StandardWheelModel;
-import io.github.foundationgames.automobility.automobile.render.wheel.SteelWheelModel;
+import io.github.foundationgames.automobility.automobile.render.wheel.*;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -32,6 +29,10 @@ public record AutomobileWheel(
 
     public static final AutomobileWheel STEEL = REGISTRY.register(
             new AutomobileWheel(Automobility.id("steel"), 0.69f, 0.4f, new WheelModel(3.625f, 3, Automobility.id("textures/entity/automobile/wheel/steel.png"), SteelWheelModel::new))
+    );
+
+    public static final AutomobileWheel TRACTOR = REGISTRY.register(
+            new AutomobileWheel(Automobility.id("tractor"), 1.05f, 0.69f, new WheelModel(3.625f, 3, Automobility.id("textures/entity/automobile/wheel/tractor.png"), TractorWheelModel::new))
     );
 
     // public static final AutomobileWheel INFLATABLE = REGISTRY.register(

@@ -35,12 +35,14 @@ public class AutomobileItem extends Item {
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
         if (!context.getWorld().isClient()) {
-            data.read(context.getStack().getOrCreateSubTag("Automobile"));
+            var stack = context.getStack();
+            data.read(stack.getOrCreateSubTag("Automobile"));
             var e = new AutomobileEntity(AutomobilityEntities.AUTOMOBILE, context.getWorld());
             var pos = context.getHitPos();
             e.refreshPositionAndAngles(pos.x, pos.y, pos.z, context.getPlayerFacing().asRotation(), 0);
             e.setComponents(data.getFrame(), data.getWheel(), data.getEngine());
             context.getWorld().spawnEntity(e);
+            stack.decrement(1);
             return ActionResult.PASS;
         }
         return ActionResult.SUCCESS;
