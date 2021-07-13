@@ -66,7 +66,7 @@ public enum PayloadPackets {;
                 Entity e = client.player.world.getEntityById(entityId);
                 if (e instanceof AutomobileEntity automobile) {
                     automobile.readCustomDataFromNbt(nbt);
-                    automobile.setPos(x, y, z);
+                    automobile.updatePositionAndAngles(x, y, z, automobile.getYaw(), 0);
                 }
             });
         });

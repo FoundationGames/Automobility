@@ -13,13 +13,11 @@ import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtil
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.SideShapeType;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.entity.*;
-import net.minecraft.entity.ai.goal.GoalSelector;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -42,7 +40,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
 
 public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
@@ -113,6 +110,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private boolean offRoad = false;
     private Vec3f debrisColor = new Vec3f();
 
+    private int fallTicks = 0;
+
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
         setComponents(
@@ -141,6 +140,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         holdingDrift = nbt.getBoolean("holdingDrift");
         groundSlopeX = nbt.getFloat("angleX");
         groundSlopeZ = nbt.getFloat("angleZ");
+        fallTicks = nbt.getInt("fallTicks");
 
         updateModels = true;
     }
@@ -171,6 +171,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         nbt.putBoolean("holdingDrift", holdingDrift);
         nbt.putFloat("angleX", groundSlopeX);
         nbt.putFloat("angleZ", groundSlopeZ);
+        nbt.putInt("fallTicks", fallTicks);
     }
 
     private boolean accelerating = false;
@@ -345,10 +346,21 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         var path = driver.getNavigation().getCurrentPath();
         // checks if there is a current, incomplete path that the entity has targeted
         if (path != null && !path.isFinished() && path.getEnd() != null) {
-            // determines the relative position to drive through
+            // determines the relative position to drive to, based on the end of the path
             var pos = path.getEnd().getPos().subtract(getPos());
             // determines the angle to that position
             double target = MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(pos.getX(), pos.getZ())));
+            // determines another relative position, this time to the path's current node (in the case of the path directly to the end being obstructed)
+            var fnPos = path.getCurrentNode().getPos().subtract(getPos());
+            // determines the angle to that current node's position
+            double fnTarget = MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(fnPos.getX(), fnPos.getZ())));
+            // if the difference in angle between the end position and the current node's position is too great,
+            // the automobile will drive to that current node under the assumption that the path directly to the
+            // end is obstructed
+            if (Math.abs(target - fnTarget) > 69) {
+                pos = fnPos;
+                target = fnTarget;
+            }
             // fixes up the automobile's own yaw value
             float yaw = MathHelper.wrapDegrees(-getYaw());
             // finds the difference between the target angle and the yaw
@@ -362,7 +374,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 long time = world.getTime();
                 // this is so that the automobile alternates between reverse and forward,
                 // like a driver would do in order to angle their vehicle toward a target location
-                reverse = (time % 60 <= 20);
+                reverse = (time % 80 <= 30);
             }
             // set the accel/brake inputs
             accelerating = !reverse;
@@ -492,6 +504,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
         // Move the automobile by the cumulative vector
         this.move(MovementType.SELF, cumulative);
+        if (world.isClient()) {
+            this.lastRenderX = lastPos.x;
+            this.lastRenderY = lastPos.y;
+            this.lastRenderZ = lastPos.z;
+        }
         lastVelocity = cumulative;
 
         // Damage and launch entities that are hit by a moving automobile
@@ -529,6 +546,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
         double yDisp = getPos().subtract(lastPos).getY();
 
+        // Increment the falling timer
+        if (!automobileOnGround && yDisp < 0) {
+            fallTicks += 1;
+        } else {
+            fallTicks = 0;
+        }
+
         // Handle launching off slopes
         double highestPrevYDisp = 0;
         for (double d : prevYDisplacements) {
@@ -560,24 +584,28 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         // Turns the automobile based on steering/drifting
         if (hSpeed != 0) {
             float yawInc = (drifting ? (((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir) * (((1 - stats.getGrip()) + 2) / 2.5f) : this.steering * ((4f * Math.min(hSpeed, 1)) + (hSpeed > 0 ? 2 : -3.5f))) * ((stats.getHandling() + 1) / 2);
+            float prevYaw = getYaw();
             this.setYaw(getYaw() + yawInc);
             if (world.isClient) {
                 var passenger = getFirstPassenger();
                 if (passenger instanceof PlayerEntity player) {
                     if (inLockedViewMode()) {
-                        player.setYaw(getYaw() + lockedViewOffset);
-                        player.setBodyYaw(getYaw() + lockedViewOffset);
+                        player.setYaw(MathHelper.wrapDegrees(getYaw() + lockedViewOffset));
+                        player.setBodyYaw(MathHelper.wrapDegrees(getYaw() + lockedViewOffset));
                     } else {
-                        player.setYaw(player.getYaw() + yawInc);
-                        player.setBodyYaw(player.getYaw() + yawInc);
+                        player.setYaw(MathHelper.wrapDegrees(player.getYaw() + yawInc));
+                        player.setBodyYaw(MathHelper.wrapDegrees(player.getYaw() + yawInc));
                     }
                 }
             } else {
                 for (Entity e : getPassengerList()) {
                     if (e == getFirstPassenger()) continue;
-                    e.setYaw(e.getYaw() + yawInc);
-                    e.setBodyYaw(e.getYaw() + yawInc);
+                    e.setYaw(MathHelper.wrapDegrees(e.getYaw() + yawInc));
+                    e.setBodyYaw(MathHelper.wrapDegrees(e.getYaw() + yawInc));
                 }
+            }
+            if (world.isClient()) {
+                this.prevYaw = prevYaw;
             }
         }
 
@@ -586,16 +614,19 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.01), Math.floor(getZ()));
         var moreBelow = new BlockPos(Math.floor(getX()), Math.floor(getY() - 1.01), Math.floor(getZ()));
         if (
+                fallTicks < 8 &&
                 hSpeed != 0 &&
                 !automobileOnGround &&
                 !world.getBlockState(below).isSideSolid(world, below, Direction.UP, SideShapeType.RIGID) &&
                 world.getBlockState(moreBelow).isSideSolid(world, moreBelow, Direction.UP, SideShapeType.RIGID)
         ) {
-            if (yDisp > 0 && (wasOnGround || automobileOnGround)) {
-                verticalTravelPitch = Math.min(verticalTravelPitch + 13, 45) * (hSpeed > 0 ? 1 : -1);
+            if (highestPrevYDisp > 0 && (wasOnGround || automobileOnGround)) {
+                verticalTravelPitch = Math.min(verticalTravelPitch + 13, 25) * (hSpeed > 0 ? 1 : -1);
+            } else if (yDisp < 0 && !automobileOnGround) {
+                verticalTravelPitch = Math.max(verticalTravelPitch - (6 + (16 * Math.abs(hSpeed))), -25) * (hSpeed > 0 ? 1 : -1);
             }
         } else {
-            verticalTravelPitch = AUtils.zero(verticalTravelPitch, 22);
+            verticalTravelPitch = AUtils.zero(verticalTravelPitch, 15);
         }
     }
 
@@ -646,6 +677,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 }
             }
         }
+    }
+
+    public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
+        this.setPos(x, y, z);
+        this.setYaw(yaw);
+        this.setPitch(pitch);
+        this.refreshPosition();
     }
 
     private float calculateAcceleration(float speed, AutomobileStats stats) {
@@ -778,6 +816,15 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             if (!player.isCreative()) world.spawnEntity(new ItemEntity(world, pos.x, pos.y, pos.z, asItem()));
             this.remove(RemovalReason.KILLED);
             return ActionResult.success(world.isClient);
+        }
+        if (this.hasPassengers()) {
+            if (!(this.getFirstPassenger() instanceof PlayerEntity)) {
+                if (!world.isClient()) {
+                    this.getFirstPassenger().stopRiding();
+                }
+                return ActionResult.success(world.isClient);
+            }
+            return ActionResult.PASS;
         }
         return ActionResult.success(player.startRiding(this));
     }
