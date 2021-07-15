@@ -10,9 +10,17 @@ archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
+static String terraformersUrl() {
+	def url = "https://maven.terraformersmc.com/"
+	def conn = new URL(url).openConnection()
+	conn.connect()
+	url = conn.getResponseCode() == 521 ? "https://raw.githubusercontent.com/TerraformersMC/Archive/main/releases" : url
+	return url
+}
+
 repositories {
 	maven { url = "https://maven.gegy.dev/" }
-	maven { url = "https://maven.terraformersmc.com/" }
+	maven { url = terraformersUrl() }
 	maven { url = "https://aperlambda.github.io/maven" }
 	maven { url = "https://hephaestus.dev/release" }
 	maven { url = "https://storage.googleapis.com/devan-maven/" }
