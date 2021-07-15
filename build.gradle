@@ -12,7 +12,7 @@ group = project.maven_group
 
 repositories {
 	maven { url = "https://maven.gegy.dev/" }
-	maven { url = "https://maven.terraformersmc.com/" }
+	maven { url = "https://raw.githubusercontent.com/TerraformersMC/Archive/main/releases/" }
 	maven { url = "https://aperlambda.github.io/maven" }
 	maven { url = "https://hephaestus.dev/release" }
 	maven { url = "https://storage.googleapis.com/devan-maven/" }
