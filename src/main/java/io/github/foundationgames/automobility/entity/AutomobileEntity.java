@@ -25,6 +25,7 @@ import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -40,6 +41,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.function.Consumer;
 
 public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
@@ -57,6 +59,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     public static final int DRIFT_TURBO_TIME = 50;
     public static final float TERMINAL_VELOCITY = -1.2f;
+
+    private boolean dirty = false;
 
     private float engineSpeed = 0;
     private float boostSpeed = 0;
@@ -111,6 +115,30 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private Vec3f debrisColor = new Vec3f();
 
     private int fallTicks = 0;
+
+    public void writeSyncToClientData(PacketByteBuf buf) {
+        buf.writeInt(boostTimer);
+        buf.writeFloat(steering);
+        buf.writeFloat(wheelAngle);
+        buf.writeBoolean(drifting);
+        buf.writeInt(driftTimer);
+        buf.writeFloat(groundSlopeX);
+        buf.writeFloat(groundSlopeZ);
+        buf.writeFloat(verticalTravelPitch);
+        buf.writeByte(compactInputData());
+    }
+
+    public void readSyncToClientData(PacketByteBuf buf) {
+        boostTimer = buf.readInt();
+        steering = buf.readFloat();
+        wheelAngle = buf.readFloat();
+        drifting = buf.readBoolean();
+        driftTimer = buf.readInt();
+        groundSlopeX = buf.readFloat();
+        groundSlopeZ = buf.readFloat();
+        verticalTravelPitch = buf.readFloat();
+        readCompactedInputData(buf.readByte());
+    }
 
     @Override
     public void readCustomDataFromNbt(NbtCompound nbt) {
@@ -182,11 +210,39 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     private boolean prevHoldDrift = holdingDrift;
 
+    public byte compactInputData() {
+        // yeah
+        int r = ((((((((accelerating ? 1 : 0) << 1) | (braking ? 1 : 0)) << 1) | (steeringLeft ? 1 : 0)) << 1) | (steeringRight ? 1 : 0)) << 1) | (holdingDrift ? 1 : 0);
+        return (byte) r;
+    }
+
+    public void readCompactedInputData(byte data) {
+        // yup
+        int d = data;
+        holdingDrift = (1 & d) > 0;
+        d = d >> 0b1;
+        steeringRight = (1 & d) > 0;
+        d = d >> 0b1;
+        steeringLeft = (1 & d) > 0;
+        d = d >> 0b1;
+        braking = (1 & d) > 0;
+        d = d >> 0b1;
+        accelerating = (1 & d) > 0;
+    }
+
     @Environment(EnvType.CLIENT)
     public boolean updateModels = true;
 
     public AutomobileEntity(EntityType<?> type, World world) {
         super(type, world);
+    }
+
+    @Override
+    public void onSpawnPacket(EntitySpawnS2CPacket packet) {
+        super.onSpawnPacket(packet);
+        if (world.isClient()) {
+            PayloadPackets.requestSyncAutomobileComponentsPacket(this);
+        }
     }
 
     public AutomobileFrame getFrame() {
@@ -279,11 +335,24 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         this.updateModels = true;
         this.stepHeight = wheels.size();
         this.stats.from(frame, wheel, engine);
+        if (!world.isClient()) syncComponents();
+    }
+
+    private void forNearbyPlayers(int radius, boolean ignoreDriver, Consumer<ServerPlayerEntity> action) {
+        for (PlayerEntity p : world.getPlayers()) {
+            if (ignoreDriver && p == getFirstPassenger()) {
+                continue;
+            }
+            if (p.getPos().distanceTo(getPos()) < radius && p instanceof ServerPlayerEntity player) {
+                action.accept(player);
+            }
+        }
     }
 
     @Override
     public void baseTick() {
         super.baseTick();
+
         if (!this.hasPassengers()) {
             accelerating = false;
             braking = false;
@@ -298,11 +367,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         updateTrackedPosition(getX(), getY(), getZ());
 
         if (!world.isClient()) {
-            for (PlayerEntity p : world.getPlayers()) {
-                if (p != getFirstPassenger() && p.getPos().distanceTo(getPos()) < 100 && p instanceof ServerPlayerEntity player) {
-                    sync(player);
-                }
+            if (dirty) {
+                syncData();
+                dirty = false;
             }
+            forNearbyPlayers(400, true, player -> PayloadPackets.sendSyncAutomobilePosPacket(this, player));
             if (!this.hasPassengers()) {
                 var touchingEntities = this.world.getOtherEntities(this, this.getBoundingBox().expand(0.2, 0, 0.2), EntityPredicates.canBePushedBy(this));
                 for (Entity entity : touchingEntities) {
@@ -320,8 +389,16 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         slopeAngleTick();
     }
 
-    private void sync(ServerPlayerEntity player) {
-        PayloadPackets.sendSyncAutomobileDataPacket(this, player);
+    public void markDirty() {
+        dirty = true;
+    }
+
+    private void syncData() {
+        forNearbyPlayers(200, true, player -> PayloadPackets.sendSyncAutomobileDataPacket(this, player));
+    }
+
+    private void syncComponents() {
+        forNearbyPlayers(200, false, player -> PayloadPackets.sendSyncAutomobileComponentsPacket(this, player));
     }
 
     public ItemStack asItem() {
@@ -387,7 +464,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 steeringRight = !reverse;
                 steeringLeft = reverse;
             }
+            markDirty();
         } else {
+            if (accelerating || steeringLeft || steeringRight) markDirty();
             accelerating = false;
             steeringLeft = false;
             steeringRight = false;
@@ -397,10 +476,12 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     // witness me fighting against minecraft's collision/physics
     public void movementTick() {
         // Handle the small suspension bounce effect
+        if (lastSusBounceTimer != suspensionBounceTimer) markDirty();
         lastSusBounceTimer = suspensionBounceTimer;
         if (suspensionBounceTimer > 0) suspensionBounceTimer--;
         if (!wasOnGround && automobileOnGround) {
             suspensionBounceTimer = 3;
+            markDirty();
         }
 
         // Handles boosting
@@ -411,6 +492,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             if (engineSpeed < stats.getComfortableSpeed()) {
                 engineSpeed += 0.012f;
             }
+            markDirty();
         } else {
             boostSpeed = AUtils.zero(boostSpeed, 0.09f);
         }
@@ -425,6 +507,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         // cumulative will be modified by the following code and then the automobile will be moved by it
         // Currently initialized with the value of addedVelocity (which is a general velocity vector applied to the automobile, i.e. for when it bumps into a wall and is pushed back)
         var cumulative = addedVelocity;
+        if (lastWheelAngle != wheelAngle) markDirty();
         lastWheelAngle = wheelAngle;
 
         // Reduce gravity underwater
@@ -500,6 +583,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
         // Turn the wheels
         float wheelCircumference = (float)(2 * (wheels.model().radius() / 16) * Math.PI);
+        if (hSpeed > 0) markDirty();
         wheelAngle += 300 * (hSpeed / wheelCircumference) + (hSpeed > 0 ? ((1 - grip) * 15) : 0); // made it a bit slower intentionally, also make it spin more when on slippery surface
 
         // Move the automobile by the cumulative vector
@@ -614,6 +698,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.01), Math.floor(getZ()));
         var moreBelow = new BlockPos(Math.floor(getX()), Math.floor(getY() - 1.01), Math.floor(getZ()));
         if (
+                !(world.getBlockState(new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.15), Math.floor(getZ()))).getBlock() instanceof Sloped) &&
                 fallTicks < 8 &&
                 hSpeed != 0 &&
                 !automobileOnGround &&
@@ -625,7 +710,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             } else if (yDisp < 0 && !automobileOnGround) {
                 verticalTravelPitch = Math.max(verticalTravelPitch - (6 + (16 * Math.abs(hSpeed))), -25) * (hSpeed > 0 ? 1 : -1);
             }
+            markDirty();
         } else {
+            if (verticalTravelPitch != 0) markDirty();
             verticalTravelPitch = AUtils.zero(verticalTravelPitch, 15);
         }
     }
@@ -680,6 +767,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     }
 
     public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
+        prevYaw = getYaw();
         this.setPos(x, y, z);
         this.setYaw(yaw);
         this.setPitch(pitch);
@@ -866,6 +954,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     @Override
     public Packet<?> createSpawnPacket() {
+        var pkt = new EntitySpawnS2CPacket(this);
         return new EntitySpawnS2CPacket(this);
     }
 }

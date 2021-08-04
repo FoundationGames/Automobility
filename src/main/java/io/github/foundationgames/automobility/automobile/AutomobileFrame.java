@@ -1,7 +1,6 @@
 package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
-import io.github.foundationgames.automobility.automobile.render.frame.*;
 import io.github.foundationgames.automobility.render.AutomobilityModels;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.fabricmc.api.EnvType;
@@ -50,7 +49,7 @@ public record AutomobileFrame(
                             Automobility.id("textures/entity/automobile/frame/shopping_cart.png"),
                             Automobility.id("frame_shopping_cart"),
                             WheelBase.basic(17, 12),
-                            17,
+                            25,
                             11,
                             7,
                             17
@@ -66,7 +65,7 @@ public record AutomobileFrame(
                             Automobility.id("textures/entity/automobile/frame/c_arr.png"),
                             Automobility.id("frame_c_arr"),
                             WheelBase.basic(44.5f, 16),
-                            44.5f,
+                            44f,
                             6f,
                             19.5f,
                             10.5f
@@ -82,9 +81,30 @@ public record AutomobileFrame(
                             Automobility.id("textures/entity/automobile/frame/pineapple.png"),
                             Automobility.id("frame_pineapple"),
                             WheelBase.basic(10, 18),
-                            12,
+                            20,
                             16,
                             8,
+                            6
+                    )
+            )
+    );
+
+    public static final AutomobileFrame BUGGY = REGISTRY.register(
+            new AutomobileFrame(
+                    Automobility.id("buggy"),
+                    0.93f,
+                    new FrameModel(
+                            Automobility.id("textures/entity/automobile/frame/buggy.png"),
+                            Automobility.id("frame_buggy"),
+                            new WheelBase(
+                                    new WheelBase.WheelPos(-17.12f, -17.44f, 1.05f, 0, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.LEFT),
+                                    new WheelBase.WheelPos(-17.12f, 17.44f, 1.05f, 180, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.RIGHT),
+                                    new WheelBase.WheelPos(39.52f, -16.01f, 1, 0, WheelBase.WheelEnd.FRONT, WheelBase.WheelSide.LEFT),
+                                    new WheelBase.WheelPos(39.52f, 16.01f, 1, 180, WheelBase.WheelEnd.FRONT, WheelBase.WheelSide.RIGHT)
+                            ),
+                            59,
+                            3.2f,
+                            20,
                             6
                     )
             )
@@ -135,7 +155,7 @@ public record AutomobileFrame(
                                 new WheelBase.WheelPos(15, -1, 1, 0, WheelBase.WheelEnd.FRONT, WheelBase.WheelSide.LEFT),
                                 new WheelBase.WheelPos(15, 1, 1, 180, WheelBase.WheelEnd.FRONT, WheelBase.WheelSide.RIGHT)
                         ),
-                        20,
+                        24,
                         9,
                         9,
                         8

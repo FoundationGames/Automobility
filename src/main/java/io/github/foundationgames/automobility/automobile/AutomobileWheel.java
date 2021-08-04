@@ -1,7 +1,6 @@
 package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
-import io.github.foundationgames.automobility.automobile.render.wheel.*;
 import io.github.foundationgames.automobility.render.AutomobilityModels;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.fabricmc.api.EnvType;
@@ -36,6 +35,10 @@ public record AutomobileWheel(
 
     public static final AutomobileWheel TRACTOR = REGISTRY.register(
             new AutomobileWheel(Automobility.id("tractor"), 1.05f, 0.69f, new WheelModel(3.625f, 3, Automobility.id("textures/entity/automobile/wheel/tractor.png"), Automobility.id("wheel_tractor")))
+    );
+
+    public static final AutomobileWheel BUGGY = REGISTRY.register(
+            new AutomobileWheel(Automobility.id("buggy"), 1.17f, 0.75f, new WheelModel(7.92f, 5.36f, Automobility.id("textures/entity/automobile/wheel/buggy.png"), Automobility.id("wheel_buggy")))
     );
 
     public static final AutomobileWheel CONVERTIBLE = REGISTRY.register(
