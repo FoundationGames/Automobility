@@ -1,0 +1,7 @@
+{
+    "replace": false,
+    "values": [
+        "#automobility:steep_slopes",
+        "#automobility:non_steep_slopes"
+    ]
+}

@@ -4,12 +4,12 @@ import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.item.SlopeBlockItem;
 import io.github.foundationgames.automobility.item.SteepSlopeBlockItem;
 import io.github.foundationgames.automobility.resource.AutomobilityAssets;
+import io.github.foundationgames.automobility.resource.AutomobilityData;
 import io.github.foundationgames.automobility.util.AUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.color.world.BiomeColors;
@@ -18,8 +18,6 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.level.ColorResolver;
 
 public enum AutomobilityBlocks {;
     public static final Block AUTO_MECHANIC_TABLE = register("auto_mechanic_table", new AutoMechanicTableBlock(FabricBlockSettings.copyOf(Blocks.COPPER_BLOCK)), Automobility.GROUP);
@@ -54,6 +52,8 @@ public enum AutomobilityBlocks {;
     }
 
     public static void registerSlopes(String namespace) {
+        AutomobilityData.NON_STEEP_SLOPE_TAG_CANDIDATES.add(Automobility.id("sloped_dash_panel"));
+        AutomobilityData.STEEP_SLOPE_TAG_CANDIDATES.add(Automobility.id("steep_sloped_dash_panel"));
         for (var base : Registry.BLOCK) {
             if (base.getClass().equals(Block.class)) {
                 var id = Registry.BLOCK.getId(base);
@@ -61,10 +61,14 @@ public enum AutomobilityBlocks {;
                     var path = id.getPath()+"_slope";
                     var steepPath = "steep_"+path;
                     var block = register(path, new SlopeBlock(FabricBlockSettings.copyOf(base)));
-                    Registry.register(Registry.ITEM, Automobility.id(path), new SlopeBlockItem(base, block, new Item.Settings().group(Automobility.GROUP)));
+                    var normalId = Automobility.id(path);
+                    var steepId = Automobility.id(steepPath);
+                    Registry.register(Registry.ITEM, normalId, new SlopeBlockItem(base, block, new Item.Settings().group(Automobility.GROUP)));
                     block = register(steepPath, new SteepSlopeBlock(FabricBlockSettings.copyOf(base)));
-                    Registry.register(Registry.ITEM, Automobility.id(steepPath), new SteepSlopeBlockItem(base, block, new Item.Settings().group(Automobility.GROUP)));
+                    Registry.register(Registry.ITEM, steepId, new SteepSlopeBlockItem(base, block, new Item.Settings().group(Automobility.GROUP)));
                     AutomobilityAssets.addProcessor(pack -> AutomobilityAssets.addMinecraftSlope(path, id.getPath()));
+                    AutomobilityData.NON_STEEP_SLOPE_TAG_CANDIDATES.add(normalId);
+                    AutomobilityData.STEEP_SLOPE_TAG_CANDIDATES.add(steepId);
                 }
             }
         }

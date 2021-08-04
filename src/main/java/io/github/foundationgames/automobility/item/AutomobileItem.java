@@ -102,6 +102,7 @@ public class AutomobileItem extends Item {
         }
         if (group == ItemGroup.SEARCH) {
             AutomobileFrame.REGISTRY.forEach(frame -> AutomobileEngine.REGISTRY.forEach(engine -> AutomobileWheel.REGISTRY.forEach(wheel -> {
+                if (frame == AutomobileFrame.DABABY || wheel == AutomobileWheel.CONVERTIBLE) return;
                 var stack = new ItemStack(AutomobilityItems.AUTOMOBILE);
                 var automobile = stack.getOrCreateSubTag("Automobile");
                 automobile.putString("frame", frame.getId().toString());

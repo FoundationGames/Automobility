@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public enum AutomobilityAssets {;
-    public static final RuntimeResourcePack PACK = RuntimeResourcePack.create("automobility_assets");
+    public static final RuntimeResourcePack PACK = RuntimeResourcePack.create("automobility:assets");
     private static final Set<Consumer<RuntimeResourcePack>> PROCESSORS = new HashSet<>();
 
     public static void setup() {

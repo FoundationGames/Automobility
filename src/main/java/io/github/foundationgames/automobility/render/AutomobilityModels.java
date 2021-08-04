@@ -28,12 +28,14 @@ public enum AutomobilityModels {;
         MODELS.put(Automobility.id("frame_shopping_cart"), ShoppingCartFrameModel::new);
         MODELS.put(Automobility.id("frame_c_arr"), CARRFrameModel::new);
         MODELS.put(Automobility.id("frame_pineapple"), PineappleFrameModel::new);
+        MODELS.put(Automobility.id("frame_buggy"), BuggyFrameModel::new);
         MODELS.put(Automobility.id("frame_dababy"), DaBabyFrameModel::new);
 
         MODELS.put(Automobility.id("wheel_standard"), StandardWheelModel::new);
         MODELS.put(Automobility.id("wheel_off_road"), OffRoadWheelModel::new);
         MODELS.put(Automobility.id("wheel_steel"), SteelWheelModel::new);
         MODELS.put(Automobility.id("wheel_tractor"), TractorWheelModel::new);
+        MODELS.put(Automobility.id("wheel_buggy"), BuggyWheelModel::new);
         MODELS.put(Automobility.id("wheel_convertible"), ConvertibleWheelModel::new);
 
         MODELS.put(Automobility.id("engine_iron"), IronEngineModel::new);

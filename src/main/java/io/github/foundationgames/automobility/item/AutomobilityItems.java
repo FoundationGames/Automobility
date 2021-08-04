@@ -58,11 +58,10 @@ public enum AutomobilityItems {;
         BuiltinItemRendererRegistry.INSTANCE.register(AUTOMOBILE, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
             if (cachedCtx != null) {
                 reader.read(stack.getOrCreateSubTag("Automobile"));
-                float wheelDist = reader.getFrame().model().lengthPx();
+                float wheelDist = reader.getFrame().model().lengthPx() / 16;
                 float scale = 1;
-                if (wheelDist > 16) {
-                    scale = Math.max(0, scale - (wheelDist - 16) * 0.02f);
-                }
+                scale /= wheelDist * 0.77f;
+                scale = Math.max(0, scale);
                 matrices.scale(scale, scale, scale);
                 AutomobileRenderer.render(matrices, vertexConsumers, light, overlay, MinecraftClient.getInstance().getTickDelta(), reader.getFrame(), reader.getWheel(), reader.getEngine(), cachedCtx, itemAutomobile);
             }
