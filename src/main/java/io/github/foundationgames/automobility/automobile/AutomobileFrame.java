@@ -89,6 +89,7 @@ public record AutomobileFrame(
             )
     );
 
+    /*
     public static final AutomobileFrame BUGGY = REGISTRY.register(
             new AutomobileFrame(
                     Automobility.id("buggy"),
@@ -109,6 +110,7 @@ public record AutomobileFrame(
                     )
             )
     );
+     */
 
     public static final AutomobileFrame DABABY = REGISTRY.register(
             new AutomobileFrame(

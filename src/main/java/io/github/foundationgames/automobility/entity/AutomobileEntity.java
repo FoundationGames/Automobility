@@ -381,9 +381,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                         }
                     }
                 }
-            } else if (this.getFirstPassenger() instanceof MobEntity mob) {
+            } /* else if (this.getFirstPassenger() instanceof MobEntity mob) {
                 provideMobDriverInputs(mob);
-            }
+            } */
         }
 
         slopeAngleTick();

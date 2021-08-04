@@ -37,9 +37,11 @@ public record AutomobileWheel(
             new AutomobileWheel(Automobility.id("tractor"), 1.05f, 0.69f, new WheelModel(3.625f, 3, Automobility.id("textures/entity/automobile/wheel/tractor.png"), Automobility.id("wheel_tractor")))
     );
 
+    /*
     public static final AutomobileWheel BUGGY = REGISTRY.register(
             new AutomobileWheel(Automobility.id("buggy"), 1.17f, 0.75f, new WheelModel(7.92f, 5.36f, Automobility.id("textures/entity/automobile/wheel/buggy.png"), Automobility.id("wheel_buggy")))
     );
+     */
 
     public static final AutomobileWheel CONVERTIBLE = REGISTRY.register(
             new AutomobileWheel(Automobility.id("convertible"), 0.75f, 0.45f, new WheelModel(5.2f, 4.1f, Automobility.id("textures/entity/automobile/frame/dababy.png"), Automobility.id("wheel_convertible")))
