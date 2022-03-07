@@ -13,8 +13,6 @@ public interface RenderableAutomobile {
 
     float getAutomobileYaw(float tickDelta);
 
-    float getVerticalTravelPitch(float tickDelta);
-
     float getWheelAngle(float tickDelta);
 
     float getSteering(float tickDelta);

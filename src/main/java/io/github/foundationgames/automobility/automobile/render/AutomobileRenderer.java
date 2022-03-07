@@ -40,9 +40,6 @@ public enum AutomobileRenderer {;
 
         float raise = 1.5f - chassisRaise;
         float bounce = automobile.getSuspensionBounce(tickDelta) * 0.048f;
-        matrices.translate(0, raise, 0);
-        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(automobile.getVerticalTravelPitch(tickDelta)));
-        matrices.translate(0, -raise, 0);
 
         var frameModel = automobile.getFrameModel(ctx);
         var wheelModel = automobile.getWheelModel(ctx);

@@ -26,6 +26,7 @@ import static org.lwjgl.glfw.GLFW.*;
 /*
  * Don't access this class directly in other packages, it will likely throw a fit if LambdaControls isn't loaded
  */
+//
 public class AutomobilityLC implements CompatHandler {
     public static final PairPredicate<MinecraftClient, ButtonBinding> ON_AUTOMOBILE = (client, button) -> client.player != null && client.player.getVehicle() instanceof AutomobileEntity;
 

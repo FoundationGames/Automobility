@@ -100,24 +100,6 @@ public class SteepSlopeBlock extends HorizontalFacingBlock implements Waterlogga
     }
 
     @Override
-    public float getGroundSlopeX(World world, BlockState state, BlockPos pos) {
-        return switch (state.get(FACING)) {
-            case NORTH -> -45;
-            case SOUTH -> 45;
-            default -> 0;
-        };
-    }
-
-    @Override
-    public float getGroundSlopeZ(World world, BlockState state, BlockPos pos) {
-        return switch (state.get(FACING)) {
-            case WEST -> 45;
-            case EAST -> -45;
-            default -> 0;
-        };
-    }
-
-    @Override
     public boolean isSticky() {
         return true;
     }

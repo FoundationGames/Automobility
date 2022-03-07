@@ -36,7 +36,7 @@ public class AutomobileItem extends Item {
     public ActionResult useOnBlock(ItemUsageContext context) {
         if (!context.getWorld().isClient()) {
             var stack = context.getStack();
-            data.read(stack.getOrCreateSubTag("Automobile"));
+            data.read(stack.getOrCreateSubNbt("Automobile"));
             var e = new AutomobileEntity(AutomobilityEntities.AUTOMOBILE, context.getWorld());
             var pos = context.getHitPos();
             e.refreshPositionAndAngles(pos.x, pos.y, pos.z, context.getPlayerFacing().asRotation(), 0);
@@ -51,7 +51,7 @@ public class AutomobileItem extends Item {
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
-        data.read(stack.getOrCreateSubTag("Automobile"));
+        data.read(stack.getOrCreateSubNbt("Automobile"));
         if (Screen.hasShiftDown()) {
             stats.from(data.getFrame(), data.getWheel(), data.getEngine());
             tooltip.add(
@@ -104,7 +104,7 @@ public class AutomobileItem extends Item {
             AutomobileFrame.REGISTRY.forEach(frame -> AutomobileEngine.REGISTRY.forEach(engine -> AutomobileWheel.REGISTRY.forEach(wheel -> {
                 if (frame == AutomobileFrame.DABABY || wheel == AutomobileWheel.CONVERTIBLE) return;
                 var stack = new ItemStack(AutomobilityItems.AUTOMOBILE);
-                var automobile = stack.getOrCreateSubTag("Automobile");
+                var automobile = stack.getOrCreateSubNbt("Automobile");
                 automobile.putString("frame", frame.getId().toString());
                 automobile.putString("wheels", wheel.getId().toString());
                 automobile.putString("engine", engine.getId().toString());

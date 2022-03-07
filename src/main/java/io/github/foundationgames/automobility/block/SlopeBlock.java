@@ -126,25 +126,6 @@ public class SlopeBlock extends HorizontalFacingBlock implements Waterloggable, 
     }
 
     @Override
-    public float getGroundSlopeX(World world, BlockState state, BlockPos pos) {
-        return switch (state.get(FACING)) {
-            // 26.565052 ~= atan(0.5), the angle of the slope of a half slab to the next half slab
-            case NORTH -> -26.565052f;
-            case SOUTH -> 26.565052f;
-            default -> 0;
-        };
-    }
-
-    @Override
-    public float getGroundSlopeZ(World world, BlockState state, BlockPos pos) {
-        return switch (state.get(FACING)) {
-            case WEST -> 26.565052f;
-            case EAST -> -26.565052f;
-            default -> 0;
-        };
-    }
-
-    @Override
     public boolean isSticky() {
         return true;
     }

@@ -1,9 +1,11 @@
 package io.github.foundationgames.automobility.entity;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileStats;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
+import io.github.foundationgames.automobility.automobile.WheelBase;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.block.OffRoadBlock;
 import io.github.foundationgames.automobility.block.Sloped;
@@ -14,7 +16,6 @@ import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.ShapeContext;
-import net.minecraft.block.SideShapeType;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.entity.*;
@@ -35,12 +36,17 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.*;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class AutomobileEntity extends Entity implements RenderableAutomobile {
@@ -80,22 +86,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     private float wheelAngle = 0;
     private float lastWheelAngle = 0;
-    
-    private float verticalTravelPitch = 0;
-    private float lastVTravelPitch = verticalTravelPitch;
+
+    private final Displacement displacement = new Displacement();
 
     private boolean drifting = false;
     private int driftDir = 0;
     private int driftTimer = 0;
 
     private float lockedViewOffset = 0;
-
-    private float groundSlopeX = 0;
-    private float groundSlopeZ = 0;
-    private float lastGroundSlopeX = groundSlopeX;
-    private float lastGroundSlopeZ = groundSlopeZ;
-    private float targetSlopeX = 0;
-    private float targetSlopeZ = 0;
 
     private boolean automobileOnGround = true;
     private boolean wasOnGround = automobileOnGround;
@@ -122,9 +120,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         buf.writeFloat(wheelAngle);
         buf.writeBoolean(drifting);
         buf.writeInt(driftTimer);
-        buf.writeFloat(groundSlopeX);
-        buf.writeFloat(groundSlopeZ);
-        buf.writeFloat(verticalTravelPitch);
+        this.displacement.toBuffer(buf);
         buf.writeByte(compactInputData());
     }
 
@@ -134,9 +130,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         wheelAngle = buf.readFloat();
         drifting = buf.readBoolean();
         driftTimer = buf.readInt();
-        groundSlopeX = buf.readFloat();
-        groundSlopeZ = buf.readFloat();
-        verticalTravelPitch = buf.readFloat();
+        this.displacement.fromBuffer(buf);
         readCompactedInputData(buf.readByte());
     }
 
@@ -166,9 +160,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         steeringLeft = nbt.getBoolean("steeringLeft");
         steeringRight = nbt.getBoolean("steeringRight");
         holdingDrift = nbt.getBoolean("holdingDrift");
-        groundSlopeX = nbt.getFloat("angleX");
-        groundSlopeZ = nbt.getFloat("angleZ");
         fallTicks = nbt.getInt("fallTicks");
+        displacement.fromNbt(nbt.getCompound("displacement"));
 
         updateModels = true;
     }
@@ -197,9 +190,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         nbt.putBoolean("steeringLeft", steeringLeft);
         nbt.putBoolean("steeringRight", steeringRight);
         nbt.putBoolean("holdingDrift", holdingDrift);
-        nbt.putFloat("angleX", groundSlopeX);
-        nbt.putFloat("angleZ", groundSlopeZ);
         nbt.putInt("fallTicks", fallTicks);
+        nbt.put("displacement", displacement.toNbt(new NbtCompound()));
     }
 
     private boolean accelerating = false;
@@ -237,6 +229,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         super(type, world);
     }
 
+    public AutomobileEntity(World world) {
+        this(AutomobilityEntities.AUTOMOBILE, world);
+    }
+
     @Override
     public void onSpawnPacket(EntitySpawnS2CPacket packet) {
         super.onSpawnPacket(packet);
@@ -267,21 +263,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         return MathHelper.lerp(tickDelta, lastWheelAngle, wheelAngle);
     }
 
-    @Override
-    public float getVerticalTravelPitch(float tickDelta) {
-        return MathHelper.lerp(tickDelta, lastVTravelPitch, verticalTravelPitch);
-    }
-
     public float getBoostSpeed(float tickDelta) {
         return MathHelper.lerp(tickDelta, lastBoostSpeed, boostSpeed);
-    }
-
-    public float getGroundSlopeX(float tickDelta) {
-        return MathHelper.lerp(tickDelta, lastGroundSlopeX, groundSlopeX);
-    }
-
-    public float getGroundSlopeZ(float tickDelta) {
-        return MathHelper.lerp(tickDelta, lastGroundSlopeZ, groundSlopeZ);
     }
 
     @Override
@@ -335,6 +318,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         this.updateModels = true;
         this.stepHeight = wheels.size();
         this.stats.from(frame, wheel, engine);
+        this.displacement.applyWheelbase(frame.model().wheelBase());
         if (!world.isClient()) syncComponents();
     }
 
@@ -386,7 +370,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             }
         }
 
-        slopeAngleTick();
+        displacementTick();
     }
 
     public void markDirty() {
@@ -403,7 +387,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     public ItemStack asItem() {
         var stack = new ItemStack(AutomobilityItems.AUTOMOBILE);
-        var automobile = stack.getOrCreateSubTag("Automobile");
+        var automobile = stack.getOrCreateSubNbt("Automobile");
         automobile.putString("frame", frame.getId().toString());
         automobile.putString("wheels", wheels.getId().toString());
         automobile.putString("engine", engine.getId().toString());
@@ -692,49 +676,17 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 this.prevYaw = prevYaw;
             }
         }
+    }
 
-        // Adjusts the pitch of the automobile when falling onto a block/climbing up a block
-        lastVTravelPitch = verticalTravelPitch;
-        below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.01), Math.floor(getZ()));
-        var moreBelow = new BlockPos(Math.floor(getX()), Math.floor(getY() - 1.01), Math.floor(getZ()));
-        if (
-                !(world.getBlockState(new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.15), Math.floor(getZ()))).getBlock() instanceof Sloped) &&
-                fallTicks < 8 &&
-                hSpeed != 0 &&
-                !automobileOnGround &&
-                !world.getBlockState(below).isSideSolid(world, below, Direction.UP, SideShapeType.RIGID) &&
-                world.getBlockState(moreBelow).isSideSolid(world, moreBelow, Direction.UP, SideShapeType.RIGID)
-        ) {
-            if (highestPrevYDisp > 0 && (wasOnGround || automobileOnGround)) {
-                verticalTravelPitch = Math.min(verticalTravelPitch + 13, 25) * (hSpeed > 0 ? 1 : -1);
-            } else if (yDisp < 0 && !automobileOnGround) {
-                verticalTravelPitch = Math.max(verticalTravelPitch - (6 + (16 * Math.abs(hSpeed))), -25) * (hSpeed > 0 ? 1 : -1);
-            }
-            markDirty();
-        } else {
-            if (verticalTravelPitch != 0) markDirty();
-            verticalTravelPitch = AUtils.zero(verticalTravelPitch, 15);
+    public void displacementTick() {
+        this.displacement.preTick();
+        if (this.automobileOnGround) {
+            this.displacement.tick(this.world, this, this.getPos(), this.getYaw(), this.stepHeight);
         }
     }
 
-    public void slopeAngleTick() {
-        lastGroundSlopeX = groundSlopeX;
-        lastGroundSlopeZ = groundSlopeZ;
-        var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.06), Math.floor(getZ()));
-        var state = world.getBlockState(below);
-        boolean onSlope = false;
-        if (state.getBlock() instanceof Sloped slope) {
-            targetSlopeX = slope.getGroundSlopeX(world, state, below);
-            targetSlopeZ = slope.getGroundSlopeZ(world, state, below);
-            onSlope = true;
-        } else if (!state.isAir()) {
-            targetSlopeX = 0;
-            targetSlopeZ = 0;
-        }
-        if (automobileOnGround || onSlope) {
-            groundSlopeX = AUtils.shift(groundSlopeX, 15, targetSlopeX);
-            groundSlopeZ = AUtils.shift(groundSlopeZ, 15, targetSlopeZ);
-        }
+    public Displacement getDisplacement() {
+        return this.displacement;
     }
 
     public void collisionStateTick() {
@@ -919,7 +871,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     @Override
     public double getMountedHeightOffset() {
-        return ((wheels.model().radius() + frame.model().seatHeight() - 4) / 16) - (suspensionBounceTimer * 0.048f);
+        return ((wheels.model().radius() + frame.model().seatHeight() - 4) / 16) - (suspensionBounceTimer * 0.048f) + this.displacement.verticalTarget;
     }
 
     @Override
@@ -949,12 +901,188 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     @Override
     protected void initDataTracker() {
-
     }
 
     @Override
     public Packet<?> createSpawnPacket() {
-        var pkt = new EntitySpawnS2CPacket(this);
         return new EntitySpawnS2CPacket(this);
+    }
+
+    public static final class Displacement {
+        private float lastVertical = 0;
+        private float lastAngularX = 0;
+        private float lastAngularZ = 0;
+        private float currAngularX = 0;
+        private float currAngularZ = 0;
+        private float verticalTarget = 0;
+        private float angularXTarget = 0;
+        private float angularZTarget = 0;
+        private final List<Vec3d> scanPoints = new ArrayList<>();
+
+        public void preTick() {
+            this.lastAngularX = currAngularX;
+            this.lastAngularZ = currAngularZ;
+            this.lastVertical = verticalTarget;
+
+            this.currAngularX = AUtils.shift(this.currAngularX, 9, this.angularXTarget);
+            this.currAngularZ = AUtils.shift(this.currAngularZ, 9, this.angularZTarget);
+        }
+
+        public void tick(World world, AutomobileEntity entity, Vec3d centerPos, double yaw, double stepHeight) {
+            yaw = 360 - yaw;
+            Vec3d lowestDisplacementPos = null;
+            Vec3d highestDisplacementPos = null;
+            var scannedPoints = new ArrayList<Vec3d>();
+            for (Vec3d scanPoint : scanPoints) {
+                var downwardScanDist = (scanPoint.distanceTo(Vec3d.ZERO) * 1.4) + entity.getBoundingBox().getXLength();
+                var upwardScanDist = (entity.getBoundingBox().getYLength() * 0.5) + stepHeight;
+                var pointPos = scanPoint
+                        .rotateY((float) Math.toRadians(yaw))
+                        .add(centerPos);
+                var collBoxes = new HashSet<VoxelShape>();
+
+                int centerYBlock = (int) Math.floor(pointPos.y);
+                for (var mpos = new BlockPos.Mutable(Math.floor(pointPos.x), centerYBlock + Math.ceil(upwardScanDist), Math.floor(pointPos.z));
+                     mpos.getY() >= centerYBlock - Math.ceil(downwardScanDist); mpos.move(Direction.DOWN)) {
+                    var shape = world.getBlockState(mpos).getCollisionShape(world, mpos);
+                    if (!shape.isEmpty()) {
+                        collBoxes.add(shape.offset(mpos.getX(), mpos.getY(), mpos.getZ()));
+                    }
+                }
+
+                AtomicBoolean done = new AtomicBoolean(false);
+                AtomicDouble yDisplacement = new AtomicDouble(0);
+                for (double v = downwardScanDist; (v > -downwardScanDist && !done.get()); v -= 0.08) {
+                    if (done.get()) break;
+                    final double worldSpaceOffset = v + centerPos.y;
+                    final Vec3d currentPointPos = pointPos;
+                    collBoxes.forEach(shape -> {
+                        if (done.get()) return;
+                        shape.forEachBox((minX, minY, minZ, maxX, maxY, maxZ) -> {
+                            if (currentPointPos.x > minX && currentPointPos.x < maxX && currentPointPos.z > minZ && currentPointPos.z < maxZ) {
+                                if (worldSpaceOffset <= maxY && worldSpaceOffset > minY) {;
+                                    yDisplacement.set(maxY - centerPos.y);
+                                    done.set(true);
+                                }
+                            }
+                        });
+                    });
+                }
+
+                pointPos = pointPos.add(0, yDisplacement.get(), 0);
+
+                if (lowestDisplacementPos == null || pointPos.y < lowestDisplacementPos.y) {
+                    lowestDisplacementPos = pointPos;
+                }
+                if (highestDisplacementPos == null || pointPos.y > highestDisplacementPos.y) {
+                    highestDisplacementPos = pointPos;
+                }
+
+                scannedPoints.add(pointPos);
+            }
+
+            angularXTarget = 0;
+            angularZTarget = 0;
+            verticalTarget = 0;
+
+            if (lowestDisplacementPos != null) {
+                var displacementCenterPos = new Vec3d(centerPos.x, (lowestDisplacementPos.y + highestDisplacementPos.y) * 0.5, centerPos.z);
+
+                var combinedNormals = Vec3d.ZERO;
+                int normalCount = 0;
+                Vec3d positiveXOffset = null;
+                Vec3d negativeXOffset = null;
+                Vec3d positiveZOffset = null;
+                Vec3d negativeZOffset = null;
+
+                for (var pointPos : scannedPoints) {
+                    var pointOffset = pointPos.subtract(displacementCenterPos);
+                    if (pointOffset.x > 0) {
+                        if (positiveXOffset != null) {
+                            var normal = positiveXOffset.crossProduct(pointOffset).normalize();
+                            if (normal.y < 0) normal = normal.negate();
+                            combinedNormals = combinedNormals.add(normal);
+                            normalCount++;
+                            positiveXOffset = null;
+                        } else positiveXOffset = pointOffset;
+                    } else if (pointOffset.x < 0) {
+                        if (negativeXOffset != null) {
+                            var normal = negativeXOffset.crossProduct(pointOffset).normalize();
+                            if (normal.y < 0) normal = normal.negate();
+                            combinedNormals = combinedNormals.add(normal);
+                            normalCount++;
+                            negativeXOffset = null;
+                        } else negativeXOffset = pointOffset;
+                    } else if (pointOffset.z > 0) {
+                        if (positiveZOffset != null) {
+                            var normal = positiveZOffset.crossProduct(pointOffset).normalize();
+                            if (normal.y < 0) normal = normal.negate();
+                            combinedNormals = combinedNormals.add(normal);
+                            normalCount++;
+                            positiveZOffset = null;
+                        } else positiveZOffset = pointOffset;
+                    } else if (pointOffset.z < 0) {
+                        if (negativeZOffset != null) {
+                            var normal = negativeZOffset.crossProduct(pointOffset).normalize();
+                            if (normal.y < 0) normal = normal.negate();
+                            combinedNormals = combinedNormals.add(normal);
+                            normalCount++;
+                            negativeZOffset = null;
+                        } else negativeZOffset = pointOffset;
+                    }
+                }
+
+                combinedNormals = normalCount > 0 ? combinedNormals.multiply(1f / normalCount) : new Vec3d(0, 1, 0);
+
+                angularXTarget = MathHelper.wrapDegrees(90f - (float) Math.toDegrees(Math.atan2(combinedNormals.y, combinedNormals.z)));
+                angularZTarget = MathHelper.wrapDegrees(270f + (float) Math.toDegrees(Math.atan2(combinedNormals.y, combinedNormals.x)));
+
+                verticalTarget = (float) displacementCenterPos.subtract(centerPos).y;
+            }
+        }
+
+        public void applyWheelbase(WheelBase wheelBase) {
+            this.scanPoints.clear();
+            for (WheelBase.WheelPos pos : wheelBase.wheels) {
+                this.scanPoints.add(new Vec3d(pos.right() / 16, 0, pos.forward() / 16));
+            }
+        }
+
+        public float getVertical(float tickDelta) {
+            return MathHelper.lerp(tickDelta, lastVertical, verticalTarget);
+        }
+
+        public float getAngularX(float tickDelta) {
+            return MathHelper.lerpAngleDegrees(tickDelta, lastAngularX, currAngularX);
+        }
+
+        public float getAngularZ(float tickDelta) {
+            return MathHelper.lerpAngleDegrees(tickDelta, lastAngularZ, currAngularZ);
+        }
+
+        public NbtCompound toNbt(NbtCompound writeTo) {
+            writeTo.putFloat("vertical", verticalTarget);
+            writeTo.putFloat("angular_x", angularXTarget);
+            writeTo.putFloat("angular_z", angularZTarget);
+            return writeTo;
+        }
+
+        public void fromNbt(NbtCompound readFrom) {
+            verticalTarget = readFrom.getFloat("vertical");
+            angularXTarget = readFrom.getFloat("angular_x");
+            angularZTarget = readFrom.getFloat("angular_z");
+        }
+
+        public void toBuffer(PacketByteBuf buf) {
+            buf.writeFloat(verticalTarget);
+            buf.writeFloat(currAngularX);
+            buf.writeFloat(currAngularZ);
+        }
+
+        public void fromBuffer(PacketByteBuf buf) {
+            verticalTarget = buf.readFloat();
+            currAngularX = buf.readFloat();
+            currAngularZ = buf.readFloat();
+        }
     }
 }

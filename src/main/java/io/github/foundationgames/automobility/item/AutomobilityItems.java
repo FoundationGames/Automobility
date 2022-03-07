@@ -57,7 +57,7 @@ public enum AutomobilityItems {;
         EntityRenderHelper.registerContextListener(ctx -> cachedCtx = ctx);
         BuiltinItemRendererRegistry.INSTANCE.register(AUTOMOBILE, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
             if (cachedCtx != null) {
-                reader.read(stack.getOrCreateSubTag("Automobile"));
+                reader.read(stack.getOrCreateSubNbt("Automobile"));
                 float wheelDist = reader.getFrame().model().lengthPx() / 16;
                 float scale = 1;
                 scale /= wheelDist * 0.77f;

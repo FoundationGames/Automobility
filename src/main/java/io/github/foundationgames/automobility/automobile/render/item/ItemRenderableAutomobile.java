@@ -50,11 +50,6 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     }
 
     @Override
-    public float getVerticalTravelPitch(float tickDelta) {
-        return 0;
-    }
-
-    @Override
     public float getWheelAngle(float tickDelta) {
         return 0;
     }
