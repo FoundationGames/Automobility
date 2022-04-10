@@ -9,11 +9,11 @@ import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtil
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
-import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 public class Automobility implements ModInitializer {
     public static final String MOD_ID = "automobility";
@@ -21,9 +21,9 @@ public class Automobility implements ModInitializer {
     public static final ItemGroup GROUP = FabricItemGroupBuilder.build(Automobility.id("automobility"), AUtils::createGroupIcon);
     public static final ItemGroup PREFABS = FabricItemGroupBuilder.build(Automobility.id("automobility_prefabs"), AUtils::createPrefabsIcon);
 
-    public static final Tag<Block> SLOPES = TagRegistry.block(Automobility.id("slopes"));
-    public static final Tag<Block> STEEP_SLOPES = TagRegistry.block(Automobility.id("steep_slopes"));
-    public static final Tag<Block> NON_STEEP_SLOPES = TagRegistry.block(Automobility.id("non_steep_slopes"));
+    public static final TagKey<Block> SLOPES = TagKey.of(Registry.BLOCK_KEY, Automobility.id("slopes"));
+    public static final TagKey<Block> STEEP_SLOPES = TagKey.of(Registry.BLOCK_KEY, Automobility.id("steep_slopes"));
+    public static final TagKey<Block> NON_STEEP_SLOPES = TagKey.of(Registry.BLOCK_KEY, Automobility.id("non_steep_slopes"));
 
     @Override
     public void onInitialize() {
