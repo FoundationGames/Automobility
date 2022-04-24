@@ -1,0 +1,218 @@
+{
+    "texture": {
+        "width": 64,
+        "height": 32
+    },
+    "bones": {
+        "main": {
+            "cuboids": [
+                {
+                    "offset": [
+                        -4,
+                        -5,
+                        -5
+                    ],
+                    "dimensions": [
+                        8,
+                        5,
+                        9
+                    ],
+                    "uv": [
+                        0,
+                        0
+                    ]
+                },
+                {
+                    "offset": [
+                        -3,
+                        -8,
+                        -4
+                    ],
+                    "dimensions": [
+                        6,
+                        3,
+                        7
+                    ],
+                    "uv": [
+                        0,
+                        14
+                    ]
+                },
+                {
+                    "offset": [
+                        -5,
+                        -2,
+                        -6
+                    ],
+                    "dimensions": [
+                        10,
+                        2,
+                        2
+                    ],
+                    "uv": [
+                        0,
+                        24
+                    ]
+                }
+            ],
+            "children": {
+                "left_exhaust": {
+                    "transform": {
+                        "origin": [
+                            -4,
+                            0,
+                            -3
+                        ]
+                    },
+                    "cuboids": [],
+                    "children": {
+                        "left_bottom": {
+                            "transform": {
+                                "origin": [
+                                    0,
+                                    0,
+                                    -1
+                                ],
+                                "rotation": [
+                                    0.3054000006406195,
+                                    0,
+                                    0
+                                ]
+                            },
+                            "cuboids": [
+                                {
+                                    "offset": [
+                                        -1,
+                                        -7,
+                                        0
+                                    ],
+                                    "dimensions": [
+                                        2,
+                                        7,
+                                        2
+                                    ],
+                                    "uv": [
+                                        26,
+                                        0
+                                    ]
+                                }
+                            ],
+                            "children": {}
+                        },
+                        "left_top": {
+                            "transform": {
+                                "origin": [
+                                    0,
+                                    -7.274999999999999,
+                                    -1.2249999999999996
+                                ],
+                                "rotation": [
+                                    0.7853981633974483,
+                                    0,
+                                    0
+                                ]
+                            },
+                            "cuboids": [
+                                {
+                                    "offset": [
+                                        -1.5,
+                                        -3.9940999999999995,
+                                        -2.473
+                                    ],
+                                    "dimensions": [
+                                        3,
+                                        4,
+                                        3
+                                    ],
+                                    "uv": [
+                                        34,
+                                        0
+                                    ]
+                                }
+                            ],
+                            "children": {}
+                        }
+                    }
+                },
+                "right_exhaust": {
+                    "transform": {
+                        "origin": [
+                            4,
+                            0,
+                            -3
+                        ]
+                    },
+                    "cuboids": [],
+                    "children": {
+                        "right_bottom": {
+                            "transform": {
+                                "origin": [
+                                    0,
+                                    0,
+                                    -1
+                                ],
+                                "rotation": [
+                                    0.3054000006406195,
+                                    0,
+                                    0
+                                ]
+                            },
+                            "cuboids": [
+                                {
+                                    "offset": [
+                                        -1,
+                                        -7,
+                                        0
+                                    ],
+                                    "dimensions": [
+                                        2,
+                                        7,
+                                        2
+                                    ],
+                                    "uv": [
+                                        26,
+                                        0
+                                    ]
+                                }
+                            ],
+                            "children": {}
+                        },
+                        "right_top": {
+                            "transform": {
+                                "origin": [
+                                    0,
+                                    -7.274999999999999,
+                                    -1.2249999999999996
+                                ],
+                                "rotation": [
+                                    0.7853981633974483,
+                                    0,
+                                    0
+                                ]
+                            },
+                            "cuboids": [
+                                {
+                                    "offset": [
+                                        -1.5,
+                                        -3.9940999999999995,
+                                        -2.473
+                                    ],
+                                    "dimensions": [
+                                        3,
+                                        4,
+                                        3
+                                    ],
+                                    "uv": [
+                                        34,
+                                        0
+                                    ]
+                                }
+                            ],
+                            "children": {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

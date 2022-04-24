@@ -11,7 +11,6 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3f;
 
-// doesn't look right just yet
 public class ConvertibleWheelModel extends Model {
     // Credit to https://github.com/Sk3leCreeper for model
     private final BakedModel model = Myron.getModel(Automobility.id("models/misc/automobile/wheel/convertible"));
@@ -25,7 +24,8 @@ public class ConvertibleWheelModel extends Model {
         if (model == null) return;
         matrices.push();
         matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
-        matrices.translate(0, -1.5, 0);
+        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(90));
+        matrices.translate(0, -0.325, 0);
         AUtils.renderMyronObj(model, vertices, matrices, light, overlay);
         matrices.pop();
     }

@@ -18,6 +18,7 @@ public enum AutomobilityData {;
 
     public static final List<Identifier> STEEP_SLOPE_TAG_CANDIDATES = new ArrayList<>();
     public static final List<Identifier> NON_STEEP_SLOPE_TAG_CANDIDATES = new ArrayList<>();
+    public static final List<Identifier> STICKY_SLOPE_TAG_CANDIDATES = new ArrayList<>();
 
     public static void setup() {
         var steepSlopesTag = new JTag();
@@ -27,6 +28,16 @@ public enum AutomobilityData {;
         var nonSteepSlopesTag = new JTag();
         for (var id : NON_STEEP_SLOPE_TAG_CANDIDATES) nonSteepSlopesTag.add(id);
         PACK.addTag(Automobility.id("blocks/non_steep_slopes"), nonSteepSlopesTag);
+
+        var slopesTag = new JTag();
+        slopesTag.tag(Automobility.id("blocks/steep_slopes"));
+        slopesTag.tag(Automobility.id("blocks/non_steep_slopes"));
+        PACK.addTag(Automobility.id("blocks/slopes"), slopesTag);
+
+        var stickySlopesTag = new JTag();
+        stickySlopesTag.tag(Automobility.id("blocks/slopes"));
+        for (var id : STICKY_SLOPE_TAG_CANDIDATES) stickySlopesTag.add(id);
+        PACK.addTag(Automobility.id("blocks/sticky_slopes"), stickySlopesTag);
 
         for (var p : PROCESSORS) {
             p.accept(PACK);

@@ -41,6 +41,8 @@ public record AutomobileFrame(
     public static final AutomobileFrame GREEN_TRACTOR = REGISTRY.register(tractor("green"));
     public static final AutomobileFrame BLUE_TRACTOR = REGISTRY.register(tractor("blue"));
 
+    public static final AutomobileFrame WOODEN_MOTORCAR = REGISTRY.register(motorcar("wooden"));
+
     public static final AutomobileFrame SHOPPING_CART = REGISTRY.register(
             new AutomobileFrame(
                     Automobility.id("shopping_cart"),
@@ -89,27 +91,6 @@ public record AutomobileFrame(
             )
     );
 
-    public static final AutomobileFrame BUGGY = REGISTRY.register(
-            new AutomobileFrame(
-                    Automobility.id("buggy"),
-                    0.93f,
-                    new FrameModel(
-                            Automobility.id("textures/entity/automobile/frame/buggy.png"),
-                            Automobility.id("frame_buggy"),
-                            new WheelBase(
-                                    new WheelBase.WheelPos(-17.12f, -17.44f, 1.05f, 0, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.LEFT),
-                                    new WheelBase.WheelPos(-17.12f, 17.44f, 1.05f, 180, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.RIGHT),
-                                    new WheelBase.WheelPos(39.52f, -16.01f, 1, 0, WheelBase.WheelEnd.FRONT, WheelBase.WheelSide.LEFT),
-                                    new WheelBase.WheelPos(39.52f, 16.01f, 1, 180, WheelBase.WheelEnd.FRONT, WheelBase.WheelSide.RIGHT)
-                            ),
-                            59,
-                            3.2f,
-                            20,
-                            6
-                    )
-            )
-    );
-
     public static final AutomobileFrame DABABY = REGISTRY.register(
             new AutomobileFrame(
                     Automobility.id("dababy"),
@@ -138,6 +119,22 @@ public record AutomobileFrame(
                         5,
                         13,
                         3
+                )
+        );
+    }
+
+    private static AutomobileFrame motorcar(String variant) {
+        return new AutomobileFrame(
+                Automobility.id(variant+"_motorcar"),
+                0.5f,
+                new FrameModel(
+                        Automobility.id("textures/entity/automobile/frame/"+variant+"_motorcar.png"),
+                        Automobility.id("frame_motorcar"),
+                        WheelBase.basic(22, 10),
+                        22,
+                        3,
+                        12,
+                        1
                 )
         );
     }

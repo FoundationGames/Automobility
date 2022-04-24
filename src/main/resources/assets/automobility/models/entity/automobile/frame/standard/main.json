@@ -1,0 +1,616 @@
+{
+    "texture": {
+        "width": 64,
+        "height": 64
+    },
+    "bones": {
+        "main": {
+            "cuboids": [
+                {
+                    "offset": [
+                        -8,
+                        -3,
+                        -8
+                    ],
+                    "dimensions": [
+                        16,
+                        3,
+                        16
+                    ],
+                    "uv": [
+                        0,
+                        45
+                    ]
+                },
+                {
+                    "offset": [
+                        -18,
+                        -3,
+                        -5
+                    ],
+                    "dimensions": [
+                        10,
+                        3,
+                        10
+                    ],
+                    "uv": [
+                        0,
+                        0
+                    ]
+                },
+                {
+                    "offset": [
+                        8,
+                        -3,
+                        -5
+                    ],
+                    "dimensions": [
+                        10,
+                        3,
+                        10
+                    ],
+                    "uv": [
+                        0,
+                        0
+                    ]
+                },
+                {
+                    "offset": [
+                        -22,
+                        -2,
+                        -8
+                    ],
+                    "dimensions": [
+                        4,
+                        2,
+                        16
+                    ],
+                    "uv": [
+                        1,
+                        27
+                    ]
+                },
+                {
+                    "offset": [
+                        -15,
+                        -5.550000000000001,
+                        -5
+                    ],
+                    "dimensions": [
+                        7,
+                        3,
+                        10
+                    ],
+                    "uv": [
+                        3,
+                        0
+                    ]
+                },
+                {
+                    "offset": [
+                        -8,
+                        -7,
+                        -8
+                    ],
+                    "dimensions": [
+                        16,
+                        4,
+                        3
+                    ],
+                    "uv": [
+                        26,
+                        36
+                    ]
+                },
+                {
+                    "offset": [
+                        -2,
+                        -5,
+                        -4
+                    ],
+                    "dimensions": [
+                        9,
+                        2,
+                        8
+                    ],
+                    "uv": [
+                        30,
+                        26
+                    ]
+                }
+            ],
+            "children": {
+                "front_mudguard_back_right": {
+                    "transform": {
+                        "origin": [
+                            -10.475,
+                            -5.550000000000001,
+                            0
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            2.356194490192345
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                0,
+                                -5,
+                                -8
+                            ],
+                            "dimensions": [
+                                1,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "rear_mudguard_front_right": {
+                    "transform": {
+                        "origin": [
+                            7,
+                            -2,
+                            0
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            0.7853981633974483
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                0,
+                                -5,
+                                -8
+                            ],
+                            "dimensions": [
+                                1,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "front_mudguard_center_right": {
+                    "transform": {
+                        "origin": [
+                            -15.425,
+                            -5.475000000000001,
+                            0
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            1.5707963267948966
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -0.07070000000000043,
+                                -4.9649,
+                                -8
+                            ],
+                            "dimensions": [
+                                1,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "rear_mudguard_center_right": {
+                    "transform": {
+                        "origin": [
+                            10.575,
+                            -5.475000000000001,
+                            0
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            1.5707963267948966
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -0.07070000000000043,
+                                -4.9649,
+                                -8
+                            ],
+                            "dimensions": [
+                                1,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "rear_mudguard_back_left": {
+                    "transform": {
+                        "origin": [
+                            16.9392,
+                            -3.428699999999999,
+                            6.5
+                        ],
+                        "rotation": [
+                            0,
+                            3.141592653589793,
+                            -0.7853981633974483
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -0.5,
+                                -2.5,
+                                -1.5
+                            ],
+                            "dimensions": [
+                                1,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "rear_mudguard_back_right": {
+                    "transform": {
+                        "origin": [
+                            15.525,
+                            -5.550000000000001,
+                            0
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            2.356194490192345
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                0,
+                                -5,
+                                -8
+                            ],
+                            "dimensions": [
+                                0.9999999999999982,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "front_mudguard_front_right": {
+                    "transform": {
+                        "origin": [
+                            -19,
+                            -2,
+                            0
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            0.7853981633974483
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                0,
+                                -5,
+                                -8
+                            ],
+                            "dimensions": [
+                                1,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "seat_back": {
+                    "transform": {
+                        "origin": [
+                            7,
+                            -3,
+                            0
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            1.7890000078731019
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -10,
+                                0.25,
+                                -4
+                            ],
+                            "dimensions": [
+                                9,
+                                2,
+                                8
+                            ],
+                            "uv": [
+                                30,
+                                26
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "hood": {
+                    "transform": {
+                        "origin": [
+                            -7,
+                            -6,
+                            0
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            -0.3926999997419088
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -15,
+                                -3.0749999999999993,
+                                -5
+                            ],
+                            "dimensions": [
+                                15,
+                                3,
+                                10
+                            ],
+                            "uv": [
+                                0,
+                                13
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "rear_mudguard_front_left": {
+                    "transform": {
+                        "origin": [
+                            9.1213,
+                            -3.414200000000001,
+                            6.5
+                        ],
+                        "rotation": [
+                            0,
+                            3.141592653589793,
+                            -2.356194490192345
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -0.5,
+                                -2.5,
+                                -1.5
+                            ],
+                            "dimensions": [
+                                1,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "front_mudguard_center_left": {
+                    "transform": {
+                        "origin": [
+                            -12.9601,
+                            -5.0457,
+                            6.5
+                        ],
+                        "rotation": [
+                            0,
+                            3.141592653589793,
+                            -1.5707963267948966
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -0.5,
+                                -2.5,
+                                -1.5
+                            ],
+                            "dimensions": [
+                                1,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "left_wall": {
+                    "transform": {
+                        "origin": [
+                            0,
+                            -5,
+                            6.5
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -8,
+                                -2,
+                                -1.5
+                            ],
+                            "dimensions": [
+                                16,
+                                4,
+                                3
+                            ],
+                            "uv": [
+                                26,
+                                36
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "front_mudguard_front_left": {
+                    "transform": {
+                        "origin": [
+                            -16.8787,
+                            -3.414200000000001,
+                            6.5
+                        ],
+                        "rotation": [
+                            0,
+                            3.141592653589793,
+                            -2.356194490192345
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -0.5,
+                                -2.5,
+                                -1.5
+                            ],
+                            "dimensions": [
+                                1,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "front_mudguard_back_left": {
+                    "transform": {
+                        "origin": [
+                            -9.0608,
+                            -3.428699999999999,
+                            6.5
+                        ],
+                        "rotation": [
+                            0,
+                            3.141592653589793,
+                            -0.7853981633974483
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -0.5,
+                                -2.5,
+                                -1.5
+                            ],
+                            "dimensions": [
+                                1,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "rear_mudguard_center_left": {
+                    "transform": {
+                        "origin": [
+                            13.0399,
+                            -5.0457,
+                            6.5
+                        ],
+                        "rotation": [
+                            0,
+                            3.141592653589793,
+                            -1.5707963267948966
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -0.5,
+                                -2.5,
+                                -1.5
+                            ],
+                            "dimensions": [
+                                1,
+                                5,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                53
+                            ]
+                        }
+                    ],
+                    "children": {}
+                }
+            }
+        }
+    }
+}

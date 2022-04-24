@@ -24,6 +24,7 @@ repositories {
 	maven { url = "https://aperlambda.github.io/maven" }
 	maven { url = "https://hephaestus.dev/release" }
 	maven { url = "https://storage.googleapis.com/devan-maven/" }
+	maven { url = "https://api.modrinth.com/maven" }
 }
 
 dependencies {
@@ -48,6 +49,10 @@ dependencies {
 	// Json't
 	modImplementation "net.devtech:arrp:${project.arrp_version}"
 	include "net.devtech:arrp:${project.arrp_version}"
+
+	// Json entity models
+	modImplementation "maven.modrinth:jsonem:${project.jsonem_version}"
+	include "maven.modrinth:jsonem:${project.jsonem_version}"
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.

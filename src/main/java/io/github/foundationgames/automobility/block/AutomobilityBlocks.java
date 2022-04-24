@@ -9,14 +9,17 @@ import io.github.foundationgames.automobility.util.AUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.StairsBlock;
 import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.color.world.GrassColors;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 public enum AutomobilityBlocks {;
@@ -51,6 +54,13 @@ public enum AutomobilityBlocks {;
         return register(name, block);
     }
 
+    private static void makeStairsSticky(Block candidate, Identifier id) {
+        if (candidate instanceof StairsBlock) {
+            AutomobilityData.STICKY_SLOPE_TAG_CANDIDATES.add(id);
+            AutomobilityData.STICKY_SLOPE_TAG_CANDIDATES.add(id);
+        }
+    }
+
     public static void registerSlopes(String namespace) {
         AutomobilityData.NON_STEEP_SLOPE_TAG_CANDIDATES.add(Automobility.id("sloped_dash_panel"));
         AutomobilityData.STEEP_SLOPE_TAG_CANDIDATES.add(Automobility.id("steep_sloped_dash_panel"));
@@ -71,6 +81,12 @@ public enum AutomobilityBlocks {;
                     AutomobilityData.STEEP_SLOPE_TAG_CANDIDATES.add(steepId);
                 }
             }
+
+            makeStairsSticky(base, Registry.BLOCK.getId(base));
         }
+
+        RegistryEntryAddedCallback.event(Registry.BLOCK).register((raw, id, block) -> {
+            makeStairsSticky(block, id);
+        });
     }
 }

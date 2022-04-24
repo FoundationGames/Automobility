@@ -1,0 +1,209 @@
+{
+    "texture": {
+        "width": 128,
+        "height": 64
+    },
+    "bones": {
+        "main": {
+            "cuboids": [
+                {
+                    "offset": [
+                        -6,
+                        -4,
+                        -11
+                    ],
+                    "dimensions": [
+                        12,
+                        4,
+                        22
+                    ],
+                    "uv": [
+                        0,
+                        0
+                    ]
+                },
+                {
+                    "offset": [
+                        -6,
+                        -11,
+                        -11
+                    ],
+                    "dimensions": [
+                        12,
+                        1,
+                        20
+                    ],
+                    "uv": [
+                        64,
+                        0
+                    ]
+                },
+                {
+                    "offset": [
+                        -6,
+                        -18,
+                        -11
+                    ],
+                    "dimensions": [
+                        1,
+                        7,
+                        23
+                    ],
+                    "uv": [
+                        80,
+                        21
+                    ]
+                },
+                {
+                    "offset": [
+                        5,
+                        -18,
+                        -11
+                    ],
+                    "dimensions": [
+                        1,
+                        7,
+                        23
+                    ],
+                    "uv": [
+                        80,
+                        21
+                    ]
+                },
+                {
+                    "offset": [
+                        -6,
+                        -20.95,
+                        12.675
+                    ],
+                    "dimensions": [
+                        12,
+                        1,
+                        2
+                    ],
+                    "uv": [
+                        75,
+                        33
+                    ]
+                },
+                {
+                    "offset": [
+                        -4,
+                        -17,
+                        2.75
+                    ],
+                    "dimensions": [
+                        8,
+                        1,
+                        9
+                    ],
+                    "uv": [
+                        0,
+                        26
+                    ]
+                }
+            ],
+            "children": {
+                "basket_support": {
+                    "transform": {
+                        "origin": [
+                            0,
+                            -4,
+                            11
+                        ],
+                        "rotation": [
+                            0.3053994578432162,
+                            0,
+                            0
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -6,
+                                -7,
+                                -1
+                            ],
+                            "dimensions": [
+                                12,
+                                7,
+                                1
+                            ],
+                            "uv": [
+                                46,
+                                0
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "basket_front": {
+                    "transform": {
+                        "origin": [
+                            0,
+                            -18,
+                            -11
+                        ],
+                        "rotation": [
+                            0.148400000004513,
+                            0,
+                            0
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -6,
+                                0,
+                                -1
+                            ],
+                            "dimensions": [
+                                12,
+                                7,
+                                1
+                            ],
+                            "uv": [
+                                46,
+                                8
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "basket_back": {
+                    "transform": {
+                        "origin": [
+                            0,
+                            -11,
+                            8
+                        ],
+                        "rotation": [
+                            -0.43629999997281355,
+                            0,
+                            0
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -6,
+                                -11,
+                                0
+                            ],
+                            "dimensions": [
+                                12,
+                                11,
+                                1
+                            ],
+                            "uv": [
+                                77,
+                                21
+                            ]
+                        }
+                    ],
+                    "children": {}
+                }
+            }
+        }
+    }
+}

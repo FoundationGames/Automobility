@@ -1,0 +1,74 @@
+{
+    "texture": {
+        "width": 16,
+        "height": 16
+    },
+    "bones": {
+        "main": {
+            "transform": {
+                "origin": [
+                    0.0,
+                    24.0,
+                    0.0
+                ]
+            },
+            "cuboids": [],
+            "children": {
+                "rear": {
+                    "transform": {
+                        "origin": [
+                            0.0,
+                            0.0,
+                            4.0
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "uv": [
+                                0.0,
+                                0.0
+                            ],
+                            "offset": [
+                                0.0,
+                                -7.0,
+                                -4.0
+                            ],
+                            "dimensions": [
+                                0.0,
+                                8.0,
+                                4.0
+                            ]
+                        }
+                    ]
+                },
+                "side": {
+                    "transform": {
+                        "origin": [
+                            -4.0,
+                            0.0,
+                            4.0
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "uv": [
+                                0.0,
+                                4.0
+                            ],
+                            "offset": [
+                                0.0,
+                                -8.675,
+                                -4.0
+                            ],
+                            "dimensions": [
+                                4.0,
+                                8.0,
+                                0.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

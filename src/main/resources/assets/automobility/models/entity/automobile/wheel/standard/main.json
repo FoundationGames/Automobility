@@ -1,0 +1,250 @@
+{
+    "texture": {
+        "width": 32,
+        "height": 32
+    },
+    "bones": {
+        "main": {
+            "transform": {
+                "origin": [
+                    0,
+                    3,
+                    5
+                ]
+            },
+            "cuboids": [
+                {
+                    "offset": [
+                        -1.5,
+                        -6,
+                        -8
+                    ],
+                    "dimensions": [
+                        3,
+                        1,
+                        3
+                    ],
+                    "uv": [
+                        0,
+                        0
+                    ]
+                },
+                {
+                    "offset": [
+                        -2,
+                        -5,
+                        -7
+                    ],
+                    "dimensions": [
+                        4,
+                        4,
+                        1
+                    ],
+                    "uv": [
+                        8,
+                        5
+                    ]
+                },
+                {
+                    "offset": [
+                        -1.5,
+                        -1,
+                        -8
+                    ],
+                    "dimensions": [
+                        3,
+                        1,
+                        3
+                    ],
+                    "uv": [
+                        0,
+                        0
+                    ]
+                }
+            ],
+            "children": {
+                "tire_top_left": {
+                    "transform": {
+                        "origin": [
+                            0,
+                            -3,
+                            -7
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            -0.7853981633974483
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                2.182,
+                                -1.0142999999999986,
+                                -1
+                            ],
+                            "dimensions": [
+                                1,
+                                2,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                4
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "tire_left": {
+                    "transform": {
+                        "origin": [
+                            0,
+                            -5.5,
+                            -7
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            1.5707963267948966
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                1,
+                                2,
+                                -1
+                            ],
+                            "dimensions": [
+                                3,
+                                1,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                0
+                            ]
+                        },
+                        {
+                            "offset": [
+                                1,
+                                -3,
+                                -1
+                            ],
+                            "dimensions": [
+                                3,
+                                1,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                0
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "tire_bottom_right": {
+                    "transform": {
+                        "origin": [
+                            1.9066,
+                            -1.1137000000000015,
+                            -7
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            0.7853981633974483
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -0.5,
+                                -1,
+                                -1
+                            ],
+                            "dimensions": [
+                                1,
+                                2,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                4
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "tire_top_right": {
+                    "transform": {
+                        "origin": [
+                            0,
+                            -3,
+                            -7
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            -2.356194490192345
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                2.182,
+                                -1.0142999999999986,
+                                -1
+                            ],
+                            "dimensions": [
+                                1,
+                                2,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                4
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "tire_bottom_left": {
+                    "transform": {
+                        "origin": [
+                            0,
+                            -3,
+                            -7
+                        ],
+                        "rotation": [
+                            0,
+                            0,
+                            2.356194490192345
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                2.182,
+                                -1.0142999999999986,
+                                -1
+                            ],
+                            "dimensions": [
+                                1,
+                                2,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                4
+                            ]
+                        }
+                    ],
+                    "children": {}
+                }
+            }
+        }
+    }
+}

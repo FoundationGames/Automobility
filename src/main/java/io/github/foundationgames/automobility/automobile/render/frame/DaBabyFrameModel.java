@@ -24,7 +24,8 @@ public class DaBabyFrameModel extends Model {
         if (model == null) return;
         matrices.push();
         matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(180));
-        matrices.translate(0.1, -1.46, 0);
+        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(90));
+        matrices.translate(0.1, 0.04, 0);
         AUtils.renderMyronObj(model, vertices, matrices, light, overlay);
         matrices.pop();
     }

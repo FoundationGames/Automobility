@@ -81,7 +81,7 @@ public class DashPanelBlock extends HorizontalFacingBlock implements Waterloggab
     public static void onCollideWithDashPanel(Entity entity) {
         if (entity instanceof AutomobileEntity auto) {
             auto.boost(0.45f, 50);
-        } else if (AutomobilityEntities.DASH_PANEL_BOOSTABLES.contains(entity.getType())) {
+        } else if (entity.getType().isIn(AutomobilityEntities.DASH_PANEL_BOOSTABLES)) {
             if (entity instanceof LivingEntity living) {
                 living.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 50, 20, true, false, false));
             }

@@ -1,6 +1,7 @@
 package io.github.foundationgames.automobility.entity;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileStats;
@@ -8,7 +9,6 @@ import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.WheelBase;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.block.OffRoadBlock;
-import io.github.foundationgames.automobility.block.Sloped;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
@@ -534,7 +534,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         // This prevents the automobile from randomly jumping if it's moving down a slope quickly
         var below = new BlockPos(Math.floor(getX()), Math.floor(getY() - 0.51), Math.floor(getZ()));
         var state = world.getBlockState(below);
-        if (state.getBlock() instanceof Sloped slope && slope.isSticky()) {
+        if (state.isIn(Automobility.STICKY_SLOPES)) {
             slopeStickingTimer = 1;
         } else {
             slopeStickingTimer = Math.max(0, slopeStickingTimer--);
@@ -558,7 +558,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             lowestPrevYDisp = Math.min(d, lowestPrevYDisp);
         }
         if (slopeStickingTimer > 0 && automobileOnGround && lowestPrevYDisp <= 0) {
-            cumulative = cumulative.add(0, -0.5, 0);
+            double cumulHSpeed = Math.sqrt((cumulative.x * cumulative.x) + (cumulative.z * cumulative.z));
+            cumulative = cumulative.add(0, -(0.25 + cumulHSpeed), 0);
         }
 
         // Apply the horizontal speed to the cumulative movement
