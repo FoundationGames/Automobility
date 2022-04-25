@@ -10,6 +10,7 @@ import io.github.foundationgames.automobility.automobile.WheelBase;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.block.OffRoadBlock;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
+import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
@@ -28,6 +29,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
@@ -63,7 +65,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     @Environment(EnvType.CLIENT)
     private Model engineModel = null;
 
-    public static final int DRIFT_TURBO_TIME = 50;
+    public static final int DRIFT_MINI_TURBO_TIME = 35;
+    public static final int DRIFT_TURBO_TIME = 70;
+    public static final int DRIFT_SUPER_TURBO_TIME = 115;
     public static final float TERMINAL_VELOCITY = -1.2f;
 
     private boolean dirty = false;
@@ -92,6 +96,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private boolean drifting = false;
     private int driftDir = 0;
     private int driftTimer = 0;
+    private float skid = 0;
 
     private float lockedViewOffset = 0;
 
@@ -498,7 +503,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         cumulative = cumulative.add(0, (verticalSpeed * (isSubmergedInWater() ? 0.15f : 1)), 0);
 
         // This is the general direction the automobile will move, which is slightly offset to the side when drifting and delayed when on slippery surface
-        this.speedDirection = MathHelper.lerp(grip, getYaw(), getYaw() - (drifting ? Math.min(driftTimer * 6, 43 + (-steering * 12)) * driftDir : 0));
+        this.speedDirection = MathHelper.lerp(grip, getYaw(), getYaw() - (drifting ? Math.min(driftTimer * 6, 43 + (-steering * 12)) * driftDir : -steering * 12));
 
         // Handle acceleration
         if (accelerating) {
@@ -791,19 +796,35 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         }
         // Handles ending a drift and the drift timer (for drift turbos)
         if (drifting) {
+            if (this.automobileOnGround()) createDriftParticles();
             // Ending a drift successfully, giving you a turbo boost
             if (prevHoldDrift && !holdingDrift) {
                 drifting = false;
-                steering = 0;
-                if (driftTimer > DRIFT_TURBO_TIME) {
-                    boost(0.3f, 32);
+                if (driftTimer > DRIFT_SUPER_TURBO_TIME) {
+                    boost(0.38f, 38);
+                } else if (driftTimer > DRIFT_TURBO_TIME) {
+                    boost(0.3f, 21);
+                } else if (driftTimer > DRIFT_MINI_TURBO_TIME) {
+                    boost(0.23f, 9);
                 }
             // Ending a drift unsuccessfully, not giving you a boost
             } else if (hSpeed < 0.33f) {
                 drifting = false;
-                steering = 0;
             }
-            if (automobileOnGround) driftTimer++;
+            if (automobileOnGround) driftTimer += ((steeringLeft && driftDir < 0) || (steeringRight && driftDir > 0)) ? 2 : 1;
+        }
+    }
+
+    public void createDriftParticles() {
+        var origin = this.getPos().add(0, this.displacement.verticalTarget, 0);
+        for (var wheel : this.getFrame().model().wheelBase().wheels) {
+            if (wheel.end() == WheelBase.WheelEnd.BACK) {
+                var pos = new Vec3d(wheel.right() + ((wheel.right() > 0 ? 1 : -1) * this.getWheels().model().width() * wheel.scale()), 0, wheel.forward())
+                        .rotateX((float) Math.toRadians(-this.displacement.currAngularX))
+                        .rotateZ((float) Math.toRadians(-this.displacement.currAngularZ))
+                        .rotateY((float) Math.toRadians(-this.getYaw())).multiply(0.0625).add(0, 0.32, 0);
+                world.addParticle(AutomobilityParticles.DRIFT_SMOKE, origin.x + pos.x, origin.y + pos.y, origin.z + pos.z, 0, 0, 0);
+            }
         }
     }
 
@@ -872,12 +893,19 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     @Override
     public double getMountedHeightOffset() {
-        return ((wheels.model().radius() + frame.model().seatHeight() - 4) / 16) - (suspensionBounceTimer * 0.048f) + this.displacement.verticalTarget;
+        return ((wheels.model().radius() + frame.model().seatHeight() - 4) / 16) - (suspensionBounceTimer * 0.048f);
     }
 
     @Override
     public void updatePassengerPosition(Entity passenger) {
-        super.updatePassengerPosition(passenger);
+        if (this.hasPassenger(passenger)) {
+            var pos = this.getPos().add(0, this.displacement.verticalTarget + passenger.getHeightOffset(), 0)
+                    .add(new Vec3d(0, this.getMountedHeightOffset(), 0)
+                        .rotateX((float) Math.toRadians(-this.displacement.currAngularX))
+                        .rotateZ((float) Math.toRadians(-this.displacement.currAngularZ)));
+
+            passenger.setPosition(pos.x, pos.y, pos.z);
+        }
     }
 
     @Override

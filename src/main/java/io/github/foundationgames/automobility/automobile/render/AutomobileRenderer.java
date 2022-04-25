@@ -114,26 +114,26 @@ public enum AutomobileRenderer {;
         }
 
         // Skid effects
-        if ((automobile.getDriftTimer() > 0 || automobile.debris()) && automobile.automobileOnGround()) {
-            var skidTexes = SkidEffectModel.SMOKE_TEXTURES;
-            boolean bright = false;
+        if ((automobile.getDriftTimer() > AutomobileEntity.DRIFT_MINI_TURBO_TIME || automobile.debris()) && automobile.automobileOnGround()) {
+            var skidTexes = SkidEffectModel.COOL_SPARK_TEXTURES;
+            boolean bright = true;
             float r = 1;
             float g = 1;
             float b = 1;
-            if (automobile.getDriftTimer() > AutomobileEntity.DRIFT_TURBO_TIME) {
+            if (automobile.getDriftTimer() > AutomobileEntity.DRIFT_SUPER_TURBO_TIME) {
                 skidTexes = SkidEffectModel.FLAME_TEXTURES;
-                bright = true;
+            } else if (automobile.getDriftTimer() > AutomobileEntity.DRIFT_TURBO_TIME) {
+                skidTexes = SkidEffectModel.HOT_SPARK_TEXTURES;
             } else if (automobile.debris()) {
                 skidTexes = SkidEffectModel.DEBRIS_TEXTURES;
                 var c = automobile.debrisColor();
                 r = c.getX() * 0.85f;
                 g = c.getY() * 0.85f;
                 b = c.getZ() * 0.85f;
-            } else if (automobile.getDriftTimer() > AutomobileEntity.DRIFT_TURBO_TIME - 20) {
-                skidTexes = SkidEffectModel.SPARK_TEXTURES;
+                bright = false;
             }
             int index = (int)Math.floor(((automobile.getWorldTime() + tickDelta) / 1.5f) % skidTexes.length);
-            var skidEffectBuffer = vertexConsumers.getBuffer(bright ? RenderLayer.getEyes(skidTexes[index]) : RenderLayer.getEntityCutout(skidTexes[index]));
+            var skidEffectBuffer = vertexConsumers.getBuffer(bright ? RenderLayer.getEyes(skidTexes[index]) : RenderLayer.getEntitySmoothCutout(skidTexes[index]));
 
             for (var pos : wPoses) {
                 if (pos.end() == WheelBase.WheelEnd.BACK) {

@@ -3,6 +3,7 @@ package io.github.foundationgames.automobility;
 import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.entity.AutomobilityEntities;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
+import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.resource.AutomobilityData;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
@@ -31,6 +32,7 @@ public class Automobility implements ModInitializer {
         AutomobilityItems.init();
         AutomobilityBlocks.init();
         AutomobilityEntities.init();
+        AutomobilityParticles.init();
         PayloadPackets.init();
 
         AutomobilityData.setup();

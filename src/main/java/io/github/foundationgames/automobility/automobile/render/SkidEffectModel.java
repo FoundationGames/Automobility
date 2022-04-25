@@ -13,15 +13,15 @@ import net.minecraft.util.math.Vec3f;
 public class SkidEffectModel extends BaseModel {
     public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile_skid_effect"), "main");
 
-    public static final Identifier[] SMOKE_TEXTURES = new Identifier[] {
-            Automobility.id("textures/entity/automobile/skid_effect/skid_smoke_0.png"),
-            Automobility.id("textures/entity/automobile/skid_effect/skid_smoke_1.png"),
-            Automobility.id("textures/entity/automobile/skid_effect/skid_smoke_2.png")
+    public static final Identifier[] COOL_SPARK_TEXTURES = new Identifier[] {
+            Automobility.id("textures/entity/automobile/skid_effect/skid_cool_sparks_0.png"),
+            Automobility.id("textures/entity/automobile/skid_effect/skid_cool_sparks_1.png"),
+            Automobility.id("textures/entity/automobile/skid_effect/skid_cool_sparks_2.png")
     };
-    public static final Identifier[] SPARK_TEXTURES = new Identifier[] {
-            Automobility.id("textures/entity/automobile/skid_effect/skid_sparks_0.png"),
-            Automobility.id("textures/entity/automobile/skid_effect/skid_sparks_1.png"),
-            Automobility.id("textures/entity/automobile/skid_effect/skid_sparks_2.png")
+    public static final Identifier[] HOT_SPARK_TEXTURES = new Identifier[] {
+            Automobility.id("textures/entity/automobile/skid_effect/skid_hot_sparks_0.png"),
+            Automobility.id("textures/entity/automobile/skid_effect/skid_hot_sparks_1.png"),
+            Automobility.id("textures/entity/automobile/skid_effect/skid_hot_sparks_2.png")
     };
     public static final Identifier[] FLAME_TEXTURES = new Identifier[] {
             Automobility.id("textures/entity/automobile/skid_effect/skid_flames_0.png"),

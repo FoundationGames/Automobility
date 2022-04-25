@@ -5,13 +5,6 @@
     },
     "bones": {
         "main": {
-            "transform": {
-                "origin": [
-                    0,
-                    1,
-                    0
-                ]
-            },
             "cuboids": [
                 {
                     "offset": [
