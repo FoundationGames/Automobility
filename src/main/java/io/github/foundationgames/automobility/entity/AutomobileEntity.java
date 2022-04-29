@@ -29,10 +29,12 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.CuboidBlockIterator;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
@@ -686,9 +688,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     public void displacementTick() {
         this.displacement.preTick();
-        if (this.automobileOnGround) {
-            this.displacement.tick(this.world, this, this.getPos(), this.getYaw(), this.stepHeight);
-        }
+        this.displacement.tick(this.world, this, this.getPos(), this.getYaw(), this.stepHeight);
     }
 
     public Displacement getDisplacement() {
@@ -938,6 +938,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     }
 
     public static final class Displacement {
+        private static final int SCAN_STEPS_PER_BLOCK = 20;
+        private static final double INV_SCAN_STEPS = 1d / SCAN_STEPS_PER_BLOCK;
+
         private float lastVertical = 0;
         private float lastAngularX = 0;
         private float lastAngularZ = 0;
@@ -962,43 +965,59 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             Vec3d lowestDisplacementPos = null;
             Vec3d highestDisplacementPos = null;
             var scannedPoints = new ArrayList<Vec3d>();
-            for (Vec3d scanPoint : scanPoints) {
-                var downwardScanDist = (scanPoint.distanceTo(Vec3d.ZERO) * 1.4) + entity.getBoundingBox().getXLength();
-                var upwardScanDist = (entity.getBoundingBox().getYLength() * 0.5) + stepHeight;
-                var pointPos = scanPoint
-                        .rotateY((float) Math.toRadians(yaw))
-                        .add(centerPos);
-                var collBoxes = new HashSet<VoxelShape>();
+            var collBoxes = new HashSet<VoxelShape>();
+            var anyOnGround = new AtomicBoolean(false);
+            for (var scanPoint : scanPoints) {
+                scanPoint = scanPoint
+                        .rotateY((float) Math.toRadians(yaw));
+                var pointPos = scanPoint.add(centerPos);
+                collBoxes.clear();
 
-                int centerYBlock = (int) Math.floor(pointPos.y);
-                for (var mpos = new BlockPos.Mutable(Math.floor(pointPos.x), centerYBlock + Math.ceil(upwardScanDist), Math.floor(pointPos.z));
-                     mpos.getY() >= centerYBlock - Math.ceil(downwardScanDist); mpos.move(Direction.DOWN)) {
+                double scanDist = scanPoint.length();
+
+                int heightOffset = (int) Math.ceil(scanDist);
+                var iter = new CuboidBlockIterator(
+                        (int) Math.min(Math.floor(centerPos.x), Math.floor(pointPos.x)),
+                        (int) Math.floor(centerPos.y) - heightOffset,
+                        (int) Math.min(Math.floor(centerPos.z), Math.floor(pointPos.z)),
+                        (int) Math.max(Math.floor(centerPos.x), Math.floor(pointPos.x)),
+                        (int) Math.floor(centerPos.y) + heightOffset,
+                        (int) Math.max(Math.floor(centerPos.z), Math.floor(pointPos.z))
+                );
+                var mpos = new BlockPos.Mutable();
+                while (iter.step()) {
+                    mpos.set(iter.getX(), iter.getY(), iter.getZ());
                     var shape = world.getBlockState(mpos).getCollisionShape(world, mpos);
                     if (!shape.isEmpty()) {
                         collBoxes.add(shape.offset(mpos.getX(), mpos.getY(), mpos.getZ()));
                     }
                 }
 
-                AtomicBoolean done = new AtomicBoolean(false);
-                AtomicDouble yDisplacement = new AtomicDouble(0);
-                for (double v = downwardScanDist; (v > -downwardScanDist && !done.get()); v -= 0.08) {
-                    if (done.get()) break;
-                    final double worldSpaceOffset = v + centerPos.y;
-                    final Vec3d currentPointPos = pointPos;
-                    collBoxes.forEach(shape -> {
-                        if (done.get()) return;
-                        shape.forEachBox((minX, minY, minZ, maxX, maxY, maxZ) -> {
-                            if (currentPointPos.x > minX && currentPointPos.x < maxX && currentPointPos.z > minZ && currentPointPos.z < maxZ) {
-                                if (worldSpaceOffset <= maxY && worldSpaceOffset > minY) {;
-                                    yDisplacement.set(maxY - centerPos.y);
-                                    done.set(true);
-                                }
+                var pointDir = new Vec3d(scanPoint.x, 0, scanPoint.z).normalize().multiply(INV_SCAN_STEPS);
+
+                AtomicDouble pointY = new AtomicDouble(centerPos.y);
+                for (int i = 0; i < Math.ceil(scanDist * SCAN_STEPS_PER_BLOCK); i++) {
+                    double pointX = centerPos.x + (i * pointDir.x);
+                    double pointZ = centerPos.z + (i * pointDir.z);
+                    pointY.set(pointY.get() - (INV_SCAN_STEPS * 1.5));
+
+                    collBoxes.forEach(shape -> shape.forEachBox((minX, minY, minZ, maxX, maxY, maxZ) -> {
+                        if (pointX > minX && pointX < maxX &&
+                            pointZ > minZ && pointZ < maxZ &&
+                            pointY.get() >= (minY - (INV_SCAN_STEPS * 2)) && pointY.get() <= maxY
+                        ) {
+                            double diff = maxY - pointY.get();
+                            if (diff < (entity.stepHeight + (INV_SCAN_STEPS * 1.5))) {
+                                pointY.set(maxY);
+                                anyOnGround.set(true);
                             }
-                        });
-                    });
+                        }
+                    }));
+
+                    // DEBUGGING: world.addParticle(new DustParticleEffect(new Vec3f(1, 0, 1), 0.5f), pointX, pointY.get(), pointZ, 0, 0, 0);
                 }
 
-                pointPos = pointPos.add(0, yDisplacement.get(), 0);
+                pointPos = new Vec3d(pointPos.x, pointY.get(), pointPos.z);
 
                 if (lowestDisplacementPos == null || pointPos.y < lowestDisplacementPos.y) {
                     lowestDisplacementPos = pointPos;
@@ -1009,6 +1028,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
                 scannedPoints.add(pointPos);
             }
+
+            if (!anyOnGround.get()) return;
 
             angularXTarget = 0;
             angularZTarget = 0;
