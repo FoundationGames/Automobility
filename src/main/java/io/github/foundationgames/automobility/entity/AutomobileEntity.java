@@ -105,6 +105,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private boolean automobileOnGround = true;
     private boolean wasOnGround = automobileOnGround;
     private boolean isFloorDirectlyBelow = true;
+    private boolean touchingWall = false;
 
     private Vec3d lastVelocity = Vec3d.ZERO;
 
@@ -411,6 +412,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     // technically the mobs don't drive, instead the automobile
     // self-drives to the mob's destination...
     public void provideMobDriverInputs(MobEntity driver) {
+        // Don't move if the driver doesn't exist or can't drive
+        if (driver == null || driver.isDead() || driver.isRemoved()) {
+            if (accelerating || steeringLeft || steeringRight) markDirty();
+            accelerating = false;
+            steeringLeft = false;
+            steeringRight = false;
+        }
+
         var path = driver.getNavigation().getCurrentPath();
         // checks if there is a current, incomplete path that the entity has targeted
         if (path != null && !path.isFinished() && path.getEnd() != null) {
@@ -612,11 +621,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 AUtils.zero((float)addedVelocity.z, 0.1f)
         );
 
-        // This code handles bumping into a wall, yes it is utterly horrendous
         var displacement = new Vec3d(getX(), 0, getZ()).subtract(lastPos.x, 0, lastPos.z);
-        if (hSpeed > 0.1 && displacement.length() < hSpeed * 0.5 && addedVelocity.length() <= 0) {
+        if (touchingWall && hSpeed > 0.1 && addedVelocity.length() <= 0) {
             engineSpeed /= 3.6;
-            float knockSpeed = ((-0.2f * hSpeed) - 0.5f);
+            double knockSpeed = ((-0.2 * hSpeed) - 0.5);
             addedVelocity = addedVelocity.add(Math.sin(angle) * knockSpeed, 0, Math.cos(angle) * knockSpeed);
         }
 
@@ -696,18 +704,20 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     }
 
     public void collisionStateTick() {
-        // scuffed ground check
         wasOnGround = automobileOnGround;
         automobileOnGround = false;
         isFloorDirectlyBelow = false;
+        touchingWall = false;
         var b = getBoundingBox();
         var groundBox = new Box(b.minX, b.minY - 0.04, b.minZ, b.maxX, b.minY, b.maxZ);
         var wid = (b.getXLength() + b.getZLength()) * 0.5f;
         var floorBox = new Box(b.minX + (wid * 0.94), b.minY - 0.05, b.minZ + (wid * 0.94), b.maxX - (wid * 0.94), b.minY, b.maxZ - (wid * 0.94));
+        var wallBox = b.contract(0.05).offset(this.lastVelocity.normalize().multiply(0.12).add(0, this.stepHeight, 0));
         var start = new BlockPos(b.minX - 0.1, b.minY - 0.2, b.minZ - 0.1);
-        var end = new BlockPos(b.maxX + 0.1, b.maxY + 0.2, b.maxZ + 0.1);
+        var end = new BlockPos(b.maxX + 0.1, b.maxY + 0.2 + this.stepHeight, b.maxZ + 0.1);
         var groundCuboid = VoxelShapes.cuboid(groundBox);
         var floorCuboid = VoxelShapes.cuboid(floorBox);
+        var wallCuboid = VoxelShapes.cuboid(wallBox);
         if (this.world.isRegionLoaded(start, end)) {
             var pos = new BlockPos.Mutable();
             for(int x = start.getX(); x <= end.getX(); ++x) {
@@ -718,6 +728,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                         var blockShape = state.getCollisionShape(this.world, pos, ShapeContext.of(this)).offset(pos.getX(), pos.getY(), pos.getZ());
                         automobileOnGround = automobileOnGround || VoxelShapes.matchesAnywhere(blockShape, groundCuboid, BooleanBiFunction.AND);
                         isFloorDirectlyBelow = isFloorDirectlyBelow || VoxelShapes.matchesAnywhere(blockShape, floorCuboid, BooleanBiFunction.AND);
+                        touchingWall = touchingWall || VoxelShapes.matchesAnywhere(blockShape, wallCuboid, BooleanBiFunction.AND);
                     }
                 }
             }
@@ -822,7 +833,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 var pos = new Vec3d(wheel.right() + ((wheel.right() > 0 ? 1 : -1) * this.getWheels().model().width() * wheel.scale()), 0, wheel.forward())
                         .rotateX((float) Math.toRadians(-this.displacement.currAngularX))
                         .rotateZ((float) Math.toRadians(-this.displacement.currAngularZ))
-                        .rotateY((float) Math.toRadians(-this.getYaw())).multiply(0.0625).add(0, 0.32, 0);
+                        .rotateY((float) Math.toRadians(-this.getYaw())).multiply(0.0625).add(0, 0.4, 0);
                 world.addParticle(AutomobilityParticles.DRIFT_SMOKE, origin.x + pos.x, origin.y + pos.y, origin.z + pos.z, 0, 0, 0);
             }
         }
