@@ -130,11 +130,11 @@ public record AutomobileFrame(
                 new FrameModel(
                         Automobility.id("textures/entity/automobile/frame/"+variant+"_motorcar.png"),
                         Automobility.id("frame_motorcar"),
-                        WheelBase.basic(22, 10),
-                        22,
+                        WheelBase.basic(32, 12),
+                        32,
                         3,
-                        12,
-                        1
+                        18,
+                        2
                 )
         );
     }

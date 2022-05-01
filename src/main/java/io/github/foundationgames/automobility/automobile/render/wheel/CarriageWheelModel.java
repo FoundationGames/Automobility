@@ -10,6 +10,6 @@ public class CarriageWheelModel extends BaseModel {
     public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile/wheel/carriage"), "main");
 
     public CarriageWheelModel(EntityRendererFactory.Context ctx) {
-        super(RenderLayer::getEntityCutout, ctx, MODEL_LAYER);
+        super(RenderLayer::getEntityCutoutNoCull, ctx, MODEL_LAYER);
     }
 }

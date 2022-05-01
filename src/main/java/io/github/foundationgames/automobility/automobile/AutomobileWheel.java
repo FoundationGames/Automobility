@@ -38,7 +38,7 @@ public record AutomobileWheel(
     );
 
     public static final AutomobileWheel CARRIAGE = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("carriage"), 1.05f, 0.3f, new WheelModel(4, 1, Automobility.id("textures/entity/automobile/wheel/carriage.png"), Automobility.id("wheel_carriage")))
+            new AutomobileWheel(Automobility.id("carriage"), 1.05f, 0.3f, new WheelModel(5, 2, Automobility.id("textures/entity/automobile/wheel/carriage.png"), Automobility.id("wheel_carriage")))
     );
 
     public static final AutomobileWheel CONVERTIBLE = REGISTRY.register(

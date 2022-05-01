@@ -132,7 +132,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         buf.writeFloat(wheelAngle);
         buf.writeBoolean(drifting);
         buf.writeInt(driftTimer);
-        this.displacement.toBuffer(buf);
+        //this.displacement.toBuffer(buf);
         buf.writeByte(compactInputData());
     }
 
@@ -142,7 +142,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         wheelAngle = buf.readFloat();
         drifting = buf.readBoolean();
         driftTimer = buf.readInt();
-        this.displacement.fromBuffer(buf);
+        //this.displacement.fromBuffer(buf);
         readCompactedInputData(buf.readByte());
     }
 
@@ -346,11 +346,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     }
 
     @Override
-    public void baseTick() {
-        this.resetPosition();
-
-        super.baseTick();
-
+    public void tick() {
         if (!this.hasPassengers()) {
             accelerating = false;
             braking = false;
@@ -358,6 +354,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             steeringRight = false;
             holdingDrift = false;
         }
+
+        super.tick();
 
         positionTrackingTick();
         collisionStateTick();
@@ -367,8 +365,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         movementTick();
         if (this.isLogicalSideForUpdatingMovement()) {
             this.move(MovementType.SELF, this.getVelocity());
-        } else {
-            this.setVelocity(Vec3d.ZERO);
         }
         postMovementTick();
 
@@ -377,7 +373,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 syncData();
                 dirty = false;
             }
-            forNearbyPlayers(400, true, player -> PayloadPackets.sendSyncAutomobilePosPacket(this, player));
             if (!this.hasPassengers()) {
                 var touchingEntities = this.world.getOtherEntities(this, this.getBoundingBox().expand(0.2, 0, 0.2), EntityPredicates.canBePushedBy(this));
                 for (Entity entity : touchingEntities) {
@@ -619,7 +614,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         wheelAngle += 300 * (hSpeed / wheelCircumference) + (hSpeed > 0 ? ((1 - grip) * 15) : 0); // made it a bit slower intentionally, also make it spin more when on slippery surface
 
         // Set the automobile's velocity
-        if (this.isLogicalSideForUpdatingMovement()) this.setVelocity(cumulative);
+        if (this.isLogicalSideForUpdatingMovement()) {
+            this.setVelocity(cumulative);
+        }
 
         lastVelocity = cumulative;
 
@@ -763,8 +760,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         this.trackedY = y;
         this.trackedZ = z;
         this.trackedYaw = yaw;
-        // Why????
-        this.lerpTicks = 10; //(this.getType().getTrackTickInterval() * 3) + 1;
+        this.lerpTicks = this.getType().getTrackTickInterval() + 1;
     }
 
     private float calculateAcceleration(float speed, AutomobileStats stats) {
@@ -829,7 +825,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 driftTimer = 0;
             }
         }
-        // Handles ending a drift and the drift timer (for drift turbos)
+        // Handles drifting effects, ending a drift, and the drift timer (for drift turbos)
         if (drifting) {
             if (this.automobileOnGround()) createDriftParticles();
             // Ending a drift successfully, giving you a turbo boost
@@ -855,8 +851,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         for (var wheel : this.getFrame().model().wheelBase().wheels) {
             if (wheel.end() == WheelBase.WheelEnd.BACK) {
                 var pos = new Vec3d(wheel.right() + ((wheel.right() > 0 ? 1 : -1) * this.getWheels().model().width() * wheel.scale()), 0, wheel.forward())
-                        .rotateX((float) Math.toRadians(-this.displacement.currAngularX))
-                        .rotateZ((float) Math.toRadians(-this.displacement.currAngularZ))
+                        .rotateX((float) Math.toRadians(this.displacement.currAngularX))
+                        .rotateZ((float) Math.toRadians(this.displacement.currAngularZ))
                         .rotateY((float) Math.toRadians(-this.getYaw())).multiply(0.0625).add(0, 0.4, 0);
                 world.addParticle(AutomobilityParticles.DRIFT_SMOKE, origin.x + pos.x, origin.y + pos.y, origin.z + pos.z, 0, 0, 0);
             }
