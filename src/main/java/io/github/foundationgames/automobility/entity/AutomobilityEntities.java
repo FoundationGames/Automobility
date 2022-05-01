@@ -31,7 +31,7 @@ public enum AutomobilityEntities {;
     public static final EntityType<AutomobileEntity> AUTOMOBILE = Registry.register(
             Registry.ENTITY_TYPE,
             Automobility.id("automobile"),
-            FabricEntityTypeBuilder.<AutomobileEntity>create(SpawnGroup.MISC, AutomobileEntity::new).dimensions(new EntityDimensions(1f, 0.66f, true)).trackRangeBlocks(50).trackedUpdateRate(10).build()
+            FabricEntityTypeBuilder.<AutomobileEntity>create(SpawnGroup.MISC, AutomobileEntity::new).dimensions(new EntityDimensions(1f, 0.66f, true)).trackRangeChunks(10).build()
     );
 
     public static final TagKey<EntityType<?>> DASH_PANEL_BOOSTABLES = TagKey.of(Registry.ENTITY_TYPE_KEY, Automobility.id("dash_panel_boostables"));

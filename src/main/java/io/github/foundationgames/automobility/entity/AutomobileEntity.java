@@ -29,8 +29,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
@@ -72,6 +70,12 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     public static final int DRIFT_SUPER_TURBO_TIME = 115;
     public static final float TERMINAL_VELOCITY = -1.2f;
 
+    private double trackedX;
+    private double trackedY;
+    private double trackedZ;
+    private float trackedYaw;
+    private int lerpTicks;
+
     private boolean dirty = false;
 
     private float engineSpeed = 0;
@@ -98,7 +102,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private boolean drifting = false;
     private int driftDir = 0;
     private int driftTimer = 0;
-    private float skid = 0;
 
     private float lockedViewOffset = 0;
 
@@ -108,6 +111,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     private boolean touchingWall = false;
 
     private Vec3d lastVelocity = Vec3d.ZERO;
+    private Vec3d lastPosForDisplacement = Vec3d.ZERO;
 
     // Prevents jittering when going down slopes
     private int slopeStickingTimer = 0;
@@ -343,6 +347,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     @Override
     public void baseTick() {
+        this.resetPosition();
+
         super.baseTick();
 
         if (!this.hasPassengers()) {
@@ -352,11 +358,19 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             steeringRight = false;
             holdingDrift = false;
         }
+
+        positionTrackingTick();
         collisionStateTick();
         steeringTick();
         driftingTick();
+
         movementTick();
-        updateTrackedPosition(getX(), getY(), getZ());
+        if (this.isLogicalSideForUpdatingMovement()) {
+            this.move(MovementType.SELF, this.getVelocity());
+        } else {
+            this.setVelocity(Vec3d.ZERO);
+        }
+        postMovementTick();
 
         if (!world.isClient()) {
             if (dirty) {
@@ -379,6 +393,22 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         }
 
         displacementTick();
+    }
+
+    public void positionTrackingTick() {
+        if (this.isLogicalSideForUpdatingMovement()) {
+            this.lerpTicks = 0;
+            updateTrackedPosition(getX(), getY(), getZ());
+        } else if (lerpTicks > 0) {
+            this.setPosition(
+                    this.getX() + ((this.trackedX - this.getX()) / (double)this.lerpTicks),
+                    this.getY() + ((this.trackedY - this.getY()) / (double)this.lerpTicks),
+                    this.getZ() + ((this.trackedZ - this.getZ()) / (double)this.lerpTicks)
+            );
+            this.setYaw(this.getYaw() + (MathHelper.wrapDegrees(this.trackedYaw - this.getYaw()) / (float)this.lerpTicks));
+
+            this.lerpTicks--;
+        }
     }
 
     public void markDirty() {
@@ -418,6 +448,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
             accelerating = false;
             steeringLeft = false;
             steeringRight = false;
+            return;
         }
 
         var path = driver.getNavigation().getCurrentPath();
@@ -502,7 +533,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         float grip = 1 - ((MathHelper.clamp((world.getBlockState(blockBelow).getBlock().getSlipperiness() - 0.6f) / 0.4f, 0, 1) * (1 - stats.getGrip() * 0.8f)));
 
         // Track the last position of the automobile
-        var lastPos = getPos();
+        this.lastPosForDisplacement = getPos();
 
         // cumulative will be modified by the following code and then the automobile will be moved by it
         // Currently initialized with the value of addedVelocity (which is a general velocity vector applied to the automobile, i.e. for when it bumps into a wall and is pushed back)
@@ -587,13 +618,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         if (hSpeed > 0) markDirty();
         wheelAngle += 300 * (hSpeed / wheelCircumference) + (hSpeed > 0 ? ((1 - grip) * 15) : 0); // made it a bit slower intentionally, also make it spin more when on slippery surface
 
-        // Move the automobile by the cumulative vector
-        this.move(MovementType.SELF, cumulative);
-        if (world.isClient()) {
-            this.lastRenderX = lastPos.x;
-            this.lastRenderY = lastPos.y;
-            this.lastRenderZ = lastPos.z;
-        }
+        // Set the automobile's velocity
+        if (this.isLogicalSideForUpdatingMovement()) this.setVelocity(cumulative);
+
         lastVelocity = cumulative;
 
         // Damage and launch entities that are hit by a moving automobile
@@ -607,13 +634,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 entity.addVelocity(velAdd.x, velAdd.y, velAdd.z);
             }
         }
+    }
 
-        // ############################################################################################################
-        // ############################################################################################################
-        // ###########################################POST#MOVE#CODE###################################################
-        // ############################################################################################################
-        // ############################################################################################################
-
+    public void postMovementTick() {
         // Reduce the values of addedVelocity incrementally
         addedVelocity = new Vec3d(
                 AUtils.zero((float)addedVelocity.x, 0.1f),
@@ -621,14 +644,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                 AUtils.zero((float)addedVelocity.z, 0.1f)
         );
 
-        var displacement = new Vec3d(getX(), 0, getZ()).subtract(lastPos.x, 0, lastPos.z);
+        float angle = (float) Math.toRadians(-speedDirection);
         if (touchingWall && hSpeed > 0.1 && addedVelocity.length() <= 0) {
             engineSpeed /= 3.6;
             double knockSpeed = ((-0.2 * hSpeed) - 0.5);
             addedVelocity = addedVelocity.add(Math.sin(angle) * knockSpeed, 0, Math.cos(angle) * knockSpeed);
         }
 
-        double yDisp = getPos().subtract(lastPos).getY();
+        double yDisp = getPos().subtract(this.lastPosForDisplacement).getY();
 
         // Increment the falling timer
         if (!automobileOnGround && yDisp < 0) {
@@ -735,12 +758,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         }
     }
 
-    public void updatePositionAndAngles(double x, double y, double z, float yaw, float pitch) {
-        prevYaw = getYaw();
-        this.setPos(x, y, z);
-        this.setYaw(yaw);
-        this.setPitch(pitch);
-        this.refreshPosition();
+    public void updateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
+        this.trackedX = x;
+        this.trackedY = y;
+        this.trackedZ = z;
+        this.trackedYaw = yaw;
+        // Why????
+        this.lerpTicks = 10; //(this.getType().getTrackTickInterval() * 3) + 1;
     }
 
     private float calculateAcceleration(float speed, AutomobileStats stats) {
