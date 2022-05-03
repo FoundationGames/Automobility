@@ -5,6 +5,7 @@ import io.github.foundationgames.automobility.automobile.render.engine.CopperEng
 import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.GoldEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.IronEngineModel;
+import io.github.foundationgames.automobility.automobile.render.engine.StoneEngineModel;
 import io.github.foundationgames.automobility.automobile.render.frame.*;
 import io.github.foundationgames.automobility.automobile.render.wheel.*;
 import net.fabricmc.api.EnvType;
@@ -38,6 +39,7 @@ public enum AutomobilityModels {;
         MODELS.put(Automobility.id("wheel_carriage"), CarriageWheelModel::new);
         MODELS.put(Automobility.id("wheel_convertible"), ConvertibleWheelModel::new);
 
+        MODELS.put(Automobility.id("engine_stone"), StoneEngineModel::new);
         MODELS.put(Automobility.id("engine_iron"), IronEngineModel::new);
         MODELS.put(Automobility.id("engine_copper"), CopperEngineModel::new);
         MODELS.put(Automobility.id("engine_gold"), GoldEngineModel::new);

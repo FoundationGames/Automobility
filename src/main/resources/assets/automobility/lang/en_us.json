@@ -29,6 +29,8 @@
   "death.attack.automobile": "%1$s became roadkill",
   "death.attack.automobile.player": "%1$s was hit by a moving vehicle in an attempt to escape %2$s",
 
+  "prefab.automobility.wooden_motorcar": "Wooden Motorcar",
+  "prefab.automobility.copper_motorcar": "Copper Motorcar",
   "prefab.automobility.standard_white": "Standard White",
   "prefab.automobility.standard_orange": "Standard Orange",
   "prefab.automobility.standard_magenta": "Standard Magenta",
@@ -62,6 +64,8 @@
   "tooltip.automobility.handlingLabel": "Handling: ",
   "tooltip.automobility.gripLabel": "Grip: ",
 
+  "frame.automobility.wooden_motorcar": "Wooden Motorcar",
+  "frame.automobility.copper_motorcar": "Copper Motorcar",
   "frame.automobility.standard_white": "Standard White",
   "frame.automobility.standard_orange": "Standard Orange",
   "frame.automobility.standard_magenta": "Standard Magenta",
@@ -88,6 +92,9 @@
   "frame.automobility.pineapple": "Pineapple",
 
   "wheel.automobility.standard": "Standard",
+  "wheel.automobility.carriage": "Carriage",
+  "wheel.automobility.plated": "Plated",
+  "wheel.automobility.street": "Street",
   "wheel.automobility.off_road": "Off-Road",
   "wheel.automobility.tractor": "Tractor",
   "wheel.automobility.steel": "Steel",

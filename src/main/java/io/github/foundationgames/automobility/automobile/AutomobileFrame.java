@@ -19,6 +19,9 @@ public record AutomobileFrame(
 
     public static final SimpleMapContentRegistry<AutomobileFrame> REGISTRY = new SimpleMapContentRegistry<>();
 
+    public static final AutomobileFrame WOODEN_MOTORCAR = REGISTRY.register(motorcar("wooden", 0.3f));
+    public static final AutomobileFrame COPPER_MOTORCAR = REGISTRY.register(motorcar("copper", 0.4f));
+
     public static final AutomobileFrame STANDARD_WHITE = REGISTRY.register(standard("white"));
     public static final AutomobileFrame STANDARD_ORANGE = REGISTRY.register(standard("orange"));
     public static final AutomobileFrame STANDARD_MAGENTA = REGISTRY.register(standard("magenta"));
@@ -40,8 +43,6 @@ public record AutomobileFrame(
     public static final AutomobileFrame YELLOW_TRACTOR = REGISTRY.register(tractor("yellow"));
     public static final AutomobileFrame GREEN_TRACTOR = REGISTRY.register(tractor("green"));
     public static final AutomobileFrame BLUE_TRACTOR = REGISTRY.register(tractor("blue"));
-
-    public static final AutomobileFrame WOODEN_MOTORCAR = REGISTRY.register(motorcar("wooden"));
 
     public static final AutomobileFrame SHOPPING_CART = REGISTRY.register(
             new AutomobileFrame(
@@ -123,10 +124,10 @@ public record AutomobileFrame(
         );
     }
 
-    private static AutomobileFrame motorcar(String variant) {
+    private static AutomobileFrame motorcar(String variant, float weight) {
         return new AutomobileFrame(
                 Automobility.id(variant+"_motorcar"),
-                0.5f,
+                weight,
                 new FrameModel(
                         Automobility.id("textures/entity/automobile/frame/"+variant+"_motorcar.png"),
                         Automobility.id("frame_motorcar"),

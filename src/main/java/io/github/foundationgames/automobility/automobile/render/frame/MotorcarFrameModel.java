@@ -10,6 +10,6 @@ public class MotorcarFrameModel extends BaseModel {
     public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile/frame/motorcar"), "main");
 
     public MotorcarFrameModel(EntityRendererFactory.Context ctx) {
-        super(RenderLayer::getEntityTranslucent, ctx, MODEL_LAYER);
+        super(RenderLayer::getEntityTranslucentCull, ctx, MODEL_LAYER);
     }
 }

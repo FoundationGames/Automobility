@@ -1,0 +1,161 @@
+{
+    "texture": {
+        "width": 64,
+        "height": 32
+    },
+    "bones": {
+        "main": {
+            "cuboids": [
+                {
+                    "offset": [
+                        -3,
+                        -6,
+                        -4
+                    ],
+                    "dimensions": [
+                        6,
+                        1,
+                        7
+                    ],
+                    "uv": [
+                        0,
+                        14
+                    ]
+                },
+                {
+                    "offset": [
+                        -5,
+                        -2,
+                        -6
+                    ],
+                    "dimensions": [
+                        6,
+                        2,
+                        6
+                    ],
+                    "uv": [
+                        20,
+                        16
+                    ]
+                },
+                {
+                    "offset": [
+                        -4,
+                        -5,
+                        -5
+                    ],
+                    "dimensions": [
+                        8,
+                        5,
+                        9
+                    ],
+                    "uv": [
+                        0,
+                        0
+                    ]
+                }
+            ],
+            "children": {
+                "exhaust_tail": {
+                    "transform": {
+                        "origin": [
+                            0,
+                            -5,
+                            -5
+                        ],
+                        "rotation": [
+                            0.6981317007977318,
+                            0,
+                            0
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -1.5,
+                                -4,
+                                -2.5
+                            ],
+                            "dimensions": [
+                                3,
+                                4,
+                                3
+                            ],
+                            "uv": [
+                                0,
+                                22
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "exhaust_lower": {
+                    "transform": {
+                        "origin": [
+                            0,
+                            -1,
+                            -6
+                        ],
+                        "rotation": [
+                            0.2617993877991494,
+                            0,
+                            0
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                -1,
+                                -4,
+                                0
+                            ],
+                            "dimensions": [
+                                2,
+                                4,
+                                2
+                            ],
+                            "uv": [
+                                0,
+                                0
+                            ]
+                        }
+                    ],
+                    "children": {}
+                },
+                "pipe_side": {
+                    "transform": {
+                        "origin": [
+                            -5,
+                            0,
+                            0
+                        ],
+                        "rotation": [
+                            0.5672320068981571,
+                            0,
+                            0
+                        ]
+                    },
+                    "cuboids": [
+                        {
+                            "offset": [
+                                0,
+                                -2,
+                                0
+                            ],
+                            "dimensions": [
+                                1,
+                                2,
+                                4
+                            ],
+                            "uv": [
+                                12,
+                                22
+                            ]
+                        }
+                    ],
+                    "children": {}
+                }
+            }
+        }
+    }
+}

@@ -37,13 +37,19 @@ public record AutomobileWheel(
             new AutomobileWheel(Automobility.id("tractor"), 1.05f, 0.69f, new WheelModel(3.625f, 3, Automobility.id("textures/entity/automobile/wheel/tractor.png"), Automobility.id("wheel_tractor")))
     );
 
-    public static final AutomobileWheel CARRIAGE = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("carriage"), 1.05f, 0.3f, new WheelModel(5, 2, Automobility.id("textures/entity/automobile/wheel/carriage.png"), Automobility.id("wheel_carriage")))
-    );
+    public static final AutomobileWheel CARRIAGE = REGISTRY.register(carriage("carriage", 0.2f));
+
+    public static final AutomobileWheel PLATED = REGISTRY.register(carriage("plated", 0.33f));
+
+    public static final AutomobileWheel STREET = REGISTRY.register(carriage("street", 0.45f));
 
     public static final AutomobileWheel CONVERTIBLE = REGISTRY.register(
             new AutomobileWheel(Automobility.id("convertible"), 0.75f, 0.45f, new WheelModel(5.2f, 4.1f, Automobility.id("textures/entity/automobile/frame/dababy.png"), Automobility.id("wheel_convertible")))
     );
+
+    private static AutomobileWheel carriage(String name, float grip) {
+        return new AutomobileWheel(Automobility.id(name), 1.05f, grip, new WheelModel(5, 2, Automobility.id("textures/entity/automobile/wheel/"+name+".png"), Automobility.id("wheel_carriage")));
+    }
 
     @Override
     public Identifier getId() {

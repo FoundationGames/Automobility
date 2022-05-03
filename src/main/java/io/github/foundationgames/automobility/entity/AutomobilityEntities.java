@@ -7,6 +7,7 @@ import io.github.foundationgames.automobility.automobile.render.engine.CopperEng
 import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.GoldEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.IronEngineModel;
+import io.github.foundationgames.automobility.automobile.render.engine.StoneEngineModel;
 import io.github.foundationgames.automobility.automobile.render.frame.*;
 import io.github.foundationgames.automobility.automobile.render.wheel.CarriageWheelModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.OffRoadWheelModel;
@@ -58,6 +59,7 @@ public enum AutomobilityEntities {;
         JsonEM.registerModelLayer(CarriageWheelModel.MODEL_LAYER);
         JsonEM.registerModelLayer(SteelWheelModel.MODEL_LAYER);
 
+        JsonEM.registerModelLayer(StoneEngineModel.MODEL_LAYER);
         JsonEM.registerModelLayer(IronEngineModel.MODEL_LAYER);
         JsonEM.registerModelLayer(CopperEngineModel.MODEL_LAYER);
         JsonEM.registerModelLayer(GoldEngineModel.MODEL_LAYER);
