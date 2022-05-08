@@ -30,7 +30,7 @@ public record AutomobileEngine(
     );
 
     public static final AutomobileEngine IRON = REGISTRY.register(
-            new AutomobileEngine(Automobility.id("iron"), 0.5f, 0.8f,
+            new AutomobileEngine(Automobility.id("iron"), 0.5f, 0.78f,
                     new EngineModel(
                             Automobility.id("textures/entity/automobile/engine/iron.png"), Automobility.id("engine_iron"),
                             new AutomobileEngine.ExhaustPos(-3.5f, 5.4f, -8, 26, 0),
@@ -40,7 +40,7 @@ public record AutomobileEngine(
     );
 
     public static final AutomobileEngine COPPER = REGISTRY.register(
-            new AutomobileEngine(Automobility.id("copper"), 0.375f, 0.7f,
+            new AutomobileEngine(Automobility.id("copper"), 0.375f, 0.68f,
                     new EngineModel(
                             Automobility.id("textures/entity/automobile/engine/copper.png"), Automobility.id("engine_copper"),
                             new AutomobileEngine.ExhaustPos(2, 1.625f, -8.95f, 26, 0)

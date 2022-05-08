@@ -21,6 +21,8 @@ public record AutomobileFrame(
 
     public static final AutomobileFrame WOODEN_MOTORCAR = REGISTRY.register(motorcar("wooden", 0.3f));
     public static final AutomobileFrame COPPER_MOTORCAR = REGISTRY.register(motorcar("copper", 0.4f));
+    public static final AutomobileFrame STEEL_MOTORCAR = REGISTRY.register(motorcar("steel", 0.475f));
+    public static final AutomobileFrame GOLDEN_MOTORCAR = REGISTRY.register(motorcar("golden", 0.525f));
 
     public static final AutomobileFrame STANDARD_WHITE = REGISTRY.register(standard("white"));
     public static final AutomobileFrame STANDARD_ORANGE = REGISTRY.register(standard("orange"));
@@ -132,7 +134,7 @@ public record AutomobileFrame(
                         Automobility.id("textures/entity/automobile/frame/"+variant+"_motorcar.png"),
                         Automobility.id("frame_motorcar"),
                         WheelBase.basic(32, 12),
-                        32,
+                        28,
                         3,
                         18,
                         2

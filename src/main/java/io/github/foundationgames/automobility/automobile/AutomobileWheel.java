@@ -38,10 +38,9 @@ public record AutomobileWheel(
     );
 
     public static final AutomobileWheel CARRIAGE = REGISTRY.register(carriage("carriage", 0.2f));
-
     public static final AutomobileWheel PLATED = REGISTRY.register(carriage("plated", 0.33f));
-
     public static final AutomobileWheel STREET = REGISTRY.register(carriage("street", 0.45f));
+    public static final AutomobileWheel GILDED = REGISTRY.register(carriage("gilded", 0.5f));
 
     public static final AutomobileWheel CONVERTIBLE = REGISTRY.register(
             new AutomobileWheel(Automobility.id("convertible"), 0.75f, 0.45f, new WheelModel(5.2f, 4.1f, Automobility.id("textures/entity/automobile/frame/dababy.png"), Automobility.id("wheel_convertible")))
