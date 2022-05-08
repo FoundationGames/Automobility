@@ -732,12 +732,16 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         var groundBox = new Box(b.minX, b.minY - 0.04, b.minZ, b.maxX, b.minY, b.maxZ);
         var wid = (b.getXLength() + b.getZLength()) * 0.5f;
         var floorBox = new Box(b.minX + (wid * 0.94), b.minY - 0.05, b.minZ + (wid * 0.94), b.maxX - (wid * 0.94), b.minY, b.maxZ - (wid * 0.94));
-        var wallBox = b.contract(0.05).offset(this.lastVelocity.normalize().multiply(0.12).add(0, this.stepHeight, 0));
+        var wallBox = b.contract(0.05).offset(this.lastVelocity.normalize().multiply(0.12));
         var start = new BlockPos(b.minX - 0.1, b.minY - 0.2, b.minZ - 0.1);
         var end = new BlockPos(b.maxX + 0.1, b.maxY + 0.2 + this.stepHeight, b.maxZ + 0.1);
         var groundCuboid = VoxelShapes.cuboid(groundBox);
         var floorCuboid = VoxelShapes.cuboid(floorBox);
         var wallCuboid = VoxelShapes.cuboid(wallBox);
+        var stepWallCuboid = wallCuboid.offset(0, this.stepHeight - 0.05, 0);
+        boolean wallHit = false;
+        boolean stepWallHit = false;
+        var shapeCtx = ShapeContext.of(this);
         if (this.world.isRegionLoaded(start, end)) {
             var pos = new BlockPos.Mutable();
             for(int x = start.getX(); x <= end.getX(); ++x) {
@@ -745,14 +749,16 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
                     for(int z = start.getZ(); z <= end.getZ(); ++z) {
                         pos.set(x, y, z);
                         var state = this.world.getBlockState(pos);
-                        var blockShape = state.getCollisionShape(this.world, pos, ShapeContext.of(this)).offset(pos.getX(), pos.getY(), pos.getZ());
-                        automobileOnGround = automobileOnGround || VoxelShapes.matchesAnywhere(blockShape, groundCuboid, BooleanBiFunction.AND);
-                        isFloorDirectlyBelow = isFloorDirectlyBelow || VoxelShapes.matchesAnywhere(blockShape, floorCuboid, BooleanBiFunction.AND);
-                        touchingWall = touchingWall || VoxelShapes.matchesAnywhere(blockShape, wallCuboid, BooleanBiFunction.AND);
+                        var blockShape = state.getCollisionShape(this.world, pos, shapeCtx).offset(pos.getX(), pos.getY(), pos.getZ());
+                        this.automobileOnGround = this.automobileOnGround || VoxelShapes.matchesAnywhere(blockShape, groundCuboid, BooleanBiFunction.AND);
+                        this.isFloorDirectlyBelow = this.isFloorDirectlyBelow || VoxelShapes.matchesAnywhere(blockShape, floorCuboid, BooleanBiFunction.AND);
+                        wallHit = wallHit || VoxelShapes.matchesAnywhere(blockShape, wallCuboid, BooleanBiFunction.AND);
+                        stepWallHit = stepWallHit || VoxelShapes.matchesAnywhere(blockShape, stepWallCuboid, BooleanBiFunction.AND);
                     }
                 }
             }
         }
+        this.touchingWall = (wallHit && stepWallHit);
     }
 
     public void updateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {

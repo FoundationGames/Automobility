@@ -23,6 +23,7 @@ public record AutomobileFrame(
     public static final AutomobileFrame COPPER_MOTORCAR = REGISTRY.register(motorcar("copper", 0.4f));
     public static final AutomobileFrame STEEL_MOTORCAR = REGISTRY.register(motorcar("steel", 0.475f));
     public static final AutomobileFrame GOLDEN_MOTORCAR = REGISTRY.register(motorcar("golden", 0.525f));
+    public static final AutomobileFrame BEJEWELED_MOTORCAR = REGISTRY.register(motorcar("bejeweled", 0.555f));
 
     public static final AutomobileFrame STANDARD_WHITE = REGISTRY.register(standard("white"));
     public static final AutomobileFrame STANDARD_ORANGE = REGISTRY.register(standard("orange"));

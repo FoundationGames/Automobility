@@ -30,7 +30,7 @@ public record AutomobileEngine(
     );
 
     public static final AutomobileEngine IRON = REGISTRY.register(
-            new AutomobileEngine(Automobility.id("iron"), 0.5f, 0.78f,
+            new AutomobileEngine(Automobility.id("iron"), 0.5f, 0.75f,
                     new EngineModel(
                             Automobility.id("textures/entity/automobile/engine/iron.png"), Automobility.id("engine_iron"),
                             new AutomobileEngine.ExhaustPos(-3.5f, 5.4f, -8, 26, 0),
@@ -49,11 +49,23 @@ public record AutomobileEngine(
     );
 
     public static final AutomobileEngine GOLD = REGISTRY.register(
-            new AutomobileEngine(Automobility.id("gold"), 0.8f, 0.78f,
+            new AutomobileEngine(Automobility.id("gold"), 0.8f, 0.75f,
                     new EngineModel(
                             Automobility.id("textures/entity/automobile/engine/gold.png"), Automobility.id("engine_gold"),
                             new AutomobileEngine.ExhaustPos(4, 9.3f, -7.75f, 26, 0),
                             new AutomobileEngine.ExhaustPos(-4, 9.3f, -7.75f, 26, 0)
+                    )
+            )
+    );
+
+    public static final AutomobileEngine DIAMOND = REGISTRY.register(
+            new AutomobileEngine(Automobility.id("diamond"), 0.95f, 0.85f,
+                    new EngineModel(
+                            Automobility.id("textures/entity/automobile/engine/diamond.png"), Automobility.id("engine_diamond"),
+                            new AutomobileEngine.ExhaustPos(3, 3.8f, -7.6f, 40, 0),
+                            new AutomobileEngine.ExhaustPos(-3, 3.8f, -7.6f, 40, 0),
+                            new AutomobileEngine.ExhaustPos(4, 7.075f, -4.95f, 40, 0),
+                            new AutomobileEngine.ExhaustPos(-4, 7.075f, -4.95f, 40, 0)
                     )
             )
     );

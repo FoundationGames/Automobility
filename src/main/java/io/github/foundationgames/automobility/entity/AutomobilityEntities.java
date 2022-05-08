@@ -5,6 +5,7 @@ import io.github.foundationgames.automobility.automobile.render.ExhaustFumesMode
 import io.github.foundationgames.automobility.automobile.render.SkidEffectModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CopperEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
+import io.github.foundationgames.automobility.automobile.render.engine.DiamondEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.GoldEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.IronEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.StoneEngineModel;
@@ -63,6 +64,7 @@ public enum AutomobilityEntities {;
         JsonEM.registerModelLayer(IronEngineModel.MODEL_LAYER);
         JsonEM.registerModelLayer(CopperEngineModel.MODEL_LAYER);
         JsonEM.registerModelLayer(GoldEngineModel.MODEL_LAYER);
+        JsonEM.registerModelLayer(DiamondEngineModel.MODEL_LAYER);
         JsonEM.registerModelLayer(CreativeEngineModel.MODEL_LAYER);
 
         JsonEM.registerModelLayer(SkidEffectModel.MODEL_LAYER);

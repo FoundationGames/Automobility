@@ -33,6 +33,7 @@
   "prefab.automobility.copper_motorcar": "Copper Motorcar",
   "prefab.automobility.steel_motorcar": "Steel Motorcar",
   "prefab.automobility.golden_motorcar": "Golden Motorcar",
+  "prefab.automobility.bejeweled_motorcar": "Bejeweled Motorcar",
   "prefab.automobility.standard_white": "Standard White",
   "prefab.automobility.standard_orange": "Standard Orange",
   "prefab.automobility.standard_magenta": "Standard Magenta",
@@ -70,6 +71,7 @@
   "frame.automobility.copper_motorcar": "Copper Motorcar",
   "frame.automobility.steel_motorcar": "Steel Motorcar",
   "frame.automobility.golden_motorcar": "Golden Motorcar",
+  "frame.automobility.bejeweled_motorcar": "Bejeweled Motorcar",
   "frame.automobility.standard_white": "Standard White",
   "frame.automobility.standard_orange": "Standard Orange",
   "frame.automobility.standard_magenta": "Standard Magenta",
@@ -100,6 +102,7 @@
   "wheel.automobility.plated": "Plated",
   "wheel.automobility.street": "Street",
   "wheel.automobility.gilded": "Gilded",
+  "wheel.automobility.bejeweled": "Bejeweled",
   "wheel.automobility.off_road": "Off-Road",
   "wheel.automobility.tractor": "Tractor",
   "wheel.automobility.steel": "Steel",
@@ -109,5 +112,6 @@
   "engine.automobility.copper": "Copper",
   "engine.automobility.iron": "Iron",
   "engine.automobility.gold": "Gold",
+  "engine.automobility.diamond": "Diamond",
   "engine.automobility.creative": "Creative"
 }

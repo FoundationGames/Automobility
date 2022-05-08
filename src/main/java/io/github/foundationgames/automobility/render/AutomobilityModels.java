@@ -3,6 +3,7 @@ package io.github.foundationgames.automobility.render;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.engine.CopperEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
+import io.github.foundationgames.automobility.automobile.render.engine.DiamondEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.GoldEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.IronEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.StoneEngineModel;
@@ -43,6 +44,7 @@ public enum AutomobilityModels {;
         MODELS.put(Automobility.id("engine_iron"), IronEngineModel::new);
         MODELS.put(Automobility.id("engine_copper"), CopperEngineModel::new);
         MODELS.put(Automobility.id("engine_gold"), GoldEngineModel::new);
+        MODELS.put(Automobility.id("engine_diamond"), DiamondEngineModel::new);
         MODELS.put(Automobility.id("engine_creative"), CreativeEngineModel::new);
     }
 }
