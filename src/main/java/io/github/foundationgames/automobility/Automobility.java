@@ -7,7 +7,7 @@ import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.resource.AutomobilityData;
 import io.github.foundationgames.automobility.sound.AutomobilitySounds;
 import io.github.foundationgames.automobility.util.AUtils;
-import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
+import io.github.foundationgames.automobility.util.midnightcontrols.ControllerUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
@@ -42,7 +42,7 @@ public class Automobility implements ModInitializer {
 
         PayloadPackets.init();
         AutomobilityData.setup();
-        ControllerUtils.initLCHandler();
+        ControllerUtils.initMCHandler();
     }
 
     public static Identifier id(String path) {

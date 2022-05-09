@@ -1,7 +1,7 @@
 package io.github.foundationgames.automobility.mixin;
 
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
+import io.github.foundationgames.automobility.util.midnightcontrols.ControllerUtils;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
