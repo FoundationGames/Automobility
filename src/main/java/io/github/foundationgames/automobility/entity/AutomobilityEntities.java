@@ -3,6 +3,7 @@ package io.github.foundationgames.automobility.entity;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.ExhaustFumesModel;
 import io.github.foundationgames.automobility.automobile.render.SkidEffectModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.rear.PassengerSeatRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CopperEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.DiamondEngineModel;
@@ -66,6 +67,8 @@ public enum AutomobilityEntities {;
         JsonEM.registerModelLayer(GoldEngineModel.MODEL_LAYER);
         JsonEM.registerModelLayer(DiamondEngineModel.MODEL_LAYER);
         JsonEM.registerModelLayer(CreativeEngineModel.MODEL_LAYER);
+
+        JsonEM.registerModelLayer(PassengerSeatRearAttachmentModel.MODEL_LAYER);
 
         JsonEM.registerModelLayer(SkidEffectModel.MODEL_LAYER);
         JsonEM.registerModelLayer(ExhaustFumesModel.MODEL_LAYER);

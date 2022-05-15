@@ -58,7 +58,9 @@ public record AutomobileFrame(
                             25,
                             11,
                             7,
-                            17
+                            17,
+                            11,
+                            11
                     )
             )
     );
@@ -74,7 +76,9 @@ public record AutomobileFrame(
                             44f,
                             6f,
                             19.5f,
-                            10.5f
+                            10.5f,
+                            23,
+                            23
                     )
             )
     );
@@ -90,7 +94,9 @@ public record AutomobileFrame(
                             20,
                             16,
                             8,
-                            6
+                            6,
+                            9,
+                            9
                     )
             )
     );
@@ -106,7 +112,9 @@ public record AutomobileFrame(
                             40,
                             22,
                             13,
-                            3
+                            3,
+                            24,
+                            24
                     )
             )
     );
@@ -122,7 +130,9 @@ public record AutomobileFrame(
                         26,
                         5,
                         13,
-                        3
+                        3,
+                        18,
+                        22
                 )
         );
     }
@@ -138,7 +148,9 @@ public record AutomobileFrame(
                         28,
                         3,
                         18,
-                        2
+                        2,
+                        23,
+                        22
                 )
         );
     }
@@ -159,7 +171,9 @@ public record AutomobileFrame(
                         24,
                         9,
                         9,
-                        8
+                        8,
+                        12,
+                        19
                 )
         );
     }
@@ -180,7 +194,9 @@ public record AutomobileFrame(
             float lengthPx,
             float seatHeight,
             float enginePosBack,
-            float enginePosUp
+            float enginePosUp,
+            float rearAttachmentPos,
+            float frontAttachmentPos
     ) {
         @Environment(EnvType.CLIENT)
         public Function<EntityRendererFactory.Context, Model> model() {

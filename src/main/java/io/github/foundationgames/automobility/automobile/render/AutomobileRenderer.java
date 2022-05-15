@@ -4,6 +4,7 @@ import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.WheelBase;
+import io.github.foundationgames.automobility.automobile.render.attachment.rear.RearAttachmentRenderModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.WheelContextReceiver;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.client.model.Model;
@@ -21,9 +22,12 @@ public enum AutomobileRenderer {;
 
     public static void render(
             MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, float tickDelta,
-            AutomobileFrame frame, AutomobileWheel wheels, AutomobileEngine engine,
             EntityRendererFactory.Context ctx, RenderableAutomobile automobile
     ) {
+        var frame = automobile.getFrame();
+        var wheels = automobile.getWheels();
+        var engine = automobile.getEngine();
+
         if (skidEffectModel == null || exhaustFumesModel == null) {
             skidEffectModel = new SkidEffectModel(ctx);
             exhaustFumesModel = new ExhaustFumesModel(ctx);
@@ -40,6 +44,7 @@ public enum AutomobileRenderer {;
         var frameModel = automobile.getFrameModel(ctx);
         var wheelModel = automobile.getWheelModel(ctx);
         var engineModel = automobile.getEngineModel(ctx);
+        var rearAttachmentModel = automobile.getRearAttachmentModel(ctx);
 
         matrices.translate(0, -chassisRaise, 0);
 
@@ -80,9 +85,22 @@ public enum AutomobileRenderer {;
                 matrices.pop();
             }
         }
-
         matrices.pop();
 
+        // Rear Attachment
+        var rearAtt = automobile.getRearAttachmentType();
+        if (!rearAtt.isEmpty()) {
+            matrices.push();
+            matrices.translate(0, chassisRaise, frame.model().rearAttachmentPos() / 16);
+            matrices.multiply(Vec3f.NEGATIVE_Y.getDegreesQuaternion(automobile.getAutomobileYaw(tickDelta) - automobile.getRearAttachmentYaw(tickDelta)));
+
+            matrices.translate(0, 0, rearAtt.model().pivotDistPx() / 16);
+            if (rearAttachmentModel instanceof RearAttachmentRenderModel rm) {
+                rm.setWheelAngle((float) Math.toRadians(automobile.getWheelAngle(tickDelta)));
+            }
+            rearAttachmentModel.render(matrices, vertexConsumers.getBuffer(rearAttachmentModel.getLayer(rearAtt.model().texture())), light, overlay, 1, 1, 1, 1);
+            matrices.pop();
+        }
 
         // WHEELS ----------------------------------------
         var wheelBuffer = vertexConsumers.getBuffer(wheelModel.getLayer(wheels.model().texture()));
@@ -150,7 +168,6 @@ public enum AutomobileRenderer {;
                 }
             }
         }
-
         // -----------------------------------------------
 
         matrices.pop();

@@ -4,6 +4,7 @@ import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
+import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -51,6 +52,13 @@ public enum PayloadPackets {;
         ServerPlayNetworking.send(player, Automobility.id("sync_automobile_components"), buf);
     }
 
+    public static void sendSyncAutomobileAttachmentsPacket(AutomobileEntity entity, ServerPlayerEntity player) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(entity.getId());
+        buf.writeString(entity.getRearAttachmentType().id().toString());
+        ServerPlayNetworking.send(player, Automobility.id("sync_automobile_attachments"), buf);
+    }
+
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile_inputs"), (server, player, handler, buf, responseSender) -> {
             boolean fwd = buf.readBoolean();
@@ -71,6 +79,7 @@ public enum PayloadPackets {;
             server.execute(() -> {
                 if (player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
                     sendSyncAutomobileComponentsPacket(automobile, player);
+                    sendSyncAutomobileAttachmentsPacket(automobile, player);
                 }
             });
         });
@@ -95,6 +104,15 @@ public enum PayloadPackets {;
             client.execute(() -> {
                 if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
                     automobile.setComponents(frame, wheel, engine);
+                }
+            });
+        });
+        ClientPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile_attachments"), (client, handler, buf, responseSender) -> {
+            int entityId = buf.readInt();
+            var rearAtt = RearAttachmentType.REGISTRY.getOrDefault(Identifier.tryParse(buf.readString()));
+            client.execute(() -> {
+                if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
+                    automobile.setRearAttachment(rearAtt);
                 }
             });
         });

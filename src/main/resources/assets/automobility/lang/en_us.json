@@ -11,6 +11,7 @@
 
   "item.automobility.automobile": "Automobile",
   "item.automobility.crowbar": "Crowbar",
+  "item.automobility.rear_attachment": "Rear Attachment",
 
   "tooltip.item.automobility.crowbar": "Use on Automobile to remove",
 
@@ -113,5 +114,7 @@
   "engine.automobility.iron": "Iron",
   "engine.automobility.gold": "Gold",
   "engine.automobility.diamond": "Diamond",
-  "engine.automobility.creative": "Creative"
+  "engine.automobility.creative": "Creative",
+
+  "attachment.rear.automobility.passenger_seat": "Passenger Seat"
 }

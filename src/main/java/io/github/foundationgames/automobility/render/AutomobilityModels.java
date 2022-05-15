@@ -1,14 +1,27 @@
 package io.github.foundationgames.automobility.render;
 
 import io.github.foundationgames.automobility.Automobility;
+import io.github.foundationgames.automobility.automobile.render.EmptyModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.rear.PassengerSeatRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CopperEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.DiamondEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.GoldEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.IronEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.StoneEngineModel;
-import io.github.foundationgames.automobility.automobile.render.frame.*;
-import io.github.foundationgames.automobility.automobile.render.wheel.*;
+import io.github.foundationgames.automobility.automobile.render.frame.CARRFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.DaBabyFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.MotorcarFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.PineappleFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.ShoppingCartFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.TractorFrameModel;
+import io.github.foundationgames.automobility.automobile.render.wheel.CarriageWheelModel;
+import io.github.foundationgames.automobility.automobile.render.wheel.ConvertibleWheelModel;
+import io.github.foundationgames.automobility.automobile.render.wheel.OffRoadWheelModel;
+import io.github.foundationgames.automobility.automobile.render.wheel.StandardWheelModel;
+import io.github.foundationgames.automobility.automobile.render.wheel.SteelWheelModel;
+import io.github.foundationgames.automobility.automobile.render.wheel.TractorWheelModel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.Model;
@@ -25,6 +38,8 @@ public enum AutomobilityModels {;
 
     @Environment(EnvType.CLIENT)
     public static void init() {
+        MODELS.put(Automobility.id("empty"), EmptyModel::new);
+
         MODELS.put(Automobility.id("frame_standard"), StandardFrameModel::new);
         MODELS.put(Automobility.id("frame_tractor"), TractorFrameModel::new);
         MODELS.put(Automobility.id("frame_shopping_cart"), ShoppingCartFrameModel::new);
@@ -46,5 +61,7 @@ public enum AutomobilityModels {;
         MODELS.put(Automobility.id("engine_gold"), GoldEngineModel::new);
         MODELS.put(Automobility.id("engine_diamond"), DiamondEngineModel::new);
         MODELS.put(Automobility.id("engine_creative"), CreativeEngineModel::new);
+
+        MODELS.put(Automobility.id("rearatt_passenger_seat"), PassengerSeatRearAttachmentModel::new);
     }
 }

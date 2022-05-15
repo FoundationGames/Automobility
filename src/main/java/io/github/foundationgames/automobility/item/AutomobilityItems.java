@@ -2,22 +2,30 @@ package io.github.foundationgames.automobility.item;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.*;
+import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.automobile.render.AutomobileRenderer;
+import io.github.foundationgames.automobility.automobile.render.attachment.rear.RearAttachmentRenderModel;
 import io.github.foundationgames.automobility.automobile.render.item.ItemRenderableAutomobile;
 import io.github.foundationgames.automobility.util.EntityRenderHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.item.Item;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public enum AutomobilityItems {;
     public static final Item CROWBAR = register("crowbar", new TooltipItem(new TranslatableText("tooltip.item.automobility.crowbar").formatted(Formatting.BLUE), new Item.Settings().maxCount(1).group(Automobility.GROUP)));
     public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Settings().maxCount(1).group(Automobility.PREFABS)));
+    public static final RearAttachmentItem REAR_ATTACHMENT = register("rear_attachment", new RearAttachmentItem(new Item.Settings().maxCount(1).group(Automobility.GROUP)));
 
     public static void init() {
         AutomobileItem.addPrefabs(
@@ -54,12 +62,19 @@ public enum AutomobilityItems {;
 
     @Environment(EnvType.CLIENT)
     private static EntityRendererFactory.Context cachedCtx;
+    @Environment(EnvType.CLIENT)
+    private static final Map<RearAttachmentType<?>, Model> rearAttModelPool = new HashMap<>();
+
     private static final AutomobileData reader = new AutomobileData();
 
     @Environment(EnvType.CLIENT)
     public static void initClient() {
         var itemAutomobile = new ItemRenderableAutomobile(reader);
-        EntityRenderHelper.registerContextListener(ctx -> cachedCtx = ctx);
+        EntityRenderHelper.registerContextListener(ctx -> {
+            cachedCtx = ctx;
+            rearAttModelPool.clear();
+        });
+
         BuiltinItemRendererRegistry.INSTANCE.register(AUTOMOBILE, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
             if (cachedCtx != null) {
                 reader.read(stack.getOrCreateSubNbt("Automobile"));
@@ -68,12 +83,26 @@ public enum AutomobilityItems {;
                 scale /= wheelDist * 0.77f;
                 scale = Math.max(0, scale);
                 matrices.scale(scale, scale, scale);
-                AutomobileRenderer.render(matrices, vertexConsumers, light, overlay, MinecraftClient.getInstance().getTickDelta(), reader.getFrame(), reader.getWheel(), reader.getEngine(), cachedCtx, itemAutomobile);
+                AutomobileRenderer.render(matrices, vertexConsumers, light, overlay, MinecraftClient.getInstance().getTickDelta(), cachedCtx, itemAutomobile);
+            }
+        });
+        BuiltinItemRendererRegistry.INSTANCE.register(REAR_ATTACHMENT, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
+            var type = REAR_ATTACHMENT.getAttachment(stack);
+            if (!type.isEmpty()) {
+                if (!rearAttModelPool.containsKey(type)) {
+                    rearAttModelPool.put(type, type.model().model().apply(cachedCtx));
+                }
+
+                var model = rearAttModelPool.get(type);
+                if (rearAttModelPool.get(type) instanceof RearAttachmentRenderModel attModel) attModel.resetModel();
+                matrices.translate(0.5, 0, 0.5);
+                matrices.scale(1, -1, -1);
+                model.render(matrices, vertexConsumers.getBuffer(model.getLayer(type.model().texture())), light, overlay, 1, 1, 1, 1);
             }
         });
     }
 
-    public static Item register(String name, Item item) {
+    public static <T extends Item> T register(String name, T item) {
         return Registry.register(Registry.ITEM, Automobility.id(name), item);
     }
 }
