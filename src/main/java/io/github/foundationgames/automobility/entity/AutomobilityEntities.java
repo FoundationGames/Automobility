@@ -3,6 +3,7 @@ package io.github.foundationgames.automobility.entity;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.ExhaustFumesModel;
 import io.github.foundationgames.automobility.automobile.render.SkidEffectModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.rear.BlockRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.PassengerSeatRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CopperEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
@@ -10,7 +11,12 @@ import io.github.foundationgames.automobility.automobile.render.engine.DiamondEn
 import io.github.foundationgames.automobility.automobile.render.engine.GoldEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.IronEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.StoneEngineModel;
-import io.github.foundationgames.automobility.automobile.render.frame.*;
+import io.github.foundationgames.automobility.automobile.render.frame.CARRFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.MotorcarFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.PineappleFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.ShoppingCartFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.TractorFrameModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.CarriageWheelModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.OffRoadWheelModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.StandardWheelModel;
@@ -21,7 +27,6 @@ import io.github.foundationgames.jsonem.JsonEM;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -69,6 +74,7 @@ public enum AutomobilityEntities {;
         JsonEM.registerModelLayer(CreativeEngineModel.MODEL_LAYER);
 
         JsonEM.registerModelLayer(PassengerSeatRearAttachmentModel.MODEL_LAYER);
+        JsonEM.registerModelLayer(BlockRearAttachmentModel.MODEL_LAYER);
 
         JsonEM.registerModelLayer(SkidEffectModel.MODEL_LAYER);
         JsonEM.registerModelLayer(ExhaustFumesModel.MODEL_LAYER);

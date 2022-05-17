@@ -116,5 +116,11 @@
   "engine.automobility.diamond": "Diamond",
   "engine.automobility.creative": "Creative",
 
-  "attachment.rear.automobility.passenger_seat": "Passenger Seat"
+  "attachment.rear.automobility.passenger_seat": "Passenger Seat",
+  "attachment.rear.automobility.crafting_table": "Crafting Table",
+  "attachment.rear.automobility.loom": "Loom",
+  "attachment.rear.automobility.cartography_table": "Cartography Table",
+  "attachment.rear.automobility.smithing_table": "Smithing Table",
+  "attachment.rear.automobility.grindstone": "Grindstone",
+  "attachment.rear.automobility.stonecutter": "Stonecutter"
 }

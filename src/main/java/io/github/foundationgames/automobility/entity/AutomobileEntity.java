@@ -10,6 +10,7 @@ import io.github.foundationgames.automobility.automobile.WheelBase;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
+import io.github.foundationgames.automobility.automobile.screen.handler.AutomobileScreenHandlerContext;
 import io.github.foundationgames.automobility.block.OffRoadBlock;
 import io.github.foundationgames.automobility.item.AutomobileInteractable;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
@@ -22,7 +23,11 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MovementType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -35,7 +40,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
@@ -44,7 +48,11 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
@@ -58,7 +66,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public class AutomobileEntity extends Entity implements RenderableAutomobile {
+public class AutomobileEntity extends Entity implements RenderableAutomobile, EntityWithInventory {
     private static final TrackedData<Float> REAR_ATTACHMENT_YAW = DataTracker.registerData(AutomobileEntity.class, TrackedDataHandlerRegistry.FLOAT);
 
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
@@ -124,6 +132,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
 
     private Vec3d lastVelocity = Vec3d.ZERO;
     private Vec3d lastPosForDisplacement = Vec3d.ZERO;
+
+    private Vec3d prevTailPos = null;
 
     // Prevents jittering when going down slopes
     private int slopeStickingTimer = 0;
@@ -422,7 +432,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         if (!this.rearAttachment.type.isEmpty()) this.rearAttachment.tick();
 
         var prevPos = this.getPos();
-        var prevTailPos = this.getTailPos();
 
         positionTrackingTick();
         collisionStateTick();
@@ -435,12 +444,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
         }
         postMovementTick();
 
-        var tailPos = this.getTailPos();
-        if (this.isLogicalSideForUpdatingMovement()) {
-            this.rearAttachment.pull(prevTailPos.subtract(tailPos));
-        }
-
         if (!world.isClient()) {
+            var prevTailPos = this.prevTailPos != null ? this.prevTailPos : this.getTailPos();
+            var tailPos = this.getTailPos();
+
+            this.rearAttachment.pull(prevTailPos.subtract(tailPos));
+            this.prevTailPos = tailPos;
+
             if (dirty) {
                 syncData();
                 dirty = false;
@@ -1010,7 +1020,31 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     }
 
     @Override
+    public boolean hasInventory() {
+        return this.getRearAttachment().hasMenu();
+    }
+
+    @Override
+    public void openInventory(PlayerEntity player) {
+        var factory = this.getRearAttachment().createMenu(new AutomobileScreenHandlerContext(this));
+        if (factory != null) {
+            player.openHandledScreen(factory);
+        }
+    }
+
+    @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
+        if (player.isSneaking()) {
+            if (this.hasInventory()) {
+                if (!world.isClient()) {
+                    openInventory(player);
+                    return ActionResult.PASS;
+                } else {
+                    return ActionResult.SUCCESS;
+                }
+            }
+        }
+
         var stack = player.getStackInHand(hand);
         if (stack.isOf(AutomobilityItems.CROWBAR)) {
             var dropPos = getPos().add(0, 0.3, 0);
@@ -1099,6 +1133,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile {
     @Override
     public void onTrackedDataSet(TrackedData<?> data) {
         super.onTrackedDataSet(data);
+
+        if (REAR_ATTACHMENT_YAW.equals(data)) {
+            this.rearAttachment.onTrackedYawUpdated(getTrackedRearAttachmentYaw());
+        }
     }
 
     @Override

@@ -4,9 +4,13 @@
   "package": "io.github.foundationgames.automobility.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "ForgingScreenHandlerMixin",
+    "ScreenHandlerMixin",
+    "ServerPlayNetworkHandlerMixin"
   ],
   "client": [
     "ClientPlayerEntityMixin",
+    "ClientPlayerInteractionManagerMixin",
     "EntityRenderersMixin",
     "GameRendererMixin",
     "ModelElementDeserializerMixin",

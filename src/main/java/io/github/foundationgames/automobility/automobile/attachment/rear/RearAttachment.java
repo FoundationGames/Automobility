@@ -3,15 +3,23 @@ package io.github.foundationgames.automobility.automobile.attachment.rear;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class RearAttachment {
     public final RearAttachmentType<?> type;
     protected final AutomobileEntity automobile;
+
     private float lastYaw;
+    private float yaw;
+
+    private float trackedYaw;
+    private int lerpTicks;
 
     protected RearAttachment(RearAttachmentType<?> type, AutomobileEntity entity) {
         this.type = type;
@@ -20,6 +28,10 @@ public abstract class RearAttachment {
 
     protected final World world() {
         return this.automobile.world;
+    }
+
+    protected final boolean isControllingSide() {
+        return !world().isClient();
     }
 
     public final Vec3d yawVec() {
@@ -39,7 +51,7 @@ public abstract class RearAttachment {
     }
 
     public float yaw() {
-        return this.automobile.getTrackedRearAttachmentYaw();
+        return yaw;
     }
 
     public float yaw(float delta) {
@@ -51,7 +63,17 @@ public abstract class RearAttachment {
         if (diff < -90 && diff > -180) yaw = this.automobile.getYaw() - 90;
         else if (diff > 90 && diff < 180) yaw = this.automobile.getYaw() + 90;
 
+        this.yaw = yaw;
+    }
+
+    protected final void updateTrackedYaw(float yaw) {
         this.automobile.setTrackedRearAttachmentYaw(yaw);
+    }
+
+    public void onTrackedYawUpdated(float yaw) {
+        this.trackedYaw = yaw;
+
+        this.lerpTicks = this.automobile.getType().getTrackTickInterval() + 1;
     }
 
     public final void pull(Vec3d movement) {
@@ -61,6 +83,19 @@ public abstract class RearAttachment {
 
     public void tick() {
         this.lastYaw = this.yaw();
+
+        rotationTrackingTick();
+    }
+
+    private void rotationTrackingTick() {
+        if (this.isControllingSide()) {
+            this.lerpTicks = 0;
+            updateTrackedYaw(yaw());
+        } else if (lerpTicks > 0) {
+            this.setYaw(this.yaw() + (MathHelper.wrapDegrees(this.trackedYaw - this.yaw()) / (float)this.lerpTicks));
+
+            this.lerpTicks--;
+        }
     }
 
     public void onRemoved() {
@@ -72,6 +107,14 @@ public abstract class RearAttachment {
 
     public double getPassengerHeightOffset() {
         return 0.5;
+    }
+
+    public boolean hasMenu() {
+        return false;
+    }
+
+    public @Nullable NamedScreenHandlerFactory createMenu(ScreenHandlerContext ctx) {
+        return null;
     }
 
     public void writeNbt(NbtCompound nbt) {

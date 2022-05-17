@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.render;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.EmptyModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.rear.BlockRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.PassengerSeatRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CopperEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
@@ -63,5 +64,6 @@ public enum AutomobilityModels {;
         MODELS.put(Automobility.id("engine_creative"), CreativeEngineModel::new);
 
         MODELS.put(Automobility.id("rearatt_passenger_seat"), PassengerSeatRearAttachmentModel::new);
+        MODELS.put(Automobility.id("rearatt_block"), BlockRearAttachmentModel::new);
     }
 }
