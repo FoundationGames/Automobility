@@ -19,6 +19,7 @@
   "block.automobility.dirt_off_road": "Dirt Off Road",
   "block.automobility.sand_off_road": "Sand Off Road",
   "block.automobility.snow_off_road": "Snow Off Road",
+  "block.automobility.launch_gel": "Launch Gel",
   "block.automobility.dash_panel": "Dash Panel",
   "block.automobility.sloped_dash_panel": "Sloped Dash Panel",
   "block.automobility.steep_sloped_dash_panel": "Steep Sloped Dash Panel",
@@ -122,5 +123,7 @@
   "attachment.rear.automobility.cartography_table": "Cartography Table",
   "attachment.rear.automobility.smithing_table": "Smithing Table",
   "attachment.rear.automobility.grindstone": "Grindstone",
-  "attachment.rear.automobility.stonecutter": "Stonecutter"
+  "attachment.rear.automobility.stonecutter": "Stonecutter",
+  "attachment.rear.automobility.chest": "Chest",
+  "attachment.rear.automobility.ender_chest": "Ender Chest"
 }

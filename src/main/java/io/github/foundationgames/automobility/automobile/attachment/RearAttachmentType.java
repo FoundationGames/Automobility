@@ -1,6 +1,7 @@
 package io.github.foundationgames.automobility.automobile.attachment;
 
 import io.github.foundationgames.automobility.Automobility;
+import io.github.foundationgames.automobility.automobile.attachment.rear.BaseChestRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.EmptyRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.PassengerSeatRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
@@ -35,9 +36,11 @@ public record RearAttachmentType<T extends RearAttachment>(
     public static final RearAttachmentType<BlockRearAttachment> LOOM = register(block("loom", BlockRearAttachment::loom));
     public static final RearAttachmentType<BlockRearAttachment> CARTOGRAPHY_TABLE = register(block("cartography_table", BlockRearAttachment::cartographyTable));
     public static final RearAttachmentType<BlockRearAttachment> SMITHING_TABLE = register(block("smithing_table", BlockRearAttachment::smithingTable));
-    public static final RearAttachmentType<BlockRearAttachment> GRINDSTONE = register(block("grindstone", BlockRearAttachment::grindstone));
-    public static final RearAttachmentType<BlockRearAttachment> STONECUTTER = register(block("stonecutter", BlockRearAttachment::stonecutter));
+    public static final RearAttachmentType<BlockRearAttachment> GRINDSTONE = register(block("grindstone", Automobility.id("rearatt_grindstone"), BlockRearAttachment::grindstone));
+    public static final RearAttachmentType<BlockRearAttachment> STONECUTTER = register(block("stonecutter", Automobility.id("rearatt_stonecutter"), BlockRearAttachment::stonecutter));
 
+    public static final RearAttachmentType<BlockRearAttachment> CHEST = register(chest("chest", BaseChestRearAttachment::chest));
+    public static final RearAttachmentType<BlockRearAttachment> ENDER_CHEST = register(chest("ender_chest", BaseChestRearAttachment::enderChest));
 
     public boolean isEmpty() {
         return this == EMPTY;
@@ -48,10 +51,18 @@ public record RearAttachmentType<T extends RearAttachment>(
         return this.id;
     }
 
+    private static RearAttachmentType<BlockRearAttachment> chest(String name, BiFunction<RearAttachmentType<BlockRearAttachment>, AutomobileEntity, BlockRearAttachment> constructor) {
+        return block(name, Automobility.id("rearatt_chest"), constructor);
+    }
+
     private static RearAttachmentType<BlockRearAttachment> block(String name, BiFunction<RearAttachmentType<BlockRearAttachment>, AutomobileEntity, BlockRearAttachment> constructor) {
+        return block(name, Automobility.id("rearatt_block"), constructor);
+    }
+
+    private static RearAttachmentType<BlockRearAttachment> block(String name, Identifier model, BiFunction<RearAttachmentType<BlockRearAttachment>, AutomobileEntity, BlockRearAttachment> constructor) {
         return new RearAttachmentType<>(
                 Automobility.id(name), constructor,
-                new RearAttachmentModel(Automobility.id("textures/entity/automobile/rear_attachment/"+name+".png"), Automobility.id("rearatt_block"), 11)
+                new RearAttachmentModel(Automobility.id("textures/entity/automobile/rear_attachment/"+name+".png"), model, 11)
         );
     }
 

@@ -3,7 +3,10 @@ package io.github.foundationgames.automobility.render;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.EmptyModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.BlockRearAttachmentModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.rear.ChestRearAttachmentModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.rear.GrindstoneRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.PassengerSeatRearAttachmentModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.rear.StonecutterRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CopperEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.DiamondEngineModel;
@@ -65,5 +68,8 @@ public enum AutomobilityModels {;
 
         MODELS.put(Automobility.id("rearatt_passenger_seat"), PassengerSeatRearAttachmentModel::new);
         MODELS.put(Automobility.id("rearatt_block"), BlockRearAttachmentModel::new);
+        MODELS.put(Automobility.id("rearatt_grindstone"), GrindstoneRearAttachmentModel::new);
+        MODELS.put(Automobility.id("rearatt_stonecutter"), StonecutterRearAttachmentModel::new);
+        MODELS.put(Automobility.id("rearatt_chest"), ChestRearAttachmentModel::new);
     }
 }

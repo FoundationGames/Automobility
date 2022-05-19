@@ -2,10 +2,12 @@ package io.github.foundationgames.automobility.automobile.attachment.rear;
 
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import io.github.foundationgames.automobility.util.duck.EnderChestInventoryDuck;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.screen.CartographyTableScreenHandler;
 import net.minecraft.screen.CraftingScreenHandler;
+import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.GrindstoneScreenHandler;
 import net.minecraft.screen.LoomScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
@@ -17,6 +19,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class BlockRearAttachment extends RearAttachment {
@@ -28,9 +31,9 @@ public class BlockRearAttachment extends RearAttachment {
     public static final Text TITLE_STONECUTTER = new TranslatableText("container.stonecutter");
 
     public final BlockState block;
-    private final @Nullable Function<ScreenHandlerContext, NamedScreenHandlerFactory> screenProvider;
+    private final @Nullable BiFunction<ScreenHandlerContext, BlockRearAttachment, NamedScreenHandlerFactory> screenProvider;
 
-    public BlockRearAttachment(RearAttachmentType<?> type, AutomobileEntity entity, BlockState block, @Nullable Function<ScreenHandlerContext, NamedScreenHandlerFactory> screenProvider) {
+    public BlockRearAttachment(RearAttachmentType<?> type, AutomobileEntity entity, BlockState block, @Nullable BiFunction<ScreenHandlerContext, BlockRearAttachment, NamedScreenHandlerFactory> screenProvider) {
         super(type, entity);
         this.block = block;
         this.screenProvider = screenProvider;
@@ -43,13 +46,13 @@ public class BlockRearAttachment extends RearAttachment {
 
     @Override
     public @Nullable NamedScreenHandlerFactory createMenu(ScreenHandlerContext ctx) {
-        return this.screenProvider != null ? this.screenProvider.apply(ctx) : null;
+        return this.screenProvider != null ? this.screenProvider.apply(ctx, this) : null;
     }
 
     public static BlockRearAttachment craftingTable(RearAttachmentType<?> type, AutomobileEntity entity) {
         return new BlockRearAttachment(type, entity,
                 Blocks.CRAFTING_TABLE.getDefaultState(),
-                ctx -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
+                (ctx, att) -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
                     new CraftingScreenHandler(syncId, inventory, ctx), TITLE_CRAFTING)
         );
     }
@@ -57,7 +60,7 @@ public class BlockRearAttachment extends RearAttachment {
     public static BlockRearAttachment loom(RearAttachmentType<?> type, AutomobileEntity entity) {
         return new BlockRearAttachment(type, entity,
                 Blocks.LOOM.getDefaultState(),
-                ctx -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
+                (ctx, att) -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
                         new LoomScreenHandler(syncId, inventory, ctx), TITLE_LOOM)
         );
     }
@@ -65,7 +68,7 @@ public class BlockRearAttachment extends RearAttachment {
     public static BlockRearAttachment cartographyTable(RearAttachmentType<?> type, AutomobileEntity entity) {
         return new BlockRearAttachment(type, entity,
                 Blocks.CARTOGRAPHY_TABLE.getDefaultState(),
-                ctx -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
+                (ctx, att) -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
                         new CartographyTableScreenHandler(syncId, inventory, ctx), TITLE_CARTOGRAPHY)
         );
     }
@@ -73,7 +76,7 @@ public class BlockRearAttachment extends RearAttachment {
     public static BlockRearAttachment smithingTable(RearAttachmentType<?> type, AutomobileEntity entity) {
         return new BlockRearAttachment(type, entity,
                 Blocks.SMITHING_TABLE.getDefaultState(),
-                ctx -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
+                (ctx, att) -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
                         new SmithingScreenHandler(syncId, inventory, ctx), TITLE_SMITHING)
         );
     }
@@ -81,7 +84,7 @@ public class BlockRearAttachment extends RearAttachment {
     public static BlockRearAttachment grindstone(RearAttachmentType<?> type, AutomobileEntity entity) {
         return new BlockRearAttachment(type, entity,
                 Blocks.GRINDSTONE.getDefaultState(),
-                ctx -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
+                (ctx, att) -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
                         new GrindstoneScreenHandler(syncId, inventory, ctx), TITLE_GRINDSTONE)
         );
     }
@@ -89,8 +92,10 @@ public class BlockRearAttachment extends RearAttachment {
     public static BlockRearAttachment stonecutter(RearAttachmentType<?> type, AutomobileEntity entity) {
         return new BlockRearAttachment(type, entity,
                 Blocks.STONECUTTER.getDefaultState(),
-                ctx -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
+                (ctx, att) -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
                         new StonecutterScreenHandler(syncId, inventory, ctx), TITLE_STONECUTTER)
         );
     }
+
+
 }

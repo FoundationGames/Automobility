@@ -107,8 +107,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private float boostPower = 0;
 
     private float hSpeed = 0;
+    private float vSpeed = 0;
 
-    private float verticalSpeed = 0;
+    private float addedVSpeed = 0;
     private Vec3d addedVelocity = getVelocity();
 
     private float steering = 0;
@@ -184,7 +185,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         boostTimer = nbt.getInt("boostTimer");
         boostPower = nbt.getFloat("boostPower");
         speedDirection = nbt.getFloat("speedDirection");
-        verticalSpeed = nbt.getFloat("verticalSpeed");
+        vSpeed = nbt.getFloat("verticalSpeed");
         hSpeed = nbt.getFloat("horizontalSpeed");
         addedVelocity = AUtils.v3dFromNbt(nbt.getCompound("addedVelocity"));
         lastVelocity = AUtils.v3dFromNbt(nbt.getCompound("lastVelocity"));
@@ -215,7 +216,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         nbt.putInt("boostTimer", boostTimer);
         nbt.putFloat("boostPower", boostPower);
         nbt.putFloat("speedDirection", speedDirection);
-        nbt.putFloat("verticalSpeed", verticalSpeed);
+        nbt.putFloat("verticalSpeed", vSpeed);
         nbt.putFloat("horizontalSpeed", hSpeed);
         nbt.put("addedVelocity", AUtils.v3dToNbt(addedVelocity));
         nbt.put("lastVelocity", AUtils.v3dToNbt(lastVelocity));
@@ -344,6 +345,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         return hSpeed;
     }
 
+    public float getVSpeed() {
+        return vSpeed;
+    }
+
     @Override
     public int getBoostTimer() {
         return boostTimer;
@@ -418,8 +423,19 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         return (this.rearAttachment.isRideable()) ? (this.getPassengerList().size() < 2) : (!this.hasPassengers());
     }
 
+    public void setSpeed(float horizontal, float vertical) {
+        if (this.isLogicalSideForUpdatingMovement()) {
+            this.hSpeed = horizontal;
+            this.addedVSpeed = vertical;
+        } else if (this.getPrimaryPassenger() instanceof ServerPlayerEntity player) {
+            PayloadPackets.sendAutomobileSpeedSetPacket(this, horizontal, vertical, player);
+        }
+    }
+
     @Override
     public void tick() {
+        boolean first = this.firstUpdate;
+
         if (!this.hasPassengers()) {
             accelerating = false;
             braking = false;
@@ -470,7 +486,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             }
         }
 
-        displacementTick(this.getPos().subtract(prevPos));
+        displacementTick(first || this.getPos().subtract(prevPos).length() > 0);
     }
 
     public void positionTrackingTick() {
@@ -624,7 +640,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         lastWheelAngle = wheelAngle;
 
         // Reduce gravity underwater
-        cumulative = cumulative.add(0, (verticalSpeed * (isSubmergedInWater() ? 0.15f : 1)), 0);
+        cumulative = cumulative.add(0, (vSpeed * (isSubmergedInWater() ? 0.15f : 1)), 0);
 
         // This is the general direction the automobile will move, which is slightly offset to the side when drifting and delayed when on slippery surface
         this.speedDirection = MathHelper.lerp(grip, getYaw(), getYaw() - (drifting ? Math.min(driftTimer * 6, 43 + (-steering * 12)) * driftDir : -steering * 12));
@@ -750,11 +766,12 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             highestPrevYDisp = Math.max(d, highestPrevYDisp);
         }
         if (wasOnGround && !automobileOnGround && !isFloorDirectlyBelow) {
-            verticalSpeed = (float)MathHelper.clamp(highestPrevYDisp, 0, hSpeed * 0.6f);
+            vSpeed = (float)MathHelper.clamp(highestPrevYDisp, 0, hSpeed * 0.6f);
         }
 
         // Handles gravity
-        verticalSpeed = Math.max(verticalSpeed - 0.08f, !automobileOnGround ? TERMINAL_VELOCITY : -0.01f);
+        vSpeed = Math.max(vSpeed - 0.08f, !automobileOnGround ? TERMINAL_VELOCITY : -0.01f) + addedVSpeed;
+        addedVSpeed = 0;
 
         // Store previous y displacement to use when launching off slopes
         prevYDisplacements.push(yDisp);
@@ -802,11 +819,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
     }
 
-    public void displacementTick(Vec3d movement) {
+    public void displacementTick(boolean tick) {
         if (this.world.isClient()) {
             this.displacement.preTick();
 
-            if (movement.length() > 0) {
+            if (tick) {
                 this.displacement.tick(this.world, this, this.getPos(), this.getYaw(), this.stepHeight);
             }
         }
@@ -1095,8 +1112,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             passenger.setPosition(pos.x, pos.y, pos.z);
         } else if (this.hasPassenger(passenger)) {
             var pos = this.getPos().add(
-                    new Vec3d(0, this.displacement.verticalTarget + passenger.getHeightOffset(), this.getFrame().model().rearAttachmentPos() * 0.0625)
-                        .rotateY((float) Math.toRadians(180 - this.getYaw())).add(0, this.rearAttachment.getPassengerHeightOffset(), 0)
+                    new Vec3d(0, this.displacement.verticalTarget, this.getFrame().model().rearAttachmentPos() * 0.0625)
+                        .rotateY((float) Math.toRadians(180 - this.getYaw())).add(0, this.rearAttachment.getPassengerHeightOffset() + passenger.getHeightOffset(), 0)
                         .add(this.rearAttachment.scaledYawVec())
                         .rotateX((float) Math.toRadians(-this.displacement.currAngularX))
                         .rotateZ((float) Math.toRadians(-this.displacement.currAngularZ)));

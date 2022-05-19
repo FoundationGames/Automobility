@@ -54,6 +54,8 @@ public enum AutomobilityAssets {;
         }
         PACK.addBlockState(new JState().add(steepDashPanel), Automobility.id("steep_sloped_dash_panel"));
 
+        PACK.addBlockState(new JState().add(JState.variant().put("", JState.model(Automobility.id("block/launch_gel")))), Automobility.id("launch_gel"));
+
         for (var p : PROCESSORS) {
             p.accept(PACK);
         }

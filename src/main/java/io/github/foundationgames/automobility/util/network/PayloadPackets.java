@@ -59,6 +59,14 @@ public enum PayloadPackets {;
         ServerPlayNetworking.send(player, Automobility.id("sync_automobile_attachments"), buf);
     }
 
+    public static void sendAutomobileSpeedSetPacket(AutomobileEntity entity, float hSpeed, float vSpeed, ServerPlayerEntity player) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeInt(entity.getId());
+        buf.writeFloat(hSpeed);
+        buf.writeFloat(vSpeed);
+        ServerPlayNetworking.send(player, Automobility.id("send_automobile_speed"), buf);
+    }
+
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile_inputs"), (server, player, handler, buf, responseSender) -> {
             boolean fwd = buf.readBoolean();
@@ -113,6 +121,16 @@ public enum PayloadPackets {;
             client.execute(() -> {
                 if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
                     automobile.setRearAttachment(rearAtt);
+                }
+            });
+        });
+        ClientPlayNetworking.registerGlobalReceiver(Automobility.id("send_automobile_speed"), (client, handler, buf, responseSender) -> {
+            int entityId = buf.readInt();
+            float h = buf.readFloat();
+            float v = buf.readFloat();
+            client.execute(() -> {
+                if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
+                    automobile.setSpeed(h, v);
                 }
             });
         });

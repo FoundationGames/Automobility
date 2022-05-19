@@ -4,6 +4,7 @@
   "package": "io.github.foundationgames.automobility.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "EnderChestInventoryMixin",
     "ForgingScreenHandlerMixin",
     "ScreenHandlerMixin",
     "ServerPlayNetworkHandlerMixin"
