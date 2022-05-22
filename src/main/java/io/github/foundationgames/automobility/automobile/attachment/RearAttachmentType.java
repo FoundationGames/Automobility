@@ -1,6 +1,7 @@
 package io.github.foundationgames.automobility.automobile.attachment;
 
 import io.github.foundationgames.automobility.Automobility;
+import io.github.foundationgames.automobility.automobile.AutomobileComponent;
 import io.github.foundationgames.automobility.automobile.attachment.rear.BaseChestRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.EmptyRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.PassengerSeatRearAttachment;
@@ -20,7 +21,7 @@ import java.util.function.Function;
 
 public record RearAttachmentType<T extends RearAttachment>(
         Identifier id, BiFunction<RearAttachmentType<T>, AutomobileEntity, T> constructor, RearAttachmentModel model
-) implements SimpleMapContentRegistry.Identifiable {
+) implements AutomobileComponent {
     public static final SimpleMapContentRegistry<RearAttachmentType<?>> REGISTRY = new SimpleMapContentRegistry<>();
 
     public static final RearAttachmentType<EmptyRearAttachment> EMPTY = register(new RearAttachmentType<>(
@@ -42,6 +43,7 @@ public record RearAttachmentType<T extends RearAttachment>(
     public static final RearAttachmentType<BlockRearAttachment> CHEST = register(chest("chest", BaseChestRearAttachment::chest));
     public static final RearAttachmentType<BlockRearAttachment> ENDER_CHEST = register(chest("ender_chest", BaseChestRearAttachment::enderChest));
 
+    @Override
     public boolean isEmpty() {
         return this == EMPTY;
     }

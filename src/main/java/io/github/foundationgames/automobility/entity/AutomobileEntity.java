@@ -11,6 +11,8 @@ import io.github.foundationgames.automobility.automobile.attachment.RearAttachme
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.automobile.screen.handler.AutomobileScreenHandlerContext;
+import io.github.foundationgames.automobility.block.AutomobileAssemblerBlock;
+import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.block.OffRoadBlock;
 import io.github.foundationgames.automobility.item.AutomobileInteractable;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
@@ -28,6 +30,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -521,7 +524,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         forNearbyPlayers(200, false, player -> PayloadPackets.sendSyncAutomobileAttachmentsPacket(this, player));
     }
 
-    public ItemStack asItem() {
+    public ItemStack asPrefabItem() {
         var stack = new ItemStack(AutomobilityItems.AUTOMOBILE);
         var automobile = stack.getOrCreateSubNbt("Automobile");
         automobile.putString("frame", frame.getId().toString());
@@ -533,7 +536,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     @Nullable
     @Override
     public ItemStack getPickBlockStack() {
-        return asItem();
+        return asPrefabItem();
     }
 
     // making mobs drive automobiles
@@ -819,12 +822,28 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
     }
 
+    @Override
+    public void move(MovementType movementType, Vec3d movement) {
+        if (!this.world.isClient() && movementType == MovementType.PLAYER) {
+            AUtils.IGNORE_ENTITY_GROUND_CHECK_STEPPING = true;
+        }
+        super.move(movementType, movement);
+    }
+
+    @Override
+    public boolean handleFallDamage(float fallDistance, float damageMultiplier, DamageSource damageSource) {
+        return false; // Riders shouldn't take fall damage
+    }
+
     public void displacementTick(boolean tick) {
         if (this.world.isClient()) {
             this.displacement.preTick();
 
             if (tick) {
                 this.displacement.tick(this.world, this, this.getPos(), this.getYaw(), this.stepHeight);
+                if (world.getBlockState(this.getBlockPos()).getBlock() instanceof AutomobileAssemblerBlock) {
+                    this.displacement.verticalTarget = (-this.wheels.model().radius() / 16);
+                }
             }
         }
     }
@@ -1049,6 +1068,15 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
     }
 
+    private void dropParts(Vec3d pos) {
+        world.spawnEntity(new ItemEntity(world, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_FRAME.createStack(this.getFrame())));
+        world.spawnEntity(new ItemEntity(world, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_ENGINE.createStack(this.getEngine())));
+
+        var wheelStack = AutomobilityItems.AUTOMOBILE_WHEEL.createStack(this.getWheels());
+        wheelStack.setCount(this.getFrame().model().wheelBase().wheelCount);
+        world.spawnEntity(new ItemEntity(world, pos.x, pos.y, pos.z, wheelStack));
+    }
+
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
         if (player.isSneaking()) {
@@ -1074,7 +1102,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 this.setRearAttachment(RearAttachmentType.EMPTY);
                 return ActionResult.success(world.isClient);
             } else {
-                if (!player.isCreative()) world.spawnEntity(new ItemEntity(world, dropPos.x, dropPos.y, dropPos.z, asItem()));
+                if (!player.isCreative()) {
+                    this.dropParts(dropPos);
+                }
                 this.remove(RemovalReason.KILLED);
                 return ActionResult.success(world.isClient);
             }

@@ -19,9 +19,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class RearAttachmentItem extends Item implements AutomobileInteractable {
+public class RearAttachmentItem extends AutomobileComponentItem<RearAttachmentType<?>> implements AutomobileInteractable {
     public RearAttachmentItem(Settings settings) {
-        super(settings);
+        super(settings, "attachment", "attachment.rear", RearAttachmentType.REGISTRY);
     }
 
     @Override
@@ -31,41 +31,12 @@ public class RearAttachmentItem extends Item implements AutomobileInteractable {
                 return ActionResult.SUCCESS;
             }
 
-            automobile.setRearAttachment(getAttachment(stack));
+            automobile.setRearAttachment(getComponent(stack));
             if (!player.isCreative()) {
                 stack.decrement(1);
             }
         }
 
         return ActionResult.PASS;
-    }
-
-    public ItemStack createStack(RearAttachmentType<?> attachment) {
-        var stack = new ItemStack(this);
-        stack.getOrCreateNbt().putString("attachment", attachment.id().toString());
-        return stack;
-    }
-
-    public RearAttachmentType<?> getAttachment(ItemStack stack) {
-        if (stack.hasNbt() && stack.getNbt().contains("attachment")) {
-            return RearAttachmentType.REGISTRY.getOrDefault(Identifier.tryParse(stack.getNbt().getString("attachment")));
-        }
-        return RearAttachmentType.EMPTY;
-    }
-
-    @Override
-    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        super.appendTooltip(stack, world, tooltip, context);
-        var id = this.getAttachment(stack).getId();
-        tooltip.add(new TranslatableText("attachment.rear."+id.getNamespace()+"."+id.getPath()).formatted(Formatting.AQUA));
-    }
-
-    @Override
-    public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
-        if (this.isIn(group)) {
-            RearAttachmentType.REGISTRY.forEach(type -> {
-                if (!type.isEmpty()) stacks.add(this.createStack(type));
-            });
-        }
     }
 }

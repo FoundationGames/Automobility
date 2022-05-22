@@ -95,21 +95,10 @@ public class AutomobileItem extends Item {
 
     @Override
     public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
-        if (isIn(group) || group == ItemGroup.SEARCH || group == ItemGroup.TRANSPORTATION) {
+        if (isIn(group) || group == ItemGroup.TRANSPORTATION) {
             for (var prefab : PREFABS) {
                 stacks.add(prefab.toStack());
             }
-        }
-        if (group == ItemGroup.SEARCH) {
-            AutomobileFrame.REGISTRY.forEach(frame -> AutomobileEngine.REGISTRY.forEach(engine -> AutomobileWheel.REGISTRY.forEach(wheel -> {
-                if (frame == AutomobileFrame.DABABY || wheel == AutomobileWheel.CONVERTIBLE) return;
-                var stack = new ItemStack(AutomobilityItems.AUTOMOBILE);
-                var automobile = stack.getOrCreateSubNbt("Automobile");
-                automobile.putString("frame", frame.getId().toString());
-                automobile.putString("wheels", wheel.getId().toString());
-                automobile.putString("engine", engine.getId().toString());
-                stacks.add(stack);
-            })));
         }
     }
 }

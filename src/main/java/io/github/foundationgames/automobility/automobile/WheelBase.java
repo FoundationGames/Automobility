@@ -2,9 +2,11 @@ package io.github.foundationgames.automobility.automobile;
 
 public class WheelBase {
     public final WheelPos[] wheels;
+    public final int wheelCount;
 
     public WheelBase(WheelPos ... wheels) {
         this.wheels = wheels;
+        this.wheelCount = wheels.length;
     }
 
     public enum WheelSide {

@@ -2,6 +2,7 @@
   "entity.automobility.automobile": "Automobile",
 
   "itemGroup.automobility.automobility": "Automobility",
+  "itemGroup.automobility.automobility_course_elements": "Automobility: Course Elements",
   "itemGroup.automobility.automobility_prefabs": "Automobility: Prefabs",
 
   "automobility.automobility": "Automobility",
@@ -12,6 +13,9 @@
   "item.automobility.automobile": "Automobile",
   "item.automobility.crowbar": "Crowbar",
   "item.automobility.rear_attachment": "Rear Attachment",
+  "item.automobility.automobile_frame": "Automobile Frame",
+  "item.automobility.automobile_wheel": "Automobile Wheel",
+  "item.automobility.automobile_engine": "Automobile Engine",
 
   "tooltip.item.automobility.crowbar": "Use on Automobile to remove",
 
@@ -24,6 +28,7 @@
   "block.automobility.sloped_dash_panel": "Sloped Dash Panel",
   "block.automobility.steep_sloped_dash_panel": "Steep Sloped Dash Panel",
   "block.automobility.auto_mechanic_table": "Auto Mechanic Table",
+  "block.automobility.automobile_assembler": "Automobile Assembler",
 
   "block.automobility.slope": "Slope",
   "block.automobility.steep_slope": "Steep Slope",

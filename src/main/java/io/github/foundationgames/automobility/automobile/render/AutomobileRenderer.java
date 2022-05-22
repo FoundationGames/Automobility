@@ -54,13 +54,13 @@ public enum AutomobileRenderer {;
         matrices.translate(0, bounce + (automobile.engineRunning() ? (Math.cos((automobile.getWorldTime() + tickDelta) * 2.7) / 156) : 0), 0);
         var frameTexture = frame.model().texture();
         var engineTexture = engine.model().texture();
-        if (frameModel != null) frameModel.render(matrices, vertexConsumers.getBuffer(frameModel.getLayer(frameTexture)), light, overlay, 1, 1, 1, 1);
+        if (!frame.isEmpty() && frameModel != null) frameModel.render(matrices, vertexConsumers.getBuffer(frameModel.getLayer(frameTexture)), light, overlay, 1, 1, 1, 1);
 
         float eBack = frame.model().enginePosBack() / 16;
         float eUp = frame.model().enginePosUp() / 16;
         matrices.translate(0, -eUp, eBack);
         matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
-        if (engineModel != null) engineModel.render(matrices, vertexConsumers.getBuffer(engineModel.getLayer(engineTexture)), light, overlay, 1, 1, 1, 1);
+        if (!engine.isEmpty() && engineModel != null) engineModel.render(matrices, vertexConsumers.getBuffer(engineModel.getLayer(engineTexture)), light, overlay, 1, 1, 1, 1);
 
         VertexConsumer exhaustBuffer = null;
         Identifier[] exhaustTexes;
@@ -103,12 +103,18 @@ public enum AutomobileRenderer {;
         }
 
         // WHEELS ----------------------------------------
-        var wheelBuffer = vertexConsumers.getBuffer(wheelModel.getLayer(wheels.model().texture()));
-        float wheelAngle = automobile.getWheelAngle(tickDelta);
         var wPoses = frame.model().wheelBase().wheels;
 
-        if (wheelModel != null) {
+        if (!wheels.isEmpty()) {
+            var wheelBuffer = vertexConsumers.getBuffer(wheelModel.getLayer(wheels.model().texture()));
+            float wheelAngle = automobile.getWheelAngle(tickDelta);
+            int wheelCount = automobile.getWheelCount();
+
             for (var pos : wPoses) {
+                if (wheelCount <= 0) {
+                    break;
+                }
+
                 if (wheelModel instanceof WheelContextReceiver receiver) {
                     receiver.provideContext(pos);
                 }
@@ -128,6 +134,8 @@ public enum AutomobileRenderer {;
                 wheelModel.render(matrices, wheelBuffer, light, overlay, 1, 1, 1, 1);
 
                 matrices.pop();
+
+                wheelCount--;
             }
         }
 

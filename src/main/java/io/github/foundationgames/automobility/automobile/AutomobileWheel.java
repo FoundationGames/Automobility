@@ -17,9 +17,13 @@ public record AutomobileWheel(
         float grip,
         WheelModel model,
         Ability ... abilities
-) implements SimpleMapContentRegistry.Identifiable {
+) implements AutomobileComponent {
 
     public static final SimpleMapContentRegistry<AutomobileWheel> REGISTRY = new SimpleMapContentRegistry<>();
+
+    public static final AutomobileWheel EMPTY = REGISTRY.register(
+            new AutomobileWheel(Automobility.id("empty"), 0.01f, 0.01f, new WheelModel(1, 1, new Identifier("empty"), Automobility.id("empty")))
+    );
 
     public static final AutomobileWheel STANDARD = REGISTRY.register(
             new AutomobileWheel(Automobility.id("standard"), 0.6f, 0.5f, new WheelModel(3, 3, Automobility.id("textures/entity/automobile/wheel/standard.png"), Automobility.id("wheel_standard")))
@@ -49,6 +53,11 @@ public record AutomobileWheel(
 
     private static AutomobileWheel carriage(String name, float grip) {
         return new AutomobileWheel(Automobility.id(name), 1.05f, grip, new WheelModel(5, 2, Automobility.id("textures/entity/automobile/wheel/"+name+".png"), Automobility.id("wheel_carriage")));
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this == EMPTY;
     }
 
     @Override

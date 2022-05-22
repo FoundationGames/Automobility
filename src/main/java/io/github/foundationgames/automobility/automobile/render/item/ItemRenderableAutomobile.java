@@ -5,7 +5,6 @@ import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
-import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.util.EntityRenderHelper;
 import net.minecraft.client.model.Model;
@@ -22,6 +21,7 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     private final Map<Identifier, Model> frameModelCache = new HashMap<>();
     private final Map<Identifier, Model> wheelModelCache = new HashMap<>();
     private final Map<Identifier, Model> engineModelCache = new HashMap<>();
+    private Model emptyRearAttModel;
 
     public ItemRenderableAutomobile(AutomobileData reader) {
         this.reader = reader;
@@ -29,6 +29,7 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
             frameModelCache.clear();
             wheelModelCache.clear();
             engineModelCache.clear();
+            emptyRearAttModel = null;
         });
     }
 
@@ -72,7 +73,8 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
 
     @Override
     public @Nullable Model getRearAttachmentModel(EntityRendererFactory.Context ctx) {
-        return RearAttachmentType.EMPTY.model().model().apply(ctx);
+        if (emptyRearAttModel == null) emptyRearAttModel = RearAttachmentType.EMPTY.model().model().apply(ctx);
+        return emptyRearAttModel;
     }
 
     @Override

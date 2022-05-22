@@ -15,9 +15,22 @@ public record AutomobileFrame(
         Identifier id,
         float weight,
         FrameModel model
-) implements SimpleMapContentRegistry.Identifiable {
+) implements AutomobileComponent {
 
     public static final SimpleMapContentRegistry<AutomobileFrame> REGISTRY = new SimpleMapContentRegistry<>();
+
+    public static final AutomobileFrame EMPTY = REGISTRY.register(
+            new AutomobileFrame(
+                    Automobility.id("empty"),
+                    0.25f,
+                    new FrameModel(
+                            new Identifier("empty"),
+                            Automobility.id("empty"),
+                            WheelBase.basic(16, 16),
+                            16, 8, 8, 4, 8, 8
+                    )
+            )
+    );
 
     public static final AutomobileFrame WOODEN_MOTORCAR = REGISTRY.register(motorcar("wooden", 0.3f));
     public static final AutomobileFrame COPPER_MOTORCAR = REGISTRY.register(motorcar("copper", 0.4f));
@@ -176,6 +189,11 @@ public record AutomobileFrame(
                         19
                 )
         );
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this == EMPTY;
     }
 
     @Override

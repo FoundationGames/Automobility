@@ -5,6 +5,7 @@ import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobilePrefab;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
+import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.model.BakedModel;
@@ -32,6 +33,13 @@ public enum AUtils {;
      * all directions except UP and DOWN.
      */
     public static final Direction[] HORIZONTAL_DIRS = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
+
+    /**
+     * Flag to allow entities to step up blocks without being on the ground
+     * (necessary for automobiles, which update movement coarsely and might
+     * confuse the server moving quickly through holes)
+     */
+    public static boolean IGNORE_ENTITY_GROUND_CHECK_STEPPING = false;
 
     private static final Random RANDOM = new Random();
 
@@ -161,6 +169,10 @@ public enum AUtils {;
 
     public static ItemStack createGroupIcon() {
         return new ItemStack(AutomobilityItems.CROWBAR);
+    }
+
+    public static ItemStack createCourseElementsIcon() {
+        return new ItemStack(AutomobilityBlocks.SLOPED_DASH_PANEL);
     }
 
     public static ItemStack createPrefabsIcon() {

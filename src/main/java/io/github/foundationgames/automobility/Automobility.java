@@ -20,6 +20,7 @@ public class Automobility implements ModInitializer {
     public static final String MOD_ID = "automobility";
 
     public static final ItemGroup GROUP = FabricItemGroupBuilder.build(Automobility.id("automobility"), AUtils::createGroupIcon);
+    public static final ItemGroup COURSE_ELEMENTS = FabricItemGroupBuilder.build(Automobility.id("automobility_course_elements"), AUtils::createCourseElementsIcon);
     public static final ItemGroup PREFABS = FabricItemGroupBuilder.build(Automobility.id("automobility_prefabs"), AUtils::createPrefabsIcon);
 
     public static final TagKey<Block> SLOPES = TagKey.of(Registry.BLOCK_KEY, Automobility.id("slopes"));
@@ -29,8 +30,8 @@ public class Automobility implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        AutomobilityItems.init();
         AutomobilityBlocks.init();
+        AutomobilityItems.init();
         AutomobilityEntities.init();
         AutomobilityParticles.init();
         PayloadPackets.init();

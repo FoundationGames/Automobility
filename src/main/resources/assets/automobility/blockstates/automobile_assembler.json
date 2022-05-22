@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "automobility:block/automobile_assembler"
+    },
+    "facing=south": {
+      "model": "automobility:block/automobile_assembler",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "automobility:block/automobile_assembler",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "automobility:block/automobile_assembler",
+      "y": 270
+    }
+  }
+}

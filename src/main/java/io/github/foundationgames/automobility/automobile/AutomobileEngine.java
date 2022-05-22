@@ -16,9 +16,14 @@ public record AutomobileEngine(
         float torque,
         float speed,
         EngineModel model
-) implements SimpleMapContentRegistry.Identifiable {
-
+) implements AutomobileComponent {
     public static final SimpleMapContentRegistry<AutomobileEngine> REGISTRY = new SimpleMapContentRegistry<>();
+
+    public static final AutomobileEngine EMPTY = REGISTRY.register(
+            new AutomobileEngine(Automobility.id("empty"), 0.01f, 0.01f,
+                    new EngineModel(new Identifier("empty"), Automobility.id("empty"))
+            )
+    );
 
     public static final AutomobileEngine STONE = REGISTRY.register(
             new AutomobileEngine(Automobility.id("stone"), 0.3f, 0.58f,
@@ -78,6 +83,11 @@ public record AutomobileEngine(
                     )
             )
     );
+
+    @Override
+    public boolean isEmpty() {
+        return this == EMPTY;
+    }
 
     @Override
     public Identifier getId() {

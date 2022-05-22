@@ -17,7 +17,7 @@ public interface RenderableAutomobile {
 
     AutomobileWheel getWheels();
 
-    RearAttachmentType getRearAttachmentType();
+    RearAttachmentType<?> getRearAttachmentType();
 
     Model getFrameModel(EntityRendererFactory.Context ctx);
 
@@ -38,6 +38,10 @@ public interface RenderableAutomobile {
     float getSuspensionBounce(float tickDelta);
 
     boolean engineRunning();
+
+    default int getWheelCount() {
+        return this.getFrame().model().wheelBase().wheelCount;
+    }
 
     int getBoostTimer();
 

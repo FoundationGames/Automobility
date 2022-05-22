@@ -7,6 +7,7 @@ import io.github.foundationgames.automobility.automobile.render.AutomobileRender
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.RearAttachmentRenderModel;
 import io.github.foundationgames.automobility.automobile.render.item.ItemRenderableAutomobile;
 import io.github.foundationgames.automobility.util.EntityRenderHelper;
+import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -16,15 +17,18 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.item.Item;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public enum AutomobilityItems {;
     public static final Item CROWBAR = register("crowbar", new TooltipItem(new TranslatableText("tooltip.item.automobility.crowbar").formatted(Formatting.BLUE), new Item.Settings().maxCount(1).group(Automobility.GROUP)));
     public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Settings().maxCount(1).group(Automobility.PREFABS)));
+    public static final AutomobileFrameItem AUTOMOBILE_FRAME = register("automobile_frame", new AutomobileFrameItem(new Item.Settings().maxCount(16).group(Automobility.GROUP)));
+    public static final AutomobileWheelItem AUTOMOBILE_WHEEL = register("automobile_wheel", new AutomobileWheelItem(new Item.Settings().group(Automobility.GROUP)));
+    public static final AutomobileEngineItem AUTOMOBILE_ENGINE = register("automobile_engine", new AutomobileEngineItem(new Item.Settings().maxCount(16).group(Automobility.GROUP)));
     public static final RearAttachmentItem REAR_ATTACHMENT = register("rear_attachment", new RearAttachmentItem(new Item.Settings().maxCount(1).group(Automobility.GROUP)));
 
     public static void init() {
@@ -60,10 +64,11 @@ public enum AutomobilityItems {;
         );
     }
 
-    @Environment(EnvType.CLIENT)
-    private static EntityRendererFactory.Context cachedCtx;
-    @Environment(EnvType.CLIENT)
-    private static final Map<RearAttachmentType<?>, Model> rearAttModelPool = new HashMap<>();
+    @Environment(EnvType.CLIENT) private static EntityRendererFactory.Context cachedCtx;
+    @Environment(EnvType.CLIENT) private static final Map<AutomobileFrame, Model> frameModelPool = new HashMap<>();
+    @Environment(EnvType.CLIENT) private static final Map<AutomobileWheel, Model> wheelModelPool = new HashMap<>();
+    @Environment(EnvType.CLIENT) private static final Map<AutomobileEngine, Model> engineModelPool = new HashMap<>();
+    @Environment(EnvType.CLIENT) private static final Map<RearAttachmentType<?>, Model> rearAttModelPool = new HashMap<>();
 
     private static final AutomobileData reader = new AutomobileData();
 
@@ -81,25 +86,37 @@ public enum AutomobilityItems {;
                 float wheelDist = reader.getFrame().model().lengthPx() / 16;
                 float scale = 1;
                 scale /= wheelDist * 0.77f;
-                scale = Math.max(0, scale);
                 matrices.scale(scale, scale, scale);
                 AutomobileRenderer.render(matrices, vertexConsumers, light, overlay, MinecraftClient.getInstance().getTickDelta(), cachedCtx, itemAutomobile);
             }
         });
-        BuiltinItemRendererRegistry.INSTANCE.register(REAR_ATTACHMENT, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
-            var type = REAR_ATTACHMENT.getAttachment(stack);
-            if (!type.isEmpty()) {
-                if (!rearAttModelPool.containsKey(type)) {
-                    rearAttModelPool.put(type, type.model().model().apply(cachedCtx));
-                }
+        AUTOMOBILE_FRAME.registerItemRenderer(
+                pooledModelProvider(t -> t.model().model().apply(cachedCtx), frameModelPool),
+                t -> t.model().texture(), t -> 1 / ((t.model().lengthPx() / 16) * 0.77f)
+        );
+        AUTOMOBILE_WHEEL.registerItemRenderer(
+                pooledModelProvider(t -> t.model().model().apply(cachedCtx), wheelModelPool),
+                t -> t.model().texture(), t -> 6 / t.model().radius()
+        );
+        AUTOMOBILE_ENGINE.registerItemRenderer(
+                pooledModelProvider(t -> t.model().model().apply(cachedCtx), engineModelPool),
+                t -> t.model().texture(), t -> 1
+        );
+        REAR_ATTACHMENT.registerItemRenderer(
+                pooledModelProvider(t -> t.model().model().apply(cachedCtx), rearAttModelPool),
+                t -> t.model().texture(), t -> 1
+        );
+    }
 
-                var model = rearAttModelPool.get(type);
-                if (rearAttModelPool.get(type) instanceof RearAttachmentRenderModel attModel) attModel.resetModel();
-                matrices.translate(0.5, 0, 0.5);
-                matrices.scale(1, -1, -1);
-                model.render(matrices, vertexConsumers.getBuffer(model.getLayer(type.model().texture())), light, overlay, 1, 1, 1, 1);
+    private static <T extends SimpleMapContentRegistry.Identifiable> Function<T, Model> pooledModelProvider(Function<T, Model> provider, Map<T, Model> pool) {
+        return t -> {
+            if (!pool.containsKey(t)) {
+                var model = provider.apply(t);
+                pool.put(t, model);
+                return model;
             }
-        });
+            return pool.get(t);
+        };
     }
 
     public static <T extends Item> T register(String name, T item) {
