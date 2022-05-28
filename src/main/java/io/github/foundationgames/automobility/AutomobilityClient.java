@@ -46,6 +46,6 @@ public class AutomobilityClient implements ClientModInitializer {
 
         BlockRenderLayerMap.INSTANCE.putBlock(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER, RenderLayer.getCutout());
 
-        BlockEntityRendererRegistry.register(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER_ENTITY, ctx -> new AutomobileAssemblerBlockEntityRenderer());
+        BlockEntityRendererRegistry.register(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER_ENTITY, AutomobileAssemblerBlockEntityRenderer::new);
     }
 }

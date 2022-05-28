@@ -1,5 +1,6 @@
 package io.github.foundationgames.automobility.automobile.render.attachment.rear;
 
+import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.BaseModel;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
@@ -25,13 +26,13 @@ public class RearAttachmentRenderModel extends BaseModel {
         this.wheels = wheels;
     }
 
-    public void setWheelAngle(float angle) {
+    public void setRenderState(@Nullable RearAttachment attachment, float wheelAngle, float tickDelta) {
         if (this.wheels != null) {
-            this.wheels.setAngles(angle, 0, 0);
+            this.wheels.setAngles(wheelAngle, 0, 0);
         }
     }
 
     public void resetModel() {
-        this.setWheelAngle(0);
+        this.setRenderState(null, 0, 0);
     }
 }

@@ -17,7 +17,14 @@ public interface RenderableAutomobile {
 
     AutomobileWheel getWheels();
 
-    RearAttachmentType<?> getRearAttachmentType();
+    @Nullable RearAttachment getRearAttachment();
+
+    default RearAttachmentType<?> getRearAttachmentType() {
+        if (this.getRearAttachment() == null) {
+            return RearAttachmentType.EMPTY;
+        }
+        return this.getRearAttachment().type;
+    }
 
     Model getFrameModel(EntityRendererFactory.Context ctx);
 
@@ -47,7 +54,7 @@ public interface RenderableAutomobile {
 
     int getDriftTimer();
 
-    long getWorldTime();
+    long getTime();
 
     boolean automobileOnGround();
 

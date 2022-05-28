@@ -5,6 +5,7 @@ import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
+import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.util.EntityRenderHelper;
 import net.minecraft.client.model.Model;
@@ -49,8 +50,8 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     }
 
     @Override
-    public @Nullable RearAttachmentType<?> getRearAttachmentType() {
-        return RearAttachmentType.EMPTY;
+    public @Nullable RearAttachment getRearAttachment() {
+        return null;
     }
 
     @Override
@@ -118,7 +119,7 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     }
 
     @Override
-    public long getWorldTime() {
+    public long getTime() {
         return 0;
     }
 

@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.automobile.attachment;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.AutomobileComponent;
+import io.github.foundationgames.automobility.automobile.DisplayStat;
 import io.github.foundationgames.automobility.automobile.attachment.rear.BaseChestRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.EmptyRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.PassengerSeatRearAttachment;
@@ -17,11 +18,13 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.util.Identifier;
 
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public record RearAttachmentType<T extends RearAttachment>(
         Identifier id, BiFunction<RearAttachmentType<T>, AutomobileEntity, T> constructor, RearAttachmentModel model
-) implements AutomobileComponent {
+) implements AutomobileComponent<RearAttachmentType<?>> {
+    public static final Identifier ID = Automobility.id("rear_attachment");
     public static final SimpleMapContentRegistry<RearAttachmentType<?>> REGISTRY = new SimpleMapContentRegistry<>();
 
     public static final RearAttachmentType<EmptyRearAttachment> EMPTY = register(new RearAttachmentType<>(
@@ -46,6 +49,15 @@ public record RearAttachmentType<T extends RearAttachment>(
     @Override
     public boolean isEmpty() {
         return this == EMPTY;
+    }
+
+    @Override
+    public Identifier containerId() {
+        return ID;
+    }
+
+    @Override
+    public void forEachStat(Consumer<DisplayStat<RearAttachmentType<?>>> action) {
     }
 
     @Override

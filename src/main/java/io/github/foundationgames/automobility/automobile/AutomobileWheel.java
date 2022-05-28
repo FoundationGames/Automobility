@@ -9,6 +9,7 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.util.Identifier;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public record AutomobileWheel(
@@ -17,8 +18,8 @@ public record AutomobileWheel(
         float grip,
         WheelModel model,
         Ability ... abilities
-) implements AutomobileComponent {
-
+) implements AutomobileComponent<AutomobileWheel> {
+    public static final Identifier ID = Automobility.id("wheel");
     public static final SimpleMapContentRegistry<AutomobileWheel> REGISTRY = new SimpleMapContentRegistry<>();
 
     public static final AutomobileWheel EMPTY = REGISTRY.register(
@@ -55,9 +56,23 @@ public record AutomobileWheel(
         return new AutomobileWheel(Automobility.id(name), 1.05f, grip, new WheelModel(5, 2, Automobility.id("textures/entity/automobile/wheel/"+name+".png"), Automobility.id("wheel_carriage")));
     }
 
+    public static final DisplayStat<AutomobileWheel> STAT_SIZE = new DisplayStat<>("size", AutomobileWheel::size);
+    public static final DisplayStat<AutomobileWheel> STAT_GRIP = new DisplayStat<>("grip", AutomobileWheel::grip);
+
     @Override
     public boolean isEmpty() {
         return this == EMPTY;
+    }
+
+    @Override
+    public Identifier containerId() {
+        return ID;
+    }
+
+    @Override
+    public void forEachStat(Consumer<DisplayStat<AutomobileWheel>> action) {
+        action.accept(STAT_SIZE);
+        action.accept(STAT_GRIP);
     }
 
     @Override

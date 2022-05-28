@@ -12,7 +12,6 @@ import io.github.foundationgames.automobility.automobile.attachment.rear.RearAtt
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.automobile.screen.handler.AutomobileScreenHandlerContext;
 import io.github.foundationgames.automobility.block.AutomobileAssemblerBlock;
-import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.block.OffRoadBlock;
 import io.github.foundationgames.automobility.item.AutomobileInteractable;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
@@ -71,6 +70,7 @@ import java.util.function.Consumer;
 
 public class AutomobileEntity extends Entity implements RenderableAutomobile, EntityWithInventory {
     private static final TrackedData<Float> REAR_ATTACHMENT_YAW = DataTracker.registerData(AutomobileEntity.class, TrackedDataHandlerRegistry.FLOAT);
+    private static final TrackedData<Float> REAR_ATTACHMENT_ANIMATION = DataTracker.registerData(AutomobileEntity.class, TrackedDataHandlerRegistry.FLOAT);
 
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
     private AutomobileWheel wheels = AutomobileWheel.REGISTRY.getOrDefault(null);
@@ -92,6 +92,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     public static final int DRIFT_TURBO_TIME = 70;
     public static final int DRIFT_SUPER_TURBO_TIME = 115;
     public static final float TERMINAL_VELOCITY = -1.2f;
+
+    private long clientTime;
 
     private double trackedX;
     private double trackedY;
@@ -152,6 +154,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     private int fallTicks = 0;
 
+    private int despawnTime = -1;
+    private int despawnCountdown = 0;
+    private boolean decorative = false;
+
     public void writeSyncToClientData(PacketByteBuf buf) {
         buf.writeInt(boostTimer);
         buf.writeFloat(steering);
@@ -203,6 +209,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         steeringRight = nbt.getBoolean("steeringRight");
         holdingDrift = nbt.getBoolean("holdingDrift");
         fallTicks = nbt.getInt("fallTicks");
+        despawnTime = nbt.getInt("despawnTime");
+        despawnCountdown = nbt.getInt("despawnCountdown");
+        decorative = nbt.getBoolean("decorative");
         //displacement.fromNbt(nbt.getCompound("displacement"));
 
         updateModels = true;
@@ -234,6 +243,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         nbt.putBoolean("steeringRight", steeringRight);
         nbt.putBoolean("holdingDrift", holdingDrift);
         nbt.putInt("fallTicks", fallTicks);
+        nbt.putInt("despawnTime", despawnTime);
+        nbt.putInt("despawnCountdown", despawnCountdown);
+        nbt.putBoolean("decorative", decorative);
         //nbt.put("displacement", displacement.toNbt(new NbtCompound()));
     }
 
@@ -302,10 +314,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     @Override
-    public RearAttachmentType<?> getRearAttachmentType() {
-        return rearAttachment.type;
-    }
-
     public RearAttachment getRearAttachment() {
         return rearAttachment;
     }
@@ -340,8 +348,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     @Override
-    public long getWorldTime() {
-        return world.getTime();
+    public long getTime() {
+        return this.clientTime;
     }
 
     public float getHSpeed() {
@@ -439,6 +447,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     public void tick() {
         boolean first = this.firstUpdate;
 
+        if (world.isClient()) {
+            clientTime++;
+        }
+
         if (!this.hasPassengers()) {
             accelerating = false;
             braking = false;
@@ -474,7 +486,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 syncData();
                 dirty = false;
             }
-            if (this.hasSpaceForPassengers()) {
+            if (this.hasSpaceForPassengers() && !decorative) {
                 var touchingEntities = this.world.getOtherEntities(this, this.getBoundingBox().expand(0.2, 0, 0.2), EntityPredicates.canBePushedBy(this));
                 for (Entity entity : touchingEntities) {
                     if (!entity.hasPassenger(this)) {
@@ -484,8 +496,18 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                     }
                 }
             }
-            if (this.hasPassengers() && this.getFirstPassenger() instanceof MobEntity mob) {
-                provideMobDriverInputs(mob);
+            if (this.hasPassengers()) {
+                if (this.getFirstPassenger() instanceof MobEntity mob) {
+                    provideMobDriverInputs(mob);
+                }
+
+                this.despawnCountdown = 0;
+            } else if (this.despawnTime > 0) {
+                this.despawnCountdown++;
+
+                if (this.despawnCountdown >= this.despawnTime) {
+                    this.destroyAutomobile(false, RemovalReason.DISCARDED);
+                }
             }
         }
 
@@ -841,9 +863,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
             if (tick) {
                 this.displacement.tick(this.world, this, this.getPos(), this.getYaw(), this.stepHeight);
-                if (world.getBlockState(this.getBlockPos()).getBlock() instanceof AutomobileAssemblerBlock) {
-                    this.displacement.verticalTarget = (-this.wheels.model().radius() / 16);
-                }
+            }
+
+            if (world.getBlockState(this.getBlockPos()).getBlock() instanceof AutomobileAssemblerBlock) {
+                this.displacement.verticalTarget = (-this.wheels.model().radius() / 16);
             }
         }
     }
@@ -1077,6 +1100,25 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         world.spawnEntity(new ItemEntity(world, pos.x, pos.y, pos.z, wheelStack));
     }
 
+    public void destroyRearAttachment(boolean drop) {
+        if (drop) {
+            var dropPos = this.rearAttachment.pos();
+            world.spawnEntity(new ItemEntity(world, dropPos.x, dropPos.y, dropPos.z,
+                    AutomobilityItems.REAR_ATTACHMENT.createStack(this.getRearAttachmentType())));
+        }
+        this.setRearAttachment(RearAttachmentType.EMPTY);
+    }
+
+    public void destroyAutomobile(boolean drop, RemovalReason reason) {
+        if (!this.rearAttachment.type.isEmpty()) {
+            this.destroyRearAttachment(drop);
+        }
+        if (drop) {
+            this.dropParts(this.getPos().add(0, 0.3, 0));
+        }
+        this.remove(reason);
+    }
+
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
         if (player.isSneaking()) {
@@ -1091,39 +1133,37 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
 
         var stack = player.getStackInHand(hand);
-        if (stack.isOf(AutomobilityItems.CROWBAR)) {
-            var dropPos = getPos().add(0, 0.3, 0);
+        if ((!this.decorative || player.isCreative()) && stack.isOf(AutomobilityItems.CROWBAR)) {
             if (!this.rearAttachment.type.isEmpty()) {
-                dropPos = dropPos.add(0, 0.3, 0);
-                if (!player.isCreative()) {
-                    world.spawnEntity(new ItemEntity(world, dropPos.x, dropPos.y, dropPos.z,
-                            AutomobilityItems.REAR_ATTACHMENT.createStack(this.getRearAttachmentType())));
-                }
-                this.setRearAttachment(RearAttachmentType.EMPTY);
+                this.destroyRearAttachment(!player.isCreative());
                 return ActionResult.success(world.isClient);
             } else {
-                if (!player.isCreative()) {
-                    this.dropParts(dropPos);
-                }
-                this.remove(RemovalReason.KILLED);
+                this.destroyAutomobile(!player.isCreative(), RemovalReason.KILLED);
                 return ActionResult.success(world.isClient);
             }
         }
 
-        if (stack.getItem() instanceof AutomobileInteractable interactable) {
-            return interactable.interactAutomobile(stack, player, hand, this);
+        if (!decorative) {
+            if (stack.getItem() instanceof AutomobileInteractable interactable) {
+                return interactable.interactAutomobile(stack, player, hand, this);
+            }
+
+            if (!this.hasSpaceForPassengers()) {
+                if (!(this.getFirstPassenger() instanceof PlayerEntity)) {
+                    if (!world.isClient()) {
+                        this.getFirstPassenger().stopRiding();
+                    }
+                    return ActionResult.success(world.isClient);
+                }
+                return ActionResult.PASS;
+            }
+            if (!world.isClient()) {
+                player.startRiding(this);
+            }
+            return ActionResult.success(world.isClient());
         }
 
-        if (!this.hasSpaceForPassengers()) {
-            if (!(this.getFirstPassenger() instanceof PlayerEntity)) {
-                if (!world.isClient()) {
-                    this.getFirstPassenger().stopRiding();
-                }
-                return ActionResult.success(world.isClient);
-            }
-            return ActionResult.PASS;
-        }
-        return ActionResult.success(player.startRiding(this));
+        return ActionResult.PASS;
     }
 
     @Override
@@ -1175,6 +1215,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     @Override
     protected void initDataTracker() {
         this.dataTracker.startTracking(REAR_ATTACHMENT_YAW, 0f);
+        this.dataTracker.startTracking(REAR_ATTACHMENT_ANIMATION, 0f);
     }
 
     @Override
@@ -1183,6 +1224,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
         if (REAR_ATTACHMENT_YAW.equals(data)) {
             this.rearAttachment.onTrackedYawUpdated(getTrackedRearAttachmentYaw());
+        } else if (REAR_ATTACHMENT_ANIMATION.equals(data)) {
+            this.rearAttachment.onTrackedAnimationUpdated(getTrackedRearAttachmentAnimation());
         }
     }
 
@@ -1197,6 +1240,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     public float getTrackedRearAttachmentYaw() {
         return this.dataTracker.get(REAR_ATTACHMENT_YAW);
+    }
+
+    public void setTrackedRearAttachmentAnimation(float animation) {
+        this.dataTracker.set(REAR_ATTACHMENT_ANIMATION, animation);
+    }
+
+    public float getTrackedRearAttachmentAnimation() {
+        return this.dataTracker.get(REAR_ATTACHMENT_ANIMATION);
     }
 
     public static final class Displacement {

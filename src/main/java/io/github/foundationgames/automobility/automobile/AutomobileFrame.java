@@ -9,14 +9,15 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.util.Identifier;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public record AutomobileFrame(
         Identifier id,
         float weight,
         FrameModel model
-) implements AutomobileComponent {
-
+) implements AutomobileComponent<AutomobileFrame> {
+    public static final Identifier ID = Automobility.id("frame");
     public static final SimpleMapContentRegistry<AutomobileFrame> REGISTRY = new SimpleMapContentRegistry<>();
 
     public static final AutomobileFrame EMPTY = REGISTRY.register(
@@ -67,7 +68,7 @@ public record AutomobileFrame(
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/shopping_cart.png"),
                             Automobility.id("frame_shopping_cart"),
-                            WheelBase.basic(17, 12),
+                            WheelBase.basic(17.05f, 12),
                             25,
                             11,
                             7,
@@ -191,9 +192,21 @@ public record AutomobileFrame(
         );
     }
 
+    public static final DisplayStat<AutomobileFrame> STAT_WEIGHT = new DisplayStat<>("weight", AutomobileFrame::weight);
+
     @Override
     public boolean isEmpty() {
         return this == EMPTY;
+    }
+
+    @Override
+    public Identifier containerId() {
+        return ID;
+    }
+
+    @Override
+    public void forEachStat(Consumer<DisplayStat<AutomobileFrame>> action) {
+        action.accept(STAT_WEIGHT);
     }
 
     @Override

@@ -8,6 +8,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.ChestLidAnimator;
 import net.minecraft.block.entity.ViewerCountManager;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.GenericContainerScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandlerContext;
@@ -27,12 +28,12 @@ public class BaseChestRearAttachment extends BlockRearAttachment {
     public static final Text TITLE_CHEST = new TranslatableText("container.chest");
     public static final Text TITLE_ENDER_CHEST = new TranslatableText("container.enderchest");
 
-    private final ViewerCountManager stateManager;
-    private final ChestLidAnimator lidAnimator;
+    private final ViewerCountManager viewerManager;
+    public final ChestLidAnimator lidAnimator;
 
     public BaseChestRearAttachment(RearAttachmentType<?> type, AutomobileEntity entity, BlockState block, @Nullable BiFunction<ScreenHandlerContext, BlockRearAttachment, NamedScreenHandlerFactory> screenProvider) {
         super(type, entity, block, screenProvider);
-        this.stateManager = new ViewerCountManager() {
+        this.viewerManager = new ViewerCountManager() {
             protected void onContainerOpen(World world, BlockPos pos, BlockState state) {
                 sound(world, pos, BaseChestRearAttachment.this.getOpenSound());
             }
@@ -41,7 +42,11 @@ public class BaseChestRearAttachment extends BlockRearAttachment {
                 sound(world, pos, BaseChestRearAttachment.this.getCloseSound());
             }
 
-            protected void onViewerCountUpdate(World world, BlockPos pos, BlockState state, int oldViewerCount, int newViewerCount) {}
+            protected void onViewerCountUpdate(World world, BlockPos pos, BlockState state, int oldViewerCount, int newViewerCount) {
+                if (!world.isClient()) {
+                    BaseChestRearAttachment.this.updateTrackedAnimation(newViewerCount);
+                }
+            }
 
             protected boolean isPlayerViewing(PlayerEntity player) {
                 if (!(player.currentScreenHandler instanceof GenericContainerScreenHandler)) {
@@ -57,13 +62,29 @@ public class BaseChestRearAttachment extends BlockRearAttachment {
 
     public void open(PlayerEntity player) {
         if (!player.isSpectator()) {
-            this.stateManager.openContainer(player, this.world(), this.automobile.getBlockPos(), Blocks.AIR.getDefaultState());
+            this.viewerManager.openContainer(player, this.world(), this.automobile.getBlockPos(), Blocks.AIR.getDefaultState());
         }
     }
 
     public void close(PlayerEntity player) {
         if (!player.isSpectator()) {
-            this.stateManager.closeContainer(player, this.world(), this.automobile.getBlockPos(), Blocks.AIR.getDefaultState());
+            this.viewerManager.closeContainer(player, this.world(), this.automobile.getBlockPos(), Blocks.AIR.getDefaultState());
+        }
+    }
+
+    @Override
+    public void onTrackedAnimationUpdated(float animation) {
+        super.onTrackedAnimationUpdated(animation);
+
+        this.lidAnimator.setOpen(animation > 0);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (world().isClient()) {
+            this.lidAnimator.step();
         }
     }
 

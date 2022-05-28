@@ -2,7 +2,9 @@ package io.github.foundationgames.automobility.automobile.attachment.rear;
 
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.util.Identifier;
@@ -18,8 +20,10 @@ public abstract class RearAttachment {
     private float lastYaw;
     private float yaw;
 
+    private float animation;
+
     private float trackedYaw;
-    private int lerpTicks;
+    private int yawLerpProgress;
 
     protected RearAttachment(RearAttachmentType<?> type, AutomobileEntity entity) {
         this.type = type;
@@ -28,10 +32,6 @@ public abstract class RearAttachment {
 
     protected final World world() {
         return this.automobile.world;
-    }
-
-    protected final boolean isControllingSide() {
-        return !world().isClient();
     }
 
     public final Vec3d yawVec() {
@@ -73,7 +73,23 @@ public abstract class RearAttachment {
     public void onTrackedYawUpdated(float yaw) {
         this.trackedYaw = yaw;
 
-        this.lerpTicks = this.automobile.getType().getTrackTickInterval() + 1;
+        this.yawLerpProgress = this.automobile.getType().getTrackTickInterval() + 1;
+    }
+
+    public float animation() {
+        return animation;
+    }
+
+    public void setAnimation(float animation) {
+        this.animation = animation;
+    }
+
+    protected final void updateTrackedAnimation(float animation) {
+        this.automobile.setTrackedRearAttachmentAnimation(animation);
+    }
+
+    public void onTrackedAnimationUpdated(float animation) {
+        this.setAnimation(animation);
     }
 
     public final void pull(Vec3d movement) {
@@ -88,13 +104,13 @@ public abstract class RearAttachment {
     }
 
     private void rotationTrackingTick() {
-        if (this.isControllingSide()) {
-            this.lerpTicks = 0;
+        if (!world().isClient()) {
+            this.yawLerpProgress = 0;
             updateTrackedYaw(yaw());
-        } else if (lerpTicks > 0) {
-            this.setYaw(this.yaw() + (MathHelper.wrapDegrees(this.trackedYaw - this.yaw()) / (float)this.lerpTicks));
+        } else if (yawLerpProgress > 0) {
+            this.setYaw(this.yaw() + (MathHelper.wrapDegrees(this.trackedYaw - this.yaw()) / (float)this.yawLerpProgress));
 
-            this.lerpTicks--;
+            this.yawLerpProgress--;
         }
     }
 

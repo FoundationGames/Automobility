@@ -2,8 +2,10 @@ package io.github.foundationgames.automobility.block.entity;
 
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
+import io.github.foundationgames.automobility.automobile.AutomobileStats;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
+import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.block.AutomobileAssemblerBlock;
 import io.github.foundationgames.automobility.block.AutomobilityBlocks;
@@ -31,13 +33,18 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
+import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AutomobileAssemblerBlockEntity extends BlockEntity implements RenderableAutomobile {
     @Environment(EnvType.CLIENT) private Model frameModel = null;
@@ -50,6 +57,9 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     protected AutomobileEngine engine = AutomobileEngine.EMPTY;
     protected AutomobileWheel wheel = AutomobileWheel.EMPTY;
     protected int wheelCount = 0;
+
+    public final List<Text> label = new ArrayList<>();
+    protected final AutomobileStats stats = new AutomobileStats();
 
     public AutomobileAssemblerBlockEntity(BlockPos pos, BlockState state) {
         super(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER_ENTITY, pos, state);
@@ -71,8 +81,8 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     }
 
     @Override
-    public RearAttachmentType<?> getRearAttachmentType() {
-        return RearAttachmentType.EMPTY;
+    public @Nullable RearAttachment getRearAttachment() {
+        return null;
     }
 
     @Override
@@ -99,6 +109,12 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
         return this.emptyRearAttModel;
     }
 
+    private void partChanged() {
+        this.sync();
+        this.markDirty();
+        this.world.emitGameEvent(GameEvent.BLOCK_CHANGE, this.getPos());
+    }
+
     protected ActionResult handleItemInteract(PlayerEntity player, ItemStack stack) {
         // Returns success on the server since the client is never 100% confident that the action was valid
         // Subsequent handling is performed with the action result
@@ -106,7 +122,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
         if (stack.isOf(AutomobilityItems.CROWBAR)) {
             if (!world.isClient()) {
                 this.dropParts();
-                sync();
+                this.partChanged();
                 return ActionResult.SUCCESS;
             }
             return ActionResult.PASS;
@@ -117,7 +133,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
                 if (!player.isCreative()) {
                     stack.decrement(1);
                 }
-                sync();
+                this.partChanged();
                 return ActionResult.SUCCESS;
             }
             return ActionResult.PASS;
@@ -129,7 +145,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
                     if (!player.isCreative()) {
                         stack.decrement(1);
                     }
-                    sync();
+                    this.partChanged();
                     return ActionResult.SUCCESS;
                 }
                 return ActionResult.PASS;
@@ -146,7 +162,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
                         if (!player.isCreative()) {
                             stack.decrement(1);
                         }
-                        sync();
+                        this.partChanged();
                         return ActionResult.SUCCESS;
                     }
                 } else {
@@ -221,8 +237,20 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
         this.wheelCount = 0;
     }
 
-    private void markComponentsUpdated() {
+    private boolean hasAllParts() {
+        return !this.frame.isEmpty() && !this.wheel.isEmpty() && !this.engine.isEmpty();
+    }
+
+    private void onComponentsUpdated() {
         this.componentsUpdated = true;
+
+        if (world == null || world.isClient()) {
+            this.label.clear();
+            if (this.hasAllParts()) {
+                this.stats.from(this.frame, this.wheel, this.engine);
+                this.stats.appendTexts(this.label, this.stats);
+            }
+        }
     }
 
     private void sync() {
@@ -242,7 +270,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
         this.wheel = AutomobileWheel.REGISTRY.getOrDefault(Identifier.tryParse(wheelNbt.getString("type")));
         this.wheelCount = wheelNbt.getInt("count");
 
-        markComponentsUpdated();
+        onComponentsUpdated();
     }
 
     @Override
@@ -294,7 +322,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
 
     @Override
     public float getWheelAngle(float tickDelta) {
-        return 0;
+        return this.powered() ? (this.getTime() + tickDelta) * 36 : 0;
     }
 
     @Override
@@ -323,7 +351,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     }
 
     @Override
-    public long getWorldTime() {
+    public long getTime() {
         return this.world.getTime();
     }
 

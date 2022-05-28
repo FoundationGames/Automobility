@@ -4,7 +4,6 @@ import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.*;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.automobile.render.AutomobileRenderer;
-import io.github.foundationgames.automobility.automobile.render.attachment.rear.RearAttachmentRenderModel;
 import io.github.foundationgames.automobility.automobile.render.item.ItemRenderableAutomobile;
 import io.github.foundationgames.automobility.util.EntityRenderHelper;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;

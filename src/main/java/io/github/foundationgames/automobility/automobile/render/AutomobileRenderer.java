@@ -1,8 +1,6 @@
 package io.github.foundationgames.automobility.automobile.render;
 
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
-import io.github.foundationgames.automobility.automobile.AutomobileFrame;
-import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.WheelBase;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.RearAttachmentRenderModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.WheelContextReceiver;
@@ -51,7 +49,7 @@ public enum AutomobileRenderer {;
         // Frame, engine, exhaust
         matrices.push();
 
-        matrices.translate(0, bounce + (automobile.engineRunning() ? (Math.cos((automobile.getWorldTime() + tickDelta) * 2.7) / 156) : 0), 0);
+        matrices.translate(0, bounce + (automobile.engineRunning() ? (Math.cos((automobile.getTime() + tickDelta) * 2.7) / 156) : 0), 0);
         var frameTexture = frame.model().texture();
         var engineTexture = engine.model().texture();
         if (!frame.isEmpty() && frameModel != null) frameModel.render(matrices, vertexConsumers.getBuffer(frameModel.getLayer(frameTexture)), light, overlay, 1, 1, 1, 1);
@@ -66,11 +64,11 @@ public enum AutomobileRenderer {;
         Identifier[] exhaustTexes;
         if (automobile.getBoostTimer() > 0) {
             exhaustTexes = ExhaustFumesModel.FLAME_TEXTURES;
-            int index = (int)(automobile.getWorldTime() % exhaustTexes.length);
+            int index = (int)(automobile.getTime() % exhaustTexes.length);
             exhaustBuffer = vertexConsumers.getBuffer(RenderLayer.getEyes(exhaustTexes[index]));
         } else if (automobile.engineRunning()) {
             exhaustTexes = ExhaustFumesModel.SMOKE_TEXTURES;
-            int index = (int)Math.floor(((automobile.getWorldTime() + tickDelta) / 1.5f) % exhaustTexes.length);
+            int index = (int)Math.floor(((automobile.getTime() + tickDelta) / 1.5f) % exhaustTexes.length);
             exhaustBuffer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(exhaustTexes[index]));
         }
         if (exhaustBuffer != null) {
@@ -96,7 +94,7 @@ public enum AutomobileRenderer {;
 
             matrices.translate(0, 0, rearAtt.model().pivotDistPx() / 16);
             if (rearAttachmentModel instanceof RearAttachmentRenderModel rm) {
-                rm.setWheelAngle((float) Math.toRadians(automobile.getWheelAngle(tickDelta)));
+                rm.setRenderState(automobile.getRearAttachment(), (float) Math.toRadians(automobile.getWheelAngle(tickDelta)), tickDelta);
             }
             rearAttachmentModel.render(matrices, vertexConsumers.getBuffer(rearAttachmentModel.getLayer(rearAtt.model().texture())), light, overlay, 1, 1, 1, 1);
             matrices.pop();
@@ -158,7 +156,7 @@ public enum AutomobileRenderer {;
                 b = c.getZ() * 0.85f;
                 bright = false;
             }
-            int index = (int)Math.floor(((automobile.getWorldTime() + tickDelta) / 1.5f) % skidTexes.length);
+            int index = (int)Math.floor(((automobile.getTime() + tickDelta) / 1.5f) % skidTexes.length);
             var skidEffectBuffer = vertexConsumers.getBuffer(bright ? RenderLayer.getEyes(skidTexes[index]) : RenderLayer.getEntitySmoothCutout(skidTexes[index]));
 
             for (var pos : wPoses) {

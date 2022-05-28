@@ -10,6 +10,6 @@ public class ShoppingCartFrameModel extends BaseModel {
     public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile/frame/shopping_cart"), "main");
 
     public ShoppingCartFrameModel(EntityRendererFactory.Context ctx) {
-        super(RenderLayer::getEntityCutout, ctx, MODEL_LAYER);
+        super(RenderLayer::getEntityCutoutNoCull, ctx, MODEL_LAYER);
     }
 }

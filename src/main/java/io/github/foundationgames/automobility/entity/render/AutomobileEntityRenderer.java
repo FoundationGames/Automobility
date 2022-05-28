@@ -33,6 +33,7 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
 
         matrices.translate(0, offsetY, 0);
         matrices.multiply(Quaternion.fromEulerXyz((float) Math.toRadians(angX), 0, (float) Math.toRadians(angZ)));
+
         AutomobileRenderer.render(matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, tickDelta, ctx, entity);
         matrices.pop();
     }

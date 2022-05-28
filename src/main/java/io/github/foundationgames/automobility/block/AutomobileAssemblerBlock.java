@@ -62,7 +62,7 @@ public class AutomobileAssemblerBlock extends HorizontalFacingBlock implements B
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         super.onStateReplaced(state, world, pos, newState, moved);
 
-        if (!world.isClient() && !newState.isOf(this) && world.getBlockEntity(pos) instanceof AutomobileAssemblerBlockEntity assembler) {
+        if (!newState.isOf(this) && world.getBlockEntity(pos) instanceof AutomobileAssemblerBlockEntity assembler) {
             assembler.dropParts();
         }
     }

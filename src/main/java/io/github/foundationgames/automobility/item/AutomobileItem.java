@@ -54,22 +54,7 @@ public class AutomobileItem extends Item {
         data.read(stack.getOrCreateSubNbt("Automobile"));
         if (Screen.hasShiftDown()) {
             stats.from(data.getFrame(), data.getWheel(), data.getEngine());
-            tooltip.add(
-                    new TranslatableText("tooltip.automobility.accelerationLabel").formatted(Formatting.AQUA)
-                            .append(new LiteralText(AUtils.DEC_TWO_PLACES.format(stats.getAcceleration())).formatted(Formatting.GREEN))
-            );
-            tooltip.add(
-                    new TranslatableText("tooltip.automobility.comfortableSpeedLabel").formatted(Formatting.AQUA)
-                            .append(new LiteralText(AUtils.DEC_TWO_PLACES.format((stats.getComfortableSpeed() * 20))+" m/s").formatted(Formatting.GREEN))
-            );
-            tooltip.add(
-                    new TranslatableText("tooltip.automobility.handlingLabel").formatted(Formatting.AQUA)
-                            .append(new LiteralText(AUtils.DEC_TWO_PLACES.format(stats.getHandling())).formatted(Formatting.GREEN))
-            );
-            tooltip.add(
-                    new TranslatableText("tooltip.automobility.gripLabel").formatted(Formatting.AQUA)
-                            .append(new LiteralText(AUtils.DEC_TWO_PLACES.format(stats.getGrip())).formatted(Formatting.GREEN))
-            );
+            stats.appendTexts(tooltip, stats);
         } else {
             if (!data.isPrefab()) {
                 tooltip.add(

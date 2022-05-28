@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Function;
 
-public class AutomobileComponentItem<T extends AutomobileComponent> extends Item {
+public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends Item {
     protected final String nbtKey;
     protected final String translationKey;
     protected final SimpleMapContentRegistry<T> registry;
@@ -54,8 +54,12 @@ public class AutomobileComponentItem<T extends AutomobileComponent> extends Item
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
-        var id = this.getComponent(stack).getId();
-        tooltip.add(new TranslatableText(this.translationKey+"."+id.getNamespace()+"."+id.getPath()).formatted(Formatting.AQUA));
+        var component = this.getComponent(stack);
+        var id = component.getId();
+        var compKey = id.getNamespace()+"."+id.getPath();
+        tooltip.add(new TranslatableText(this.translationKey+"."+compKey).formatted(Formatting.BLUE));
+
+        component.appendTexts(tooltip, component);
     }
 
     @Override

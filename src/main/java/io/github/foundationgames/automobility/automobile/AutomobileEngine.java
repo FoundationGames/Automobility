@@ -9,6 +9,7 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.util.Identifier;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public record AutomobileEngine(
@@ -16,7 +17,8 @@ public record AutomobileEngine(
         float torque,
         float speed,
         EngineModel model
-) implements AutomobileComponent {
+) implements AutomobileComponent<AutomobileEngine> {
+    public static final Identifier ID = Automobility.id("engine");
     public static final SimpleMapContentRegistry<AutomobileEngine> REGISTRY = new SimpleMapContentRegistry<>();
 
     public static final AutomobileEngine EMPTY = REGISTRY.register(
@@ -84,9 +86,23 @@ public record AutomobileEngine(
             )
     );
 
+    public static final DisplayStat<AutomobileEngine> STAT_TORQUE = new DisplayStat<>("torque", AutomobileEngine::torque);
+    public static final DisplayStat<AutomobileEngine> STAT_SPEED = new DisplayStat<>("speed", AutomobileEngine::speed);
+
     @Override
     public boolean isEmpty() {
         return this == EMPTY;
+    }
+
+    @Override
+    public Identifier containerId() {
+        return ID;
+    }
+
+    @Override
+    public void forEachStat(Consumer<DisplayStat<AutomobileEngine>> action) {
+        action.accept(STAT_TORQUE);
+        action.accept(STAT_SPEED);
     }
 
     @Override
