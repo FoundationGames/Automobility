@@ -1,37 +1,25 @@
 package io.github.foundationgames.automobility.automobile.attachment.rear;
 
+import io.github.foundationgames.automobility.automobile.attachment.BaseAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class RearAttachment {
-    public final RearAttachmentType<?> type;
-    protected final AutomobileEntity automobile;
-
+public abstract class RearAttachment extends BaseAttachment<RearAttachmentType<?>> {
     private float lastYaw;
     private float yaw;
-
-    private float animation;
 
     private float trackedYaw;
     private int yawLerpProgress;
 
     protected RearAttachment(RearAttachmentType<?> type, AutomobileEntity entity) {
-        this.type = type;
-        this.automobile = entity;
-    }
-
-    protected final World world() {
-        return this.automobile.world;
+        super(type, entity);
     }
 
     public final Vec3d yawVec() {
@@ -46,6 +34,7 @@ public abstract class RearAttachment {
         return this.automobile.getTailPos();
     }
 
+    @Override
     public final Vec3d pos() {
         return this.origin().add(this.scaledYawVec());
     }
@@ -76,20 +65,8 @@ public abstract class RearAttachment {
         this.yawLerpProgress = this.automobile.getType().getTrackTickInterval() + 1;
     }
 
-    public float animation() {
-        return animation;
-    }
-
-    public void setAnimation(float animation) {
-        this.animation = animation;
-    }
-
     protected final void updateTrackedAnimation(float animation) {
         this.automobile.setTrackedRearAttachmentAnimation(animation);
-    }
-
-    public void onTrackedAnimationUpdated(float animation) {
-        this.setAnimation(animation);
     }
 
     public final void pull(Vec3d movement) {
@@ -114,9 +91,6 @@ public abstract class RearAttachment {
         }
     }
 
-    public void onRemoved() {
-    }
-
     public boolean isRideable() {
         return false;
     }
@@ -139,13 +113,6 @@ public abstract class RearAttachment {
 
     public void readNbt(NbtCompound nbt) {
         this.setYaw(nbt.getFloat("yaw"));
-    }
-
-    public final NbtCompound toNbt() {
-        var nbt = new NbtCompound();
-        nbt.putString("type", this.type.id().toString());
-        this.writeNbt(nbt);
-        return nbt;
     }
 
     public static RearAttachmentType<?> fromNbt(NbtCompound nbt) {

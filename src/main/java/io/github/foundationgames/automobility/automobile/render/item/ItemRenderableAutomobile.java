@@ -4,7 +4,9 @@ import io.github.foundationgames.automobility.automobile.AutomobileData;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
+import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
+import io.github.foundationgames.automobility.automobile.attachment.front.FrontAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.util.EntityRenderHelper;
@@ -23,6 +25,7 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     private final Map<Identifier, Model> wheelModelCache = new HashMap<>();
     private final Map<Identifier, Model> engineModelCache = new HashMap<>();
     private Model emptyRearAttModel;
+    private Model emptyFrontAttModel;
 
     public ItemRenderableAutomobile(AutomobileData reader) {
         this.reader = reader;
@@ -31,6 +34,7 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
             wheelModelCache.clear();
             engineModelCache.clear();
             emptyRearAttModel = null;
+            emptyFrontAttModel = null;
         });
     }
 
@@ -55,6 +59,11 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     }
 
     @Override
+    public @Nullable FrontAttachment getFrontAttachment() {
+        return null;
+    }
+
+    @Override
     public Model getFrameModel(EntityRendererFactory.Context ctx) {
         if (!frameModelCache.containsKey(reader.getFrame().getId())) frameModelCache.put(reader.getFrame().getId(), reader.getFrame().model().model().apply(ctx));
         return frameModelCache.get(reader.getFrame().getId());
@@ -73,9 +82,15 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     }
 
     @Override
-    public @Nullable Model getRearAttachmentModel(EntityRendererFactory.Context ctx) {
+    public Model getRearAttachmentModel(EntityRendererFactory.Context ctx) {
         if (emptyRearAttModel == null) emptyRearAttModel = RearAttachmentType.EMPTY.model().model().apply(ctx);
         return emptyRearAttModel;
+    }
+
+    @Override
+    public Model getFrontAttachmentModel(EntityRendererFactory.Context ctx) {
+        if (emptyFrontAttModel == null) emptyFrontAttModel = FrontAttachmentType.EMPTY.model().model().apply(ctx);
+        return emptyFrontAttModel;
     }
 
     @Override

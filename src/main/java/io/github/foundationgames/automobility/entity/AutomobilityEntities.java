@@ -3,6 +3,8 @@ package io.github.foundationgames.automobility.entity;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.ExhaustFumesModel;
 import io.github.foundationgames.automobility.automobile.render.SkidEffectModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.front.HarvesterFrontAttachmentModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.front.MobControllerFrontAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.BlockRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.ChestRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.GrindstoneRearAttachmentModel;
@@ -81,6 +83,9 @@ public enum AutomobilityEntities {;
         JsonEM.registerModelLayer(GrindstoneRearAttachmentModel.MODEL_LAYER);
         JsonEM.registerModelLayer(StonecutterRearAttachmentModel.MODEL_LAYER);
         JsonEM.registerModelLayer(ChestRearAttachmentModel.MODEL_LAYER);
+
+        JsonEM.registerModelLayer(MobControllerFrontAttachmentModel.MODEL_LAYER);
+        JsonEM.registerModelLayer(HarvesterFrontAttachmentModel.MODEL_LAYER);
 
         JsonEM.registerModelLayer(SkidEffectModel.MODEL_LAYER);
         JsonEM.registerModelLayer(ExhaustFumesModel.MODEL_LAYER);

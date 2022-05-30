@@ -23,10 +23,14 @@ public class BaseModel extends Model {
     }
 
     @Override
-    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public final void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         matrices.push();
         this.transform(matrices);
         this.root.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+        renderOther(matrices, vertices, light, overlay, red, green, blue, alpha);
         matrices.pop();
+    }
+
+    public void renderOther(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
     }
 }

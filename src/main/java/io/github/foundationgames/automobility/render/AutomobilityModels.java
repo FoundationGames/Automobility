@@ -2,6 +2,8 @@ package io.github.foundationgames.automobility.render;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.EmptyModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.front.HarvesterFrontAttachmentModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.front.MobControllerFrontAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.BlockRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.ChestRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.GrindstoneRearAttachmentModel;
@@ -71,5 +73,8 @@ public enum AutomobilityModels {;
         MODELS.put(Automobility.id("rearatt_grindstone"), GrindstoneRearAttachmentModel::new);
         MODELS.put(Automobility.id("rearatt_stonecutter"), StonecutterRearAttachmentModel::new);
         MODELS.put(Automobility.id("rearatt_chest"), ChestRearAttachmentModel::new);
+
+        MODELS.put(Automobility.id("frontatt_mob_controller"), MobControllerFrontAttachmentModel::new);
+        MODELS.put(Automobility.id("frontatt_harvester"), HarvesterFrontAttachmentModel::new);
     }
 }

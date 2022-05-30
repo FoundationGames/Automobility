@@ -7,7 +7,9 @@ import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileStats;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.WheelBase;
+import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
+import io.github.foundationgames.automobility.automobile.attachment.front.FrontAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.automobile.screen.handler.AutomobileScreenHandlerContext;
@@ -71,11 +73,13 @@ import java.util.function.Consumer;
 public class AutomobileEntity extends Entity implements RenderableAutomobile, EntityWithInventory {
     private static final TrackedData<Float> REAR_ATTACHMENT_YAW = DataTracker.registerData(AutomobileEntity.class, TrackedDataHandlerRegistry.FLOAT);
     private static final TrackedData<Float> REAR_ATTACHMENT_ANIMATION = DataTracker.registerData(AutomobileEntity.class, TrackedDataHandlerRegistry.FLOAT);
+    private static final TrackedData<Float> FRONT_ATTACHMENT_ANIMATION = DataTracker.registerData(AutomobileEntity.class, TrackedDataHandlerRegistry.FLOAT);
 
     private AutomobileFrame frame = AutomobileFrame.REGISTRY.getOrDefault(null);
     private AutomobileWheel wheels = AutomobileWheel.REGISTRY.getOrDefault(null);
     private AutomobileEngine engine = AutomobileEngine.REGISTRY.getOrDefault(null);
     private RearAttachment rearAttachment;
+    private FrontAttachment frontAttachment;
 
     private final AutomobileStats stats = new AutomobileStats();
 
@@ -87,6 +91,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private Model engineModel = null;
     @Environment(EnvType.CLIENT)
     private @Nullable Model rearAttachmentModel = null;
+    @Environment(EnvType.CLIENT)
+    private @Nullable Model frontAttachmentModel = null;
 
     public static final int DRIFT_MINI_TURBO_TIME = 35;
     public static final int DRIFT_TURBO_TIME = 70;
@@ -164,7 +170,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         buf.writeFloat(wheelAngle);
         buf.writeBoolean(drifting);
         buf.writeInt(driftTimer);
-        //this.displacement.toBuffer(buf);
         buf.writeByte(compactInputData());
     }
 
@@ -174,7 +179,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         wheelAngle = buf.readFloat();
         drifting = buf.readBoolean();
         driftTimer = buf.readInt();
-        //this.displacement.fromBuffer(buf);
         readCompactedInputData(buf.readByte());
     }
 
@@ -185,9 +189,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 AutomobileWheel.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("wheels"))),
                 AutomobileEngine.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("engine")))
         );
+
         var rAtt = nbt.getCompound("rearAttachment");
         setRearAttachment(RearAttachment.fromNbt(rAtt));
         rearAttachment.readNbt(rAtt);
+
+        var fAtt = nbt.getCompound("frontAttachment");
+        setFrontAttachment(FrontAttachment.fromNbt(fAtt));
+        frontAttachment.readNbt(fAtt);
 
         engineSpeed = nbt.getFloat("engineSpeed");
         boostSpeed = nbt.getFloat("boostSpeed");
@@ -212,7 +221,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         despawnTime = nbt.getInt("despawnTime");
         despawnCountdown = nbt.getInt("despawnCountdown");
         decorative = nbt.getBoolean("decorative");
-        //displacement.fromNbt(nbt.getCompound("displacement"));
 
         updateModels = true;
     }
@@ -223,6 +231,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         nbt.putString("wheels", wheels.getId().toString());
         nbt.putString("engine", engine.getId().toString());
         nbt.put("rearAttachment", rearAttachment.toNbt());
+        nbt.put("frontAttachment", frontAttachment.toNbt());
         nbt.putFloat("engineSpeed", engineSpeed);
         nbt.putFloat("boostSpeed", boostSpeed);
         nbt.putInt("boostTimer", boostTimer);
@@ -246,7 +255,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         nbt.putInt("despawnTime", despawnTime);
         nbt.putInt("despawnCountdown", despawnCountdown);
         nbt.putBoolean("decorative", decorative);
-        //nbt.put("displacement", displacement.toNbt(new NbtCompound()));
     }
 
     private boolean accelerating = false;
@@ -284,6 +292,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         super(type, world);
 
         this.setRearAttachment(RearAttachmentType.REGISTRY.getOrDefault(null));
+        this.setFrontAttachment(FrontAttachmentType.REGISTRY.getOrDefault(null));
     }
 
     public AutomobileEntity(World world) {
@@ -314,8 +323,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     @Override
-    public RearAttachment getRearAttachment() {
+    public @Nullable RearAttachment getRearAttachment() {
         return rearAttachment;
+    }
+
+    @Override
+    public @Nullable FrontAttachment getFrontAttachment() {
+        return frontAttachment;
     }
 
     @Override
@@ -401,6 +415,21 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
     }
 
+    public <T extends FrontAttachment> void setFrontAttachment(FrontAttachmentType<T> frontAttachment) {
+        if (frontAttachment == null) {
+            return;
+        }
+        if (this.frontAttachment == null || this.frontAttachment.type != frontAttachment) {
+            if (this.frontAttachment != null) {
+                this.frontAttachment.onRemoved();
+            }
+            this.frontAttachment = frontAttachment.constructor().apply(frontAttachment, this);
+
+            this.updateModels = true;
+            syncAttachments();
+        }
+    }
+
     public void setComponents(AutomobileFrame frame, AutomobileWheel wheel, AutomobileEngine engine) {
         this.frame = frame;
         this.wheels = wheel;
@@ -430,6 +459,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 );
     }
 
+    public Vec3d getHeadPos() {
+        return this.getPos()
+                .add(new Vec3d(0, 0, this.getFrame().model().frontAttachmentPos() * 0.0625)
+                        .rotateY((float) Math.toRadians(-this.getYaw()))
+                );
+    }
+
     public boolean hasSpaceForPassengers() {
         return (this.rearAttachment.isRideable()) ? (this.getPassengerList().size() < 2) : (!this.hasPassengers());
     }
@@ -451,7 +487,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             clientTime++;
         }
 
-        if (!this.hasPassengers()) {
+        if (!this.hasPassengers() || !this.getFrontAttachment().canDrive(this.getFirstPassenger())) {
             accelerating = false;
             braking = false;
             steeringLeft = false;
@@ -461,6 +497,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
         super.tick();
         if (!this.rearAttachment.type.isEmpty()) this.rearAttachment.tick();
+        if (!this.frontAttachment.type.isEmpty()) this.frontAttachment.tick();
 
         var prevPos = this.getPos();
 
@@ -497,7 +534,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 }
             }
             if (this.hasPassengers()) {
-                if (this.getFirstPassenger() instanceof MobEntity mob) {
+                if (this.getFrontAttachment().canDrive(this.getFirstPassenger()) && this.getFirstPassenger() instanceof MobEntity mob) {
                     provideMobDriverInputs(mob);
                 }
 
@@ -1028,6 +1065,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             this.wheelModel = wheels.model().model().apply(ctx);
             this.engineModel = engine.model().model().apply(ctx);
             this.rearAttachmentModel = this.rearAttachment.type.model().model().apply(ctx);
+            this.frontAttachmentModel = this.frontAttachment.type.model().model().apply(ctx);
 
             updateModels = false;
         }
@@ -1055,6 +1093,12 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     public @Nullable Model getRearAttachmentModel(EntityRendererFactory.Context ctx) {
         updateModels(ctx);
         return rearAttachmentModel;
+    }
+
+    @Override
+    public @Nullable Model getFrontAttachmentModel(EntityRendererFactory.Context ctx) {
+        updateModels(ctx);
+        return frontAttachmentModel;
     }
 
     @Override
@@ -1109,9 +1153,21 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         this.setRearAttachment(RearAttachmentType.EMPTY);
     }
 
+    public void destroyFrontAttachment(boolean drop) {
+        if (drop) {
+            var dropPos = this.frontAttachment.pos();
+            world.spawnEntity(new ItemEntity(world, dropPos.x, dropPos.y, dropPos.z,
+                    AutomobilityItems.FRONT_ATTACHMENT.createStack(this.getFrontAttachmentType())));
+        }
+        this.setFrontAttachment(FrontAttachmentType.EMPTY);
+    }
+
     public void destroyAutomobile(boolean drop, RemovalReason reason) {
         if (!this.rearAttachment.type.isEmpty()) {
             this.destroyRearAttachment(drop);
+        }
+        if (!this.frontAttachment.type.isEmpty()) {
+            this.destroyFrontAttachment(drop);
         }
         if (drop) {
             this.dropParts(this.getPos().add(0, 0.3, 0));
@@ -1134,7 +1190,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
         var stack = player.getStackInHand(hand);
         if ((!this.decorative || player.isCreative()) && stack.isOf(AutomobilityItems.CROWBAR)) {
-            if (!this.rearAttachment.type.isEmpty()) {
+            double playerAngle = Math.toDegrees(Math.atan2(player.getZ() - this.getZ(), player.getX() - this.getX()));
+            double angleDiff = MathHelper.wrapDegrees(this.getYaw() - playerAngle);
+
+            if (angleDiff < 0 && !this.frontAttachment.type.isEmpty()) {
+                this.destroyFrontAttachment(!player.isCreative());
+                return ActionResult.success(world.isClient);
+            } else if (!this.rearAttachment.type.isEmpty()) {
                 this.destroyRearAttachment(!player.isCreative());
                 return ActionResult.success(world.isClient);
             } else {
@@ -1226,6 +1288,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             this.rearAttachment.onTrackedYawUpdated(getTrackedRearAttachmentYaw());
         } else if (REAR_ATTACHMENT_ANIMATION.equals(data)) {
             this.rearAttachment.onTrackedAnimationUpdated(getTrackedRearAttachmentAnimation());
+        } else if (FRONT_ATTACHMENT_ANIMATION.equals(data)) {
+            this.frontAttachment.onTrackedAnimationUpdated(getTrackedFrontAttachmentAnimation());
         }
     }
 
@@ -1248,6 +1312,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     public float getTrackedRearAttachmentAnimation() {
         return this.dataTracker.get(REAR_ATTACHMENT_ANIMATION);
+    }
+
+    public void setTrackedFrontAttachmentAnimation(float animation) {
+        this.dataTracker.set(FRONT_ATTACHMENT_ANIMATION, animation);
+    }
+
+    public float getTrackedFrontAttachmentAnimation() {
+        return this.dataTracker.get(FRONT_ATTACHMENT_ANIMATION);
     }
 
     public static final class Displacement {
@@ -1326,8 +1398,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                             }
                         }
                     }));
-
-                    // DEBUGGING: world.addParticle(new DustParticleEffect(new Vec3f(1, 0, 1), 0.5f), pointX, pointY.get(), pointZ, 0, 0, 0);
                 }
 
                 pointPos = new Vec3d(pointPos.x, pointY.get(), pointPos.z);
@@ -1421,31 +1491,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
         public float getAngularZ(float tickDelta) {
             return MathHelper.lerpAngleDegrees(tickDelta, lastAngularZ, currAngularZ);
-        }
-
-        public NbtCompound toNbt(NbtCompound writeTo) {
-            writeTo.putFloat("vertical", verticalTarget);
-            writeTo.putFloat("angular_x", angularXTarget);
-            writeTo.putFloat("angular_z", angularZTarget);
-            return writeTo;
-        }
-
-        public void fromNbt(NbtCompound readFrom) {
-            verticalTarget = readFrom.getFloat("vertical");
-            angularXTarget = readFrom.getFloat("angular_x");
-            angularZTarget = readFrom.getFloat("angular_z");
-        }
-
-        public void toBuffer(PacketByteBuf buf) {
-            buf.writeFloat(verticalTarget);
-            buf.writeFloat(currAngularX);
-            buf.writeFloat(currAngularZ);
-        }
-
-        public void fromBuffer(PacketByteBuf buf) {
-            verticalTarget = buf.readFloat();
-            currAngularX = buf.readFloat();
-            currAngularZ = buf.readFloat();
         }
     }
 }

@@ -4,6 +4,7 @@ import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
+import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.netty.buffer.Unpooled;
@@ -56,6 +57,7 @@ public enum PayloadPackets {;
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
         buf.writeString(entity.getRearAttachmentType().id().toString());
+        buf.writeString(entity.getFrontAttachmentType().id().toString());
         ServerPlayNetworking.send(player, Automobility.id("sync_automobile_attachments"), buf);
     }
 
@@ -118,9 +120,11 @@ public enum PayloadPackets {;
         ClientPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile_attachments"), (client, handler, buf, responseSender) -> {
             int entityId = buf.readInt();
             var rearAtt = RearAttachmentType.REGISTRY.getOrDefault(Identifier.tryParse(buf.readString()));
+            var frontAtt = FrontAttachmentType.REGISTRY.getOrDefault(Identifier.tryParse(buf.readString()));
             client.execute(() -> {
                 if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
                     automobile.setRearAttachment(rearAtt);
+                    automobile.setFrontAttachment(frontAtt);
                 }
             });
         });

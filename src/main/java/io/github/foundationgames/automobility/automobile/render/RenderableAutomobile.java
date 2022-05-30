@@ -3,7 +3,9 @@ package io.github.foundationgames.automobility.automobile.render;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
+import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
+import io.github.foundationgames.automobility.automobile.attachment.front.FrontAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -19,11 +21,20 @@ public interface RenderableAutomobile {
 
     @Nullable RearAttachment getRearAttachment();
 
+    @Nullable FrontAttachment getFrontAttachment();
+
     default RearAttachmentType<?> getRearAttachmentType() {
         if (this.getRearAttachment() == null) {
             return RearAttachmentType.EMPTY;
         }
         return this.getRearAttachment().type;
+    }
+
+    default FrontAttachmentType<?> getFrontAttachmentType() {
+        if (this.getFrontAttachment() == null) {
+            return FrontAttachmentType.EMPTY;
+        }
+        return this.getFrontAttachment().type;
     }
 
     Model getFrameModel(EntityRendererFactory.Context ctx);
@@ -33,6 +44,8 @@ public interface RenderableAutomobile {
     Model getEngineModel(EntityRendererFactory.Context ctx);
 
     Model getRearAttachmentModel(EntityRendererFactory.Context ctx);
+
+    Model getFrontAttachmentModel(EntityRendererFactory.Context ctx);
 
     float getAutomobileYaw(float tickDelta);
 

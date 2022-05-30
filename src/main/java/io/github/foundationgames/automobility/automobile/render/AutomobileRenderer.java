@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.automobile.render;
 
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.WheelBase;
+import io.github.foundationgames.automobility.automobile.render.attachment.front.FrontAttachmentRenderModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.RearAttachmentRenderModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.WheelContextReceiver;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
@@ -43,6 +44,7 @@ public enum AutomobileRenderer {;
         var wheelModel = automobile.getWheelModel(ctx);
         var engineModel = automobile.getEngineModel(ctx);
         var rearAttachmentModel = automobile.getRearAttachmentModel(ctx);
+        var frontAttachmentModel = automobile.getFrontAttachmentModel(ctx);
 
         matrices.translate(0, -chassisRaise, 0);
 
@@ -97,6 +99,19 @@ public enum AutomobileRenderer {;
                 rm.setRenderState(automobile.getRearAttachment(), (float) Math.toRadians(automobile.getWheelAngle(tickDelta)), tickDelta);
             }
             rearAttachmentModel.render(matrices, vertexConsumers.getBuffer(rearAttachmentModel.getLayer(rearAtt.model().texture())), light, overlay, 1, 1, 1, 1);
+            matrices.pop();
+        }
+
+        // Front Attachment
+        var frontAtt = automobile.getFrontAttachmentType();
+        if (!frontAtt.isEmpty()) {
+            matrices.push();
+            matrices.translate(0, 0, frame.model().frontAttachmentPos() / -16);
+
+            if (frontAttachmentModel instanceof FrontAttachmentRenderModel fm) {
+                fm.setRenderState(automobile.getFrontAttachment(), chassisRaise, tickDelta);
+            }
+            frontAttachmentModel.render(matrices, vertexConsumers.getBuffer(frontAttachmentModel.getLayer(frontAtt.model().texture())), light, overlay, 1, 1, 1, 1);
             matrices.pop();
         }
 

@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.item;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.*;
+import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.automobile.render.AutomobileRenderer;
 import io.github.foundationgames.automobility.automobile.render.item.ItemRenderableAutomobile;
@@ -28,6 +29,7 @@ public enum AutomobilityItems {;
     public static final AutomobileFrameItem AUTOMOBILE_FRAME = register("automobile_frame", new AutomobileFrameItem(new Item.Settings().maxCount(16).group(Automobility.GROUP)));
     public static final AutomobileWheelItem AUTOMOBILE_WHEEL = register("automobile_wheel", new AutomobileWheelItem(new Item.Settings().group(Automobility.GROUP)));
     public static final AutomobileEngineItem AUTOMOBILE_ENGINE = register("automobile_engine", new AutomobileEngineItem(new Item.Settings().maxCount(16).group(Automobility.GROUP)));
+    public static final FrontAttachmentItem FRONT_ATTACHMENT = register("front_attachment", new FrontAttachmentItem(new Item.Settings().maxCount(1).group(Automobility.GROUP)));
     public static final RearAttachmentItem REAR_ATTACHMENT = register("rear_attachment", new RearAttachmentItem(new Item.Settings().maxCount(1).group(Automobility.GROUP)));
 
     public static void init() {
@@ -68,6 +70,7 @@ public enum AutomobilityItems {;
     @Environment(EnvType.CLIENT) private static final Map<AutomobileWheel, Model> wheelModelPool = new HashMap<>();
     @Environment(EnvType.CLIENT) private static final Map<AutomobileEngine, Model> engineModelPool = new HashMap<>();
     @Environment(EnvType.CLIENT) private static final Map<RearAttachmentType<?>, Model> rearAttModelPool = new HashMap<>();
+    @Environment(EnvType.CLIENT) private static final Map<FrontAttachmentType<?>, Model> frontAttModelPool = new HashMap<>();
 
     private static final AutomobileData reader = new AutomobileData();
 
@@ -104,6 +107,10 @@ public enum AutomobilityItems {;
         REAR_ATTACHMENT.registerItemRenderer(
                 pooledModelProvider(t -> t.model().model().apply(cachedCtx), rearAttModelPool),
                 t -> t.model().texture(), t -> 1
+        );
+        FRONT_ATTACHMENT.registerItemRenderer(
+                pooledModelProvider(t -> t.model().model().apply(cachedCtx), frontAttModelPool),
+                t -> t.model().texture(), t -> t.model().scale()
         );
     }
 

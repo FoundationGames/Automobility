@@ -4,7 +4,9 @@ import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileStats;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
+import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
+import io.github.foundationgames.automobility.automobile.attachment.front.FrontAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.block.AutomobileAssemblerBlock;
@@ -51,6 +53,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     @Environment(EnvType.CLIENT) private Model engineModel = null;
     @Environment(EnvType.CLIENT) private Model wheelModel = null;
     @Environment(EnvType.CLIENT) private Model emptyRearAttModel = null;
+    @Environment(EnvType.CLIENT) private Model emptyFrontAttModel = null;
     private boolean componentsUpdated = true;
 
     protected AutomobileFrame frame = AutomobileFrame.EMPTY;
@@ -86,6 +89,11 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     }
 
     @Override
+    public @Nullable FrontAttachment getFrontAttachment() {
+        return null;
+    }
+
+    @Override
     public Model getFrameModel(EntityRendererFactory.Context ctx) {
         if (this.componentsUpdated) this.frameModel = this.frame.model().model().apply(ctx);
         return this.frameModel;
@@ -107,6 +115,12 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     public Model getRearAttachmentModel(EntityRendererFactory.Context ctx) {
         if (this.componentsUpdated) this.emptyRearAttModel = RearAttachmentType.EMPTY.model().model().apply(ctx);
         return this.emptyRearAttModel;
+    }
+
+    @Override
+    public Model getFrontAttachmentModel(EntityRendererFactory.Context ctx) {
+        if (this.componentsUpdated) this.emptyFrontAttModel = FrontAttachmentType.EMPTY.model().model().apply(ctx);
+        return this.emptyFrontAttModel;
     }
 
     private void partChanged() {

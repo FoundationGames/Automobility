@@ -11,6 +11,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Direction;
@@ -163,6 +164,36 @@ public enum AUtils {;
         int g = (color >> 8) & 0xFF;
         int b = color & 0xFF;
         return new Vec3f((float)r / 255, (float)g / 255, (float)b / 255);
+    }
+
+    public static boolean canMerge(ItemStack a, ItemStack b) {
+        return (a.isItemEqual(b)) && (a.getCount() + b.getCount() <= a.getMaxCount());
+    }
+
+    /**
+     * Tries to insert an ItemStack into an inventory.
+     *
+     * @param stack The item to insert
+     * @param inv   The inventory to insert into
+     * @return {@code true} if the entire stack was consumed, or {@code false} if some or all of the stack is remaining
+     */
+    public static boolean transferInto(ItemStack stack, Inventory inv) {
+        for (int slot = 0; slot < inv.size(); slot++) {
+            if (inv.isValid(slot, stack)) {
+                var slotStack = inv.getStack(slot);
+                if (slotStack.isEmpty()) {
+                    inv.setStack(slot, stack);
+                    return true;
+                }
+                if (canMerge(slotStack, stack)) {
+                    int amount = Math.min(stack.getCount(), stack.getMaxCount() - slotStack.getCount());
+                    stack.decrement(amount);
+                    slotStack.increment(amount);
+                    return stack.isEmpty();
+                }
+            }
+        }
+        return false;
     }
 
     // Placed here because class loading is jank
