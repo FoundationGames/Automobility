@@ -1,6 +1,7 @@
 package io.github.foundationgames.automobility.automobile.attachment;
 
 import io.github.foundationgames.automobility.automobile.AutomobileComponent;
+import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -53,7 +54,16 @@ public abstract class BaseAttachment<T extends AutomobileComponent<T>> {
     public abstract void readNbt(NbtCompound nbt);
 
     protected boolean canModifyBlocks() {
-        return this.automobile.getFirstPassenger() instanceof PlayerEntity player && player.canModifyBlocks();
+        if (this.automobile.getFirstPassenger() instanceof PlayerEntity player && player.canModifyBlocks()) {
+            return true;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            if (world().getBlockState(this.automobile.getBlockPos().down(i)).isOf(AutomobilityBlocks.ALLOW)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public final NbtCompound toNbt() {

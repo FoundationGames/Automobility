@@ -19,6 +19,7 @@
   "item.automobility.automobile_engine": "Automobile Engine",
 
   "tooltip.item.automobility.crowbar": "Use on Automobile to remove",
+  "tooltip.block.automobility.allow": "Let Adventure drivers harvest/plow",
 
   "block.automobility.grass_off_road": "Grass Off Road",
   "block.automobility.dirt_off_road": "Dirt Off Road",
@@ -30,6 +31,7 @@
   "block.automobility.steep_sloped_dash_panel": "Steep Sloped Dash Panel",
   "block.automobility.auto_mechanic_table": "Auto Mechanic Table",
   "block.automobility.automobile_assembler": "Automobile Assembler",
+  "block.automobility.allow": "Allow",
 
   "block.automobility.slope": "Slope",
   "block.automobility.steep_slope": "Steep Slope",
