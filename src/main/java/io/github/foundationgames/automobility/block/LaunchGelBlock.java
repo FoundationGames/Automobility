@@ -28,7 +28,6 @@ public class LaunchGelBlock extends Block {
         super.onEntityCollision(state, world, pos, entity);
 
         if (entity instanceof AutomobileEntity automobile && automobile.automobileOnGround()) {
-            automobile.setSpeed(Math.max(automobile.getHSpeed(), 0.08f), automobile.getVSpeed() + 0.5f);
             automobile.boost(0.14f, 7);
         }
     }

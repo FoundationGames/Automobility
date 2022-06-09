@@ -1,6 +1,5 @@
 package io.github.foundationgames.automobility.entity;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
@@ -14,6 +13,7 @@ import io.github.foundationgames.automobility.automobile.attachment.rear.RearAtt
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.automobile.screen.handler.AutomobileScreenHandlerContext;
 import io.github.foundationgames.automobility.block.AutomobileAssemblerBlock;
+import io.github.foundationgames.automobility.block.LaunchGelBlock;
 import io.github.foundationgames.automobility.block.OffRoadBlock;
 import io.github.foundationgames.automobility.item.AutomobileInteractable;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
@@ -57,7 +57,6 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -67,7 +66,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class AutomobileEntity extends Entity implements RenderableAutomobile, EntityWithInventory {
@@ -116,11 +114,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     private int boostTimer = 0;
     private float boostPower = 0;
+    private int jumpCooldown = 0;
 
     private float hSpeed = 0;
     private float vSpeed = 0;
 
-    private float addedVSpeed = 0;
     private Vec3d addedVelocity = getVelocity();
 
     private float steering = 0;
@@ -471,21 +469,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     public void setSpeed(float horizontal, float vertical) {
-        if (this.isLogicalSideForUpdatingMovement()) {
-            this.hSpeed = horizontal;
-            this.addedVSpeed = vertical;
-        } else if (this.getPrimaryPassenger() instanceof ServerPlayerEntity player) {
-            PayloadPackets.sendAutomobileSpeedSetPacket(this, horizontal, vertical, player);
-        }
+        this.hSpeed = horizontal;
+        this.vSpeed = vertical;
     }
 
     @Override
     public void tick() {
         boolean first = this.firstUpdate;
-
-        if (world.isClient()) {
-            clientTime++;
-        }
 
         if (!this.hasPassengers() || !this.getFrontAttachment().canDrive(this.getFirstPassenger())) {
             accelerating = false;
@@ -493,6 +483,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             steeringLeft = false;
             steeringRight = false;
             holdingDrift = false;
+        }
+
+        if (this.jumpCooldown > 0) {
+            this.jumpCooldown--;
         }
 
         super.tick();
@@ -527,7 +521,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 var touchingEntities = this.world.getOtherEntities(this, this.getBoundingBox().expand(0.2, 0, 0.2), EntityPredicates.canBePushedBy(this));
                 for (Entity entity : touchingEntities) {
                     if (!entity.hasPassenger(this)) {
-                        if (!entity.hasVehicle() && entity.getWidth() < this.getWidth() && entity instanceof MobEntity && !(entity instanceof WaterCreatureEntity)) {
+                        if (!entity.hasVehicle() && entity.getWidth() <= this.getWidth() && entity instanceof MobEntity && !(entity instanceof WaterCreatureEntity)) {
                             entity.startRiding(this);
                         }
                     }
@@ -546,9 +540,16 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                     this.destroyAutomobile(false, RemovalReason.DISCARDED);
                 }
             }
+        } else {
+            clientTime++;
+
+            lastSusBounceTimer = suspensionBounceTimer;
+            if (suspensionBounceTimer > 0) {
+                suspensionBounceTimer--;
+            }
         }
 
-        displacementTick(first || this.getPos().subtract(prevPos).length() > 0);
+        displacementTick(first || this.getPos().subtract(prevPos).length() > 0.01);
     }
 
     public void positionTrackingTick() {
@@ -666,15 +667,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     // witness me fighting against minecraft's collision/physics
     public void movementTick() {
-        // Handle the small suspension bounce effect
-        if (lastSusBounceTimer != suspensionBounceTimer) markDirty();
-        lastSusBounceTimer = suspensionBounceTimer;
-        if (suspensionBounceTimer > 0) suspensionBounceTimer--;
-        if (!wasOnGround && automobileOnGround) {
-            suspensionBounceTimer = 3;
-            markDirty();
-        }
-
         // Handles boosting
         lastBoostSpeed = boostSpeed;
         if (boostTimer > 0) {
@@ -691,6 +683,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         // Get block below's friction
         var blockBelow = new BlockPos(getX(), getY() - 0.05, getZ());
         float grip = 1 - ((MathHelper.clamp((world.getBlockState(blockBelow).getBlock().getSlipperiness() - 0.6f) / 0.4f, 0, 1) * (1 - stats.getGrip() * 0.8f)));
+
+        // Bounce on gel
+        if (this.automobileOnGround && this.jumpCooldown <= 0 && world.getBlockState(this.getBlockPos()).getBlock() instanceof LaunchGelBlock) {
+            this.setSpeed(Math.max(this.getHSpeed(), 0.1f), Math.max(this.getVSpeed(), 0.9f));
+            this.jumpCooldown = 5;
+            this.automobileOnGround = false;
+        }
 
         // Track the last position of the automobile
         this.lastPosForDisplacement = getPos();
@@ -786,14 +785,21 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         lastVelocity = cumulative;
 
         // Damage and launch entities that are hit by a moving automobile
-        if (hSpeed > 0.2) {
-            var frontBox = getBoundingBox().offset(cumulative.multiply(0.5));
-            var velAdd = cumulative.add(0, 0.1, 0).multiply(3);
-            for (var entity : world.getEntitiesByType(TypeFilter.instanceOf(Entity.class), frontBox, entity -> entity != this && entity != getFirstPassenger())) {
+        if (Math.abs(hSpeed) > 0.2) {
+            runOverEntities(cumulative);
+        }
+    }
+
+    public void runOverEntities(Vec3d velocity) {
+        var frontBox = getBoundingBox().offset(velocity.multiply(0.5));
+        var velAdd = velocity.add(0, 0.1, 0).multiply(3);
+        for (var entity : world.getEntitiesByType(TypeFilter.instanceOf(Entity.class), frontBox, entity -> entity != this && entity != getFirstPassenger())) {
+            if (!entity.isInvulnerable()) {
                 if (entity instanceof LivingEntity living && entity.getVehicle() != this) {
                     living.damage(AutomobilityEntities.AUTOMOBILE_DAMAGE_SOURCE, hSpeed * 10);
+
+                    entity.addVelocity(velAdd.x, velAdd.y, velAdd.z);
                 }
-                entity.addVelocity(velAdd.x, velAdd.y, velAdd.z);
             }
         }
     }
@@ -832,8 +838,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
 
         // Handles gravity
-        vSpeed = Math.max(vSpeed - 0.08f, !automobileOnGround ? TERMINAL_VELOCITY : -0.01f) + addedVSpeed;
-        addedVSpeed = 0;
+        vSpeed = Math.max(vSpeed - 0.08f, !automobileOnGround ? TERMINAL_VELOCITY : -0.01f);
 
         // Store previous y displacement to use when launching off slopes
         prevYDisplacements.push(yDisp);
@@ -903,7 +908,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             }
 
             if (world.getBlockState(this.getBlockPos()).getBlock() instanceof AutomobileAssemblerBlock) {
-                this.displacement.verticalTarget = (-this.wheels.model().radius() / 16);
+                this.displacement.lastVertical = this.displacement.verticalTarget = (-this.wheels.model().radius() / 16);
             }
         }
     }
@@ -1230,7 +1235,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     @Override
     public double getMountedHeightOffset() {
-        return ((wheels.model().radius() + frame.model().seatHeight() - 4) / 16) - (suspensionBounceTimer * 0.048f);
+        return ((wheels.model().radius() + frame.model().seatHeight() - 4) / 16);
     }
 
     @Override
@@ -1322,10 +1327,15 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         return this.dataTracker.get(FRONT_ATTACHMENT_ANIMATION);
     }
 
+    public void bounce() {
+        suspensionBounceTimer = 3;
+    }
+
     public static final class Displacement {
         private static final int SCAN_STEPS_PER_BLOCK = 20;
         private static final double INV_SCAN_STEPS = 1d / SCAN_STEPS_PER_BLOCK;
 
+        private boolean wereAllOnGround = true;
         private float lastVertical = 0;
         private float lastAngularX = 0;
         private float lastAngularZ = 0;
@@ -1350,8 +1360,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             Vec3d lowestDisplacementPos = null;
             Vec3d highestDisplacementPos = null;
             var scannedPoints = new ArrayList<Vec3d>();
-            var collBoxes = new HashSet<VoxelShape>();
-            var anyOnGround = new AtomicBoolean(false);
+            var collBoxes = new HashSet<Box>();
+            boolean anyOnGround = false;
+            boolean allOnGround = true;
             for (var scanPoint : scanPoints) {
                 scanPoint = scanPoint
                         .rotateY((float) Math.toRadians(yaw));
@@ -1369,38 +1380,50 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                         (int) Math.floor(centerPos.y) + heightOffset,
                         (int) Math.max(Math.floor(centerPos.z), Math.floor(pointPos.z))
                 );
+
                 var mpos = new BlockPos.Mutable();
                 while (iter.step()) {
                     mpos.set(iter.getX(), iter.getY(), iter.getZ());
                     var shape = world.getBlockState(mpos).getCollisionShape(world, mpos);
                     if (!shape.isEmpty()) {
-                        collBoxes.add(shape.offset(mpos.getX(), mpos.getY(), mpos.getZ()));
+                        if (shape == VoxelShapes.fullCube()) {
+                            collBoxes.add(new Box(mpos.getX(), mpos.getY(), mpos.getZ(), mpos.getX() + 1, mpos.getY() + 1, mpos.getZ() + 1));
+                        } else {
+                            shape.offset(mpos.getX(), mpos.getY(), mpos.getZ()).forEachBox(((minX, minY, minZ, maxX, maxY, maxZ) ->
+                                    collBoxes.add(new Box(minX, minY, minZ, maxX, maxY, maxZ))));
+                        }
                     }
                 }
 
                 var pointDir = new Vec3d(scanPoint.x, 0, scanPoint.z).normalize().multiply(INV_SCAN_STEPS);
 
-                AtomicDouble pointY = new AtomicDouble(centerPos.y);
+                double pointY = centerPos.y;
                 for (int i = 0; i < Math.ceil(scanDist * SCAN_STEPS_PER_BLOCK); i++) {
                     double pointX = centerPos.x + (i * pointDir.x);
                     double pointZ = centerPos.z + (i * pointDir.z);
-                    pointY.set(pointY.get() - (INV_SCAN_STEPS * 1.5));
+                    pointY -= INV_SCAN_STEPS * 1.5;
 
-                    collBoxes.forEach(shape -> shape.forEachBox((minX, minY, minZ, maxX, maxY, maxZ) -> {
-                        if (pointX > minX && pointX < maxX &&
-                            pointZ > minZ && pointZ < maxZ &&
-                            pointY.get() >= (minY - (INV_SCAN_STEPS * 2)) && pointY.get() <= maxY
+                    boolean ground = false;
+                    for (var box : collBoxes) {
+                        if (pointX > box.minX && pointX < box.maxX &&
+                                pointZ > box.minZ && pointZ < box.maxZ &&
+                                pointY >= (box.minY - (INV_SCAN_STEPS * 2)) && pointY <= box.maxY
                         ) {
-                            double diff = maxY - pointY.get();
-                            if (diff < (entity.stepHeight + (INV_SCAN_STEPS * 1.5))) {
-                                pointY.set(maxY);
-                                anyOnGround.set(true);
+                            double diff = box.maxY - pointY;
+                            if (diff < (stepHeight + (INV_SCAN_STEPS * 1.5))) {
+                                pointY = box.maxY;
+                                ground = true;
                             }
                         }
-                    }));
+                    }
+                    if (ground) {
+                        anyOnGround = true;
+                    } else {
+                        allOnGround = false;
+                    }
                 }
 
-                pointPos = new Vec3d(pointPos.x, pointY.get(), pointPos.z);
+                pointPos = new Vec3d(pointPos.x, pointY, pointPos.z);
 
                 if (lowestDisplacementPos == null || pointPos.y < lowestDisplacementPos.y) {
                     lowestDisplacementPos = pointPos;
@@ -1412,7 +1435,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 scannedPoints.add(pointPos);
             }
 
-            if (!anyOnGround.get()) return;
+            if (allOnGround && !wereAllOnGround) {
+                entity.bounce();
+            }
+            wereAllOnGround = allOnGround;
+
+            if (!anyOnGround) {
+                return;
+            }
 
             angularXTarget = 0;
             angularZTarget = 0;
