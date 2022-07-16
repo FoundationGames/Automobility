@@ -18,12 +18,15 @@ import io.github.foundationgames.automobility.block.OffRoadBlock;
 import io.github.foundationgames.automobility.item.AutomobileInteractable;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import io.github.foundationgames.automobility.particle.AutomobilityParticles;
+import io.github.foundationgames.automobility.sound.AutomobileSoundInstance;
+import io.github.foundationgames.automobility.sound.AutomobilitySounds;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.ShapeContext;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.entity.Entity;
@@ -46,6 +49,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.CuboidBlockIterator;
 import net.minecraft.util.Hand;
@@ -92,9 +96,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     @Environment(EnvType.CLIENT)
     private @Nullable Model frontAttachmentModel = null;
 
-    public static final int DRIFT_MINI_TURBO_TIME = 35;
-    public static final int DRIFT_TURBO_TIME = 70;
-    public static final int DRIFT_SUPER_TURBO_TIME = 115;
+    public static final int SMALL_TURBO_TIME = 35;
+    public static final int MEDIUM_TURBO_TIME = 70;
+    public static final int LARGE_TURBO_TIME = 115;
     public static final float TERMINAL_VELOCITY = -1.2f;
 
     private long clientTime;
@@ -124,14 +128,17 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private float steering = 0;
     private float lastSteering = steering;
 
+    private float angularSpeed = 0;
+
     private float wheelAngle = 0;
     private float lastWheelAngle = 0;
 
     private final Displacement displacement = new Displacement();
 
     private boolean drifting = false;
+    private boolean burningOut = false;
     private int driftDir = 0;
-    private int driftTimer = 0;
+    private int turboCharge = 0;
 
     private float lockedViewOffset = 0;
 
@@ -162,12 +169,15 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private int despawnCountdown = 0;
     private boolean decorative = false;
 
+    private boolean hadPassengers = false;
+
     public void writeSyncToClientData(PacketByteBuf buf) {
         buf.writeInt(boostTimer);
         buf.writeFloat(steering);
         buf.writeFloat(wheelAngle);
         buf.writeBoolean(drifting);
-        buf.writeInt(driftTimer);
+        buf.writeInt(turboCharge);
+        buf.writeFloat(engineSpeed);
         buf.writeByte(compactInputData());
     }
 
@@ -176,7 +186,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         steering = buf.readFloat();
         wheelAngle = buf.readFloat();
         drifting = buf.readBoolean();
-        driftTimer = buf.readInt();
+        turboCharge = buf.readInt();
+        engineSpeed = buf.readFloat();
         readCompactedInputData(buf.readByte());
     }
 
@@ -205,11 +216,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         hSpeed = nbt.getFloat("horizontalSpeed");
         addedVelocity = AUtils.v3dFromNbt(nbt.getCompound("addedVelocity"));
         lastVelocity = AUtils.v3dFromNbt(nbt.getCompound("lastVelocity"));
+        angularSpeed = nbt.getFloat("angularSpeed");
         steering = nbt.getFloat("steering");
         wheelAngle = nbt.getFloat("wheelAngle");
         drifting = nbt.getBoolean("drifting");
         driftDir = nbt.getInt("driftDir");
-        driftTimer = nbt.getInt("driftTimer");
+        burningOut = nbt.getBoolean("burningOut");
+        turboCharge = nbt.getInt("turboCharge");
         accelerating = nbt.getBoolean("accelerating");
         braking = nbt.getBoolean("braking");
         steeringLeft = nbt.getBoolean("steeringLeft");
@@ -239,11 +252,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         nbt.putFloat("horizontalSpeed", hSpeed);
         nbt.put("addedVelocity", AUtils.v3dToNbt(addedVelocity));
         nbt.put("lastVelocity", AUtils.v3dToNbt(lastVelocity));
+        nbt.putFloat("angularSpeed", angularSpeed);
         nbt.putFloat("steering", steering);
         nbt.putFloat("wheelAngle", wheelAngle);
         nbt.putBoolean("drifting", drifting);
         nbt.putInt("driftDir", driftDir);
-        nbt.putInt("driftTimer", driftTimer);
+        nbt.putBoolean("burningOut", burningOut);
+        nbt.putInt("turboCharge", turboCharge);
         nbt.putBoolean("accelerating", accelerating);
         nbt.putBoolean("braking", braking);
         nbt.putBoolean("steeringLeft", steeringLeft);
@@ -264,13 +279,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private boolean prevHoldDrift = holdingDrift;
 
     public byte compactInputData() {
-        // yeah
         int r = ((((((((accelerating ? 1 : 0) << 1) | (braking ? 1 : 0)) << 1) | (steeringLeft ? 1 : 0)) << 1) | (steeringRight ? 1 : 0)) << 1) | (holdingDrift ? 1 : 0);
         return (byte) r;
     }
 
     public void readCompactedInputData(byte data) {
-        // yup
         int d = data;
         holdingDrift = (1 & d) > 0;
         d = d >> 0b1;
@@ -355,8 +368,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     @Override
-    public int getDriftTimer() {
-        return drifting ? driftTimer : 0;
+    public int getTurboCharge() {
+        return turboCharge;
     }
 
     @Override
@@ -370,6 +383,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     public float getVSpeed() {
         return vSpeed;
+    }
+
+    public float getEngineSpeed() {
+        return this.engineSpeed;
     }
 
     @Override
@@ -390,6 +407,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     @Override
     public Vec3f debrisColor() {
         return debrisColor;
+    }
+
+    public boolean burningOut() {
+        return burningOut;
     }
 
     public <T extends RearAttachment> void setRearAttachment(RearAttachmentType<T> rearAttachment) {
@@ -477,6 +498,15 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     public void tick() {
         boolean first = this.firstUpdate;
 
+        if (lastWheelAngle != wheelAngle) markDirty();
+        lastWheelAngle = wheelAngle;
+
+        if (!this.hadPassengers && this.hasPassengers() && this.world.isClient()) {
+            var client = MinecraftClient.getInstance();
+            client.getSoundManager().play(new AutomobileSoundInstance.EngineSound(client, this));
+        }
+        this.hadPassengers = this.hasPassengers();
+
         if (!this.hasPassengers() || !this.getFrontAttachment().canDrive(this.getFirstPassenger())) {
             accelerating = false;
             braking = false;
@@ -499,6 +529,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         collisionStateTick();
         steeringTick();
         driftingTick();
+        burnoutTick();
 
         movementTick();
         if (this.isLogicalSideForUpdatingMovement()) {
@@ -665,7 +696,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
     }
 
-    // witness me fighting against minecraft's collision/physics
     public void movementTick() {
         // Handles boosting
         lastBoostSpeed = boostSpeed;
@@ -697,14 +727,12 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         // cumulative will be modified by the following code and then the automobile will be moved by it
         // Currently initialized with the value of addedVelocity (which is a general velocity vector applied to the automobile, i.e. for when it bumps into a wall and is pushed back)
         var cumulative = addedVelocity;
-        if (lastWheelAngle != wheelAngle) markDirty();
-        lastWheelAngle = wheelAngle;
 
         // Reduce gravity underwater
         cumulative = cumulative.add(0, (vSpeed * (isSubmergedInWater() ? 0.15f : 1)), 0);
 
         // This is the general direction the automobile will move, which is slightly offset to the side when drifting and delayed when on slippery surface
-        this.speedDirection = MathHelper.lerp(grip, getYaw(), getYaw() - (drifting ? Math.min(driftTimer * 6, 43 + (-steering * 12)) * driftDir : -steering * 12));
+        this.speedDirection = MathHelper.lerp(grip, getYaw(), getYaw() - (drifting ? Math.min(turboCharge * 6, 43 + (-steering * 12)) * driftDir : -steering * 12));
 
         // Handle acceleration
         if (accelerating) {
@@ -722,6 +750,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                     // It will receive this acceleration if the automobile is moving straight or wide-drifting (the latter slightly reduces acceleration)
                     : calculateAcceleration(speed, stats) * (drifting ? 0.86 : 1) * (engineSpeed > stats.getComfortableSpeed() ? 0.25f : 1) * grip;
         }
+
         // Handle braking/reverse
         if (braking) {
             this.engineSpeed = Math.max(this.engineSpeed - 0.15f, -0.25f);
@@ -734,6 +763,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         // Slow the automobile a bit while steering and moving fast
         if (!drifting && steering != 0 && hSpeed > 0.8) {
             engineSpeed -= engineSpeed * 0.00042f;
+        }
+
+        if (this.burningOut()) {
+            engineSpeed -= (engineSpeed) * 0.5;
         }
 
         // Allows for the sticky slope effect to continue for a tick after not being on a slope
@@ -756,7 +789,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         } else this.offRoad = false;
 
         // Set the horizontal speed
-        hSpeed = engineSpeed + boostSpeed;
+        if (!burningOut()) hSpeed = engineSpeed + boostSpeed;
 
         // Sticking to sticky slopes
         double lowestPrevYDisp = 0;
@@ -768,9 +801,18 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             cumulative = cumulative.add(0, -(0.25 + cumulHSpeed), 0);
         }
 
-        // Apply the horizontal speed to the cumulative movement
+
         float angle = (float) Math.toRadians(-speedDirection);
-        cumulative = cumulative.add(Math.sin(angle) * hSpeed, 0, Math.cos(angle) * hSpeed);
+        if (this.burningOut()) {
+            if (Math.abs(hSpeed) > 0.02) {
+                this.addedVelocity = new Vec3d(Math.sin(angle) * hSpeed, 0, Math.cos(angle) * hSpeed);
+                this.hSpeed = 0;
+                cumulative = cumulative.add(addedVelocity);
+            }
+        } else {
+            // Apply the horizontal speed to the cumulative movement
+            cumulative = cumulative.add(Math.sin(angle) * hSpeed, 0, Math.cos(angle) * hSpeed);
+        }
 
         // Turn the wheels
         float wheelCircumference = (float)(2 * (wheels.model().radius() / 16) * Math.PI);
@@ -805,18 +847,22 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     public void postMovementTick() {
+        float addedVelReduction = 0.1f;
+        if (this.burningOut()) {
+            addedVelReduction = 0.05f;
+        }
+
         // Reduce the values of addedVelocity incrementally
-        addedVelocity = new Vec3d(
-                AUtils.zero((float)addedVelocity.x, 0.1f),
-                AUtils.zero((float)addedVelocity.y, 0.1f),
-                AUtils.zero((float)addedVelocity.z, 0.1f)
-        );
+        double addVelLen = addedVelocity.length();
+        if (addVelLen > 0) addedVelocity = addedVelocity.multiply(Math.max(0, addVelLen - addedVelReduction) / addVelLen);
 
         float angle = (float) Math.toRadians(-speedDirection);
         if (touchingWall && hSpeed > 0.1 && addedVelocity.length() <= 0) {
             engineSpeed /= 3.6;
             double knockSpeed = ((-0.2 * hSpeed) - 0.5);
             addedVelocity = addedVelocity.add(Math.sin(angle) * knockSpeed, 0, Math.cos(angle) * knockSpeed);
+
+            world.playSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.COLLISION, SoundCategory.AMBIENT, 0.76f, 0.65f + (0.06f * (this.world.random.nextFloat() - 0.5f)), true);
         }
 
         double yDisp = getPos().subtract(this.lastPosForDisplacement).getY();
@@ -856,9 +902,26 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             }
         }
 
+        if (this.burningOut()) {
+            float speed = (float) this.addedVelocity.length();
+            float acc = (1.7f / (1 + this.frame.weight())) + (4 * speed);
+            float lim = 9 + (4 * speed);
+            if (this.steering != 0) {
+                this.angularSpeed = MathHelper.clamp(this.angularSpeed + (acc * this.steering), -lim, lim);
+            } else {
+                this.angularSpeed = AUtils.shift(this.angularSpeed, acc * 0.5f, 0);
+            }
+        } else if (hSpeed != 0) {
+            float traction = (1 / (1 + (4 * this.hSpeed))) + (0.3f * this.stats.getGrip());
+            this.angularSpeed = AUtils.shift(this.angularSpeed, 6 * traction,
+                    (drifting ? (((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir) * (((1 - stats.getGrip()) + 2) / 2.5f) : this.steering * ((4f * Math.min(hSpeed, 1)) + (hSpeed > 0 ? 2 : -3.5f))) * ((stats.getHandling() + 1) / 2));
+        } else {
+            this.angularSpeed = AUtils.shift(this.angularSpeed, 3, 0);
+        }
+
         // Turns the automobile based on steering/drifting
-        if (hSpeed != 0) {
-            float yawInc = (drifting ? (((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir) * (((1 - stats.getGrip()) + 2) / 2.5f) : this.steering * ((4f * Math.min(hSpeed, 1)) + (hSpeed > 0 ? 2 : -3.5f))) * ((stats.getHandling() + 1) / 2);
+        if (hSpeed != 0 || this.burningOut()) {
+            float yawInc = angularSpeed;// + (drifting ? (((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir) * (((1 - stats.getGrip()) + 2) / 2.5f) : this.steering * ((4f * Math.min(hSpeed, 1)) + (hSpeed > 0 ? 2 : -3.5f))) * ((stats.getHandling() + 1) / 2);
             float prevYaw = getYaw();
             this.setYaw(getYaw() + yawInc);
             if (world.isClient) {
@@ -997,6 +1060,9 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             boostTimer = time;
             boostPower = power;
         }
+        if (this.isLogicalSideForUpdatingMovement()) {
+            this.engineSpeed = Math.max(this.engineSpeed, this.stats.getComfortableSpeed() * 0.5f);
+        }
     }
 
     private void steeringTick() {
@@ -1013,6 +1079,17 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
     }
 
+    private void consumeTurboCharge() {
+        if (turboCharge > LARGE_TURBO_TIME) {
+            boost(0.38f, 38);
+        } else if (turboCharge > MEDIUM_TURBO_TIME) {
+            boost(0.3f, 21);
+        } else if (turboCharge > SMALL_TURBO_TIME) {
+            boost(0.23f, 9);
+        }
+        turboCharge = 0;
+    }
+
     private void driftingTick() {
         // Handles starting a drift
         if (steering != 0) {
@@ -1021,8 +1098,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 driftDir = steering > 0 ? 1 : -1;
                 // Reduce speed when a drift starts, based on how long the last drift was for
                 // This allows you to do a series of short drifts without tanking all your speed, while still reducing your speed when you begin the drift(s)
-                engineSpeed -= (0.028 * (Math.min(driftTimer, 20f) / 20)) * engineSpeed;
-                driftTimer = 0;
+                engineSpeed -= 0.028 * engineSpeed;
             }
         }
         // Handles drifting effects, ending a drift, and the drift timer (for drift turbos)
@@ -1031,18 +1107,40 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             // Ending a drift successfully, giving you a turbo boost
             if (prevHoldDrift && !holdingDrift) {
                 drifting = false;
-                if (driftTimer > DRIFT_SUPER_TURBO_TIME) {
-                    boost(0.38f, 38);
-                } else if (driftTimer > DRIFT_TURBO_TIME) {
-                    boost(0.3f, 21);
-                } else if (driftTimer > DRIFT_MINI_TURBO_TIME) {
-                    boost(0.23f, 9);
-                }
+                consumeTurboCharge();
             // Ending a drift unsuccessfully, not giving you a boost
             } else if (hSpeed < 0.33f) {
                 drifting = false;
+                turboCharge = 0;
             }
-            if (automobileOnGround) driftTimer += ((steeringLeft && driftDir < 0) || (steeringRight && driftDir > 0)) ? 2 : 1;
+            if (automobileOnGround) turboCharge += ((steeringLeft && driftDir < 0) || (steeringRight && driftDir > 0)) ? 2 : 1;
+        }
+    }
+
+    private void endBurnout() {
+        this.burningOut = false;
+        this.engineSpeed = 0;
+    }
+
+    private void burnoutTick() {
+        if (this.burningOut()) {
+            if (this.automobileOnGround()) {
+                if (this.addedVelocity.length() > 0.05 || Math.abs(this.angularSpeed) > 0.05) {
+                    createDriftParticles();
+                }
+                if (hSpeed < 0.08 && turboCharge <= SMALL_TURBO_TIME) turboCharge += 1;
+            }
+            if (!this.braking) {
+                endBurnout();
+                consumeTurboCharge();
+            } else if (!this.accelerating) {
+                endBurnout();
+                this.turboCharge = 0;
+            }
+            this.wheelAngle += 20;
+        } else if ((this.accelerating || hSpeed > 0.05) && this.braking) {
+            this.burningOut = true;
+            this.turboCharge = 0;
         }
     }
 
@@ -1329,6 +1427,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     public void bounce() {
         suspensionBounceTimer = 3;
+        world.playSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.LANDING, SoundCategory.AMBIENT, 1, 1.5f + (0.15f * (this.world.random.nextFloat() - 0.5f)), true);
     }
 
     public static final class Displacement {

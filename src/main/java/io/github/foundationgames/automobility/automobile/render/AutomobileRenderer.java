@@ -153,15 +153,15 @@ public enum AutomobileRenderer {;
         }
 
         // Skid effects
-        if ((automobile.getDriftTimer() > AutomobileEntity.DRIFT_MINI_TURBO_TIME || automobile.debris()) && automobile.automobileOnGround()) {
+        if ((automobile.getTurboCharge() > AutomobileEntity.SMALL_TURBO_TIME || automobile.debris()) && automobile.automobileOnGround()) {
             var skidTexes = SkidEffectModel.COOL_SPARK_TEXTURES;
             boolean bright = true;
             float r = 1;
             float g = 1;
             float b = 1;
-            if (automobile.getDriftTimer() > AutomobileEntity.DRIFT_SUPER_TURBO_TIME) {
+            if (automobile.getTurboCharge() > AutomobileEntity.LARGE_TURBO_TIME) {
                 skidTexes = SkidEffectModel.FLAME_TEXTURES;
-            } else if (automobile.getDriftTimer() > AutomobileEntity.DRIFT_TURBO_TIME) {
+            } else if (automobile.getTurboCharge() > AutomobileEntity.MEDIUM_TURBO_TIME) {
                 skidTexes = SkidEffectModel.HOT_SPARK_TEXTURES;
             } else if (automobile.debris()) {
                 skidTexes = SkidEffectModel.DEBRIS_TEXTURES;

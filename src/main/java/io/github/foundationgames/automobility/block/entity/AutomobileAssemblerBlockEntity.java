@@ -360,7 +360,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     }
 
     @Override
-    public int getDriftTimer() {
+    public int getTurboCharge() {
         return 0;
     }
 

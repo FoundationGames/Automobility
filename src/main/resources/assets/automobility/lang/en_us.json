@@ -39,6 +39,10 @@
   "death.attack.automobile": "%1$s became roadkill",
   "death.attack.automobile.player": "%1$s was hit by a moving vehicle in an attempt to escape %2$s",
 
+  "subtitles.automobility.automobile_engine": "Engine runs",
+  "subtitles.automobility.collision": "Automobile bonks",
+  "subtitles.automobility.landing": "Automobile thuds",
+
   "prefab.automobility.wooden_motorcar": "Wooden Motorcar",
   "prefab.automobility.copper_motorcar": "Copper Motorcar",
   "prefab.automobility.steel_motorcar": "Steel Motorcar",

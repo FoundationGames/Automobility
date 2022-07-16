@@ -5,6 +5,7 @@ import io.github.foundationgames.automobility.entity.AutomobilityEntities;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.resource.AutomobilityData;
+import io.github.foundationgames.automobility.sound.AutomobilitySounds;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
@@ -37,10 +38,10 @@ public class Automobility implements ModInitializer {
         AutomobilityItems.init();
         AutomobilityEntities.init();
         AutomobilityParticles.init();
+        AutomobilitySounds.init();
+
         PayloadPackets.init();
-
         AutomobilityData.setup();
-
         ControllerUtils.initLCHandler();
     }
 

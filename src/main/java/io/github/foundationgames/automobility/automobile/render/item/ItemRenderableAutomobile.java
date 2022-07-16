@@ -129,7 +129,7 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     }
 
     @Override
-    public int getDriftTimer() {
+    public int getTurboCharge() {
         return 0;
     }
 

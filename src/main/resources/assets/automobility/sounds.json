@@ -1,0 +1,50 @@
+{
+    "entity.automobile.collision": {
+        "subtitle": "subtitles.automobility.collision",
+        "sounds": [
+            "automobility:collision"
+        ]
+    },
+    "entity.automobile.landing": {
+        "subtitle": "subtitles.automobility.landing",
+        "sounds": [
+            "automobility:landing"
+        ]
+    },
+    "entity.automobile.stone_engine": {
+        "subtitle": "subtitles.automobility.automobile_engine",
+        "sounds": [
+            "automobility:stone_engine"
+        ]
+    },
+    "entity.automobile.copper_engine": {
+        "subtitle": "subtitles.automobility.automobile_engine",
+        "sounds": [
+            "automobility:copper_engine"
+        ]
+    },
+    "entity.automobile.iron_engine": {
+        "subtitle": "subtitles.automobility.automobile_engine",
+        "sounds": [
+            "automobility:iron_engine"
+        ]
+    },
+    "entity.automobile.gold_engine": {
+        "subtitle": "subtitles.automobility.automobile_engine",
+        "sounds": [
+            "automobility:gold_engine"
+        ]
+    },
+    "entity.automobile.diamond_engine": {
+        "subtitle": "subtitles.automobility.automobile_engine",
+        "sounds": [
+            "automobility:diamond_engine"
+        ]
+    },
+    "entity.automobile.creative_engine": {
+        "subtitle": "subtitles.automobility.automobile_engine",
+        "sounds": [
+            "automobility:creative_engine"
+        ]
+    }
+}

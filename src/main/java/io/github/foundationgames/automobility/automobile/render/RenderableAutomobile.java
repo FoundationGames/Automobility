@@ -65,7 +65,7 @@ public interface RenderableAutomobile {
 
     int getBoostTimer();
 
-    int getDriftTimer();
+    int getTurboCharge();
 
     long getTime();
 
