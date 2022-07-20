@@ -6,9 +6,9 @@
   "itemGroup.automobility.automobility_prefabs": "Automobility: Prefabs",
 
   "automobility.automobility": "Automobility",
-  "lambdacontrols.action.automobility.accelerate_automobile": "Accelerate",
-  "lambdacontrols.action.automobility.brake_automobile": "Brake/Reverse",
-  "lambdacontrols.action.automobility.drift_automobile": "Drift",
+  "midnightcontrols.action.automobility.accelerate_automobile": "Accelerate",
+  "midnightcontrols.action.automobility.brake_automobile": "Brake/Reverse",
+  "midnightcontrols.action.automobility.drift_automobile": "Drift",
 
   "item.automobility.automobile": "Automobile",
   "item.automobility.crowbar": "Crowbar",

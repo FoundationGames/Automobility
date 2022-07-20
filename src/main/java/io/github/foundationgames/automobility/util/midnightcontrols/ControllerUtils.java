@@ -4,26 +4,26 @@ import net.fabricmc.loader.api.FabricLoader;
 
 public enum ControllerUtils {;
     public static boolean accelerating() {
-        return isMCLoaded() && AutomobilityMidnightControls.ACCELERATE.isButtonDown();
+        return isMidnightControlsLoaded() && AutomobilityMidnightControls.ACCELERATE.isButtonDown();
     }
 
     public static boolean braking() {
-        return isMCLoaded() && AutomobilityMidnightControls.BRAKE.isButtonDown();
+        return isMidnightControlsLoaded() && AutomobilityMidnightControls.BRAKE.isButtonDown();
     }
 
     public static boolean drifting() {
-        return isMCLoaded() && AutomobilityMidnightControls.DRIFT.isButtonDown();
+        return isMidnightControlsLoaded() && AutomobilityMidnightControls.DRIFT.isButtonDown();
     }
 
     public static boolean inControllerMode() {
-        return isMCLoaded() && AutomobilityMidnightControls.IN_CONTROLLER_MODE.get();
+        return isMidnightControlsLoaded() && AutomobilityMidnightControls.IN_CONTROLLER_MODE.get();
     }
 
-    public static void initMCHandler() {
-        if (isMCLoaded()) AutomobilityMidnightControls.init();
+    public static void initMidnightControlsHandler() {
+        if (isMidnightControlsLoaded()) AutomobilityMidnightControls.init();
     }
 
-    public static boolean isMCLoaded() {
+    public static boolean isMidnightControlsLoaded() {
         return FabricLoader.getInstance().isModLoaded("midnightcontrols");
     }
 }

@@ -42,7 +42,7 @@ public class Automobility implements ModInitializer {
 
         PayloadPackets.init();
         AutomobilityData.setup();
-        ControllerUtils.initMCHandler();
+        ControllerUtils.initMidnightControlsHandler();
     }
 
     public static Identifier id(String path) {

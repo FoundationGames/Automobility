@@ -20,11 +20,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
-
-/*
- * LambdaControls is discontinued and this has a nearly 100% chance of being removed in the future (once the mod is broken)
- */
-//
 public class AutomobilityMidnightControls implements CompatHandler {
     public static final PairPredicate<MinecraftClient, ButtonBinding> ON_AUTOMOBILE = (client, button) -> client.player != null && client.player.getVehicle() instanceof AutomobileEntity;
 
