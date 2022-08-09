@@ -1,0 +1,14 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:wheels",
+    "sortnum": 1,
+    "ingredients": [
+        {"tag": "minecraft:logs"},
+        {"item": "minecraft:copper_ingot"},
+        {"tag": "minecraft:logs"}
+    ],
+    "result": {
+        "item": "automobility:automobile_wheel",
+        "component": "automobility:plated"
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:engines",
+    "sortnum": 3,
+    "ingredients": [
+        {"item": "minecraft:gold_ingot"},
+        {"item": "minecraft:furnace"},
+        {"item": "minecraft:redstone_block"},
+        {"item": "minecraft:gold_block"},
+        {"item": "minecraft:iron_ingot"}
+    ],
+    "result": {
+        "item": "automobility:automobile_engine",
+        "component": "automobility:gold"
+    }
+}

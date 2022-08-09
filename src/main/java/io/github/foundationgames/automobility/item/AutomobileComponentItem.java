@@ -40,8 +40,12 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
         }
 
         var stack = new ItemStack(this);
-        stack.getOrCreateNbt().putString(this.nbtKey, component.getId().toString());
+        this.setComponent(stack, component.getId());
         return stack;
+    }
+
+    public void setComponent(ItemStack stack, Identifier component) {
+        stack.getOrCreateNbt().putString(this.nbtKey, component.toString());
     }
 
     public T getComponent(ItemStack stack) {

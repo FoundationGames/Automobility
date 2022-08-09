@@ -133,7 +133,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private float wheelAngle = 0;
     private float lastWheelAngle = 0;
 
-    private final Displacement displacement = new Displacement();
+    private final Displacement displacement = new AutomobileEntity.Displacement();
 
     private boolean drifting = false;
     private boolean burningOut = false;
@@ -169,26 +169,30 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private int despawnCountdown = 0;
     private boolean decorative = false;
 
-    private boolean hadPassengers = false;
+    private boolean wasEngineRunning = false;
 
     public void writeSyncToClientData(PacketByteBuf buf) {
         buf.writeInt(boostTimer);
         buf.writeFloat(steering);
         buf.writeFloat(wheelAngle);
-        buf.writeBoolean(drifting);
         buf.writeInt(turboCharge);
         buf.writeFloat(engineSpeed);
         buf.writeByte(compactInputData());
+
+        buf.writeBoolean(drifting);
+        buf.writeBoolean(burningOut);
     }
 
     public void readSyncToClientData(PacketByteBuf buf) {
         boostTimer = buf.readInt();
         steering = buf.readFloat();
         wheelAngle = buf.readFloat();
-        drifting = buf.readBoolean();
         turboCharge = buf.readInt();
         engineSpeed = buf.readFloat();
         readCompactedInputData(buf.readByte());
+
+        setDrifting(buf.readBoolean());
+        setBurningOut(buf.readBoolean());
     }
 
     @Override
@@ -385,10 +389,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         return vSpeed;
     }
 
-    public float getEngineSpeed() {
-        return this.engineSpeed;
-    }
-
     @Override
     public int getBoostTimer() {
         return boostTimer;
@@ -411,6 +411,26 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     public boolean burningOut() {
         return burningOut;
+    }
+
+    private void setDrifting(boolean drifting) {
+        if (this.world.isClient() && !this.drifting && drifting) {
+            playSkiddingSound();
+        }
+
+        this.drifting = drifting;
+    }
+
+    private void setBurningOut(boolean burningOut) {
+        if (this.world.isClient()&& !this.drifting && !this.burningOut && burningOut) {
+            playSkiddingSound();
+        }
+
+        this.burningOut = burningOut;
+    }
+
+    public boolean isDrifting() {
+        return this.drifting;
     }
 
     public <T extends RearAttachment> void setRearAttachment(RearAttachmentType<T> rearAttachment) {
@@ -494,6 +514,18 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         this.vSpeed = vertical;
     }
 
+    @Environment(EnvType.CLIENT)
+    private void playEngineSound() {
+        var client = MinecraftClient.getInstance();
+        client.getSoundManager().play(new AutomobileSoundInstance.EngineSound(client, this));
+    }
+
+    @Environment(EnvType.CLIENT)
+    private void playSkiddingSound() {
+        var client = MinecraftClient.getInstance();
+        client.getSoundManager().play(new AutomobileSoundInstance.SkiddingSound(client, this));
+    }
+
     @Override
     public void tick() {
         boolean first = this.firstUpdate;
@@ -501,11 +533,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         if (lastWheelAngle != wheelAngle) markDirty();
         lastWheelAngle = wheelAngle;
 
-        if (!this.hadPassengers && this.hasPassengers() && this.world.isClient()) {
-            var client = MinecraftClient.getInstance();
-            client.getSoundManager().play(new AutomobileSoundInstance.EngineSound(client, this));
+        if (!this.wasEngineRunning && this.engineRunning() && this.world.isClient()) {
+            playEngineSound();
         }
-        this.hadPassengers = this.hasPassengers();
+        this.wasEngineRunning = this.engineRunning();
 
         if (!this.hasPassengers() || !this.getFrontAttachment().canDrive(this.getFirstPassenger())) {
             accelerating = false;
@@ -1094,7 +1125,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         // Handles starting a drift
         if (steering != 0) {
             if (!drifting && !prevHoldDrift && holdingDrift && hSpeed > 0.4f && automobileOnGround) {
-                drifting = true;
+                setDrifting(true);
                 driftDir = steering > 0 ? 1 : -1;
                 // Reduce speed when a drift starts, based on how long the last drift was for
                 // This allows you to do a series of short drifts without tanking all your speed, while still reducing your speed when you begin the drift(s)
@@ -1106,11 +1137,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             if (this.automobileOnGround()) createDriftParticles();
             // Ending a drift successfully, giving you a turbo boost
             if (prevHoldDrift && !holdingDrift) {
-                drifting = false;
+                setDrifting(false);
                 consumeTurboCharge();
             // Ending a drift unsuccessfully, not giving you a boost
             } else if (hSpeed < 0.33f) {
-                drifting = false;
+                setDrifting(false);
                 turboCharge = 0;
             }
             if (automobileOnGround) turboCharge += ((steeringLeft && driftDir < 0) || (steeringRight && driftDir > 0)) ? 2 : 1;
@@ -1118,7 +1149,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     private void endBurnout() {
-        this.burningOut = false;
+        setBurningOut(false);
         this.engineSpeed = 0;
     }
 
@@ -1139,7 +1170,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             }
             this.wheelAngle += 20;
         } else if ((this.accelerating || hSpeed > 0.05) && this.braking) {
-            this.burningOut = true;
+            setBurningOut(true);
             this.turboCharge = 0;
         }
     }

@@ -196,8 +196,6 @@ public enum AUtils {;
         return false;
     }
 
-    // Placed here because class loading is jank
-
     public static ItemStack createGroupIcon() {
         return new ItemStack(AutomobilityItems.CROWBAR);
     }

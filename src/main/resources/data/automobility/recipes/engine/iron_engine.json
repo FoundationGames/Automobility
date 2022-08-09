@@ -1,0 +1,16 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:engines",
+    "sortnum": 2,
+    "ingredients": [
+        {"item": "minecraft:iron_ingot"},
+        {"item": "minecraft:furnace"},
+        {"item": "minecraft:redstone_block"},
+        {"item": "minecraft:iron_block"},
+        {"tag": "minecraft:stone_crafting_materials"}
+    ],
+    "result": {
+        "item": "automobility:automobile_engine",
+        "component": "automobility:iron"
+    }
+}

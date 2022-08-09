@@ -1,0 +1,14 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:wheels",
+    "sortnum": 3,
+    "ingredients": [
+        {"item": "minecraft:nether_brick"},
+        {"item": "minecraft:gold_ingot"},
+        {"item": "minecraft:nether_brick"}
+    ],
+    "result": {
+        "item": "automobility:automobile_wheel",
+        "component": "automobility:gilded"
+    }
+}

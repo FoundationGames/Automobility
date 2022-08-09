@@ -1,0 +1,13 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:wheels",
+    "sortnum": 100,
+    "ingredients": [
+        {"item": "minecraft:black_wool"},
+        {"item": "minecraft:iron_nugget"}
+    ],
+    "result": {
+        "item": "automobility:automobile_wheel",
+        "component": "automobility:standard"
+    }
+}

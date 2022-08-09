@@ -1,0 +1,16 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:engines",
+    "sortnum": 4,
+    "ingredients": [
+        {"item": "minecraft:diamond"},
+        {"item": "minecraft:furnace"},
+        {"item": "minecraft:redstone_block"},
+        {"item": "minecraft:obsidian"},
+        {"item": "minecraft:diamond"}
+    ],
+    "result": {
+        "item": "automobility:automobile_engine",
+        "component": "automobility:diamond"
+    }
+}

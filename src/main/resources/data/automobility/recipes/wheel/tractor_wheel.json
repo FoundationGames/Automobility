@@ -1,0 +1,13 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:wheels",
+    "sortnum": 101,
+    "ingredients": [
+        {"item": "minecraft:black_wool"},
+        {"item": "minecraft:gold_nugget"}
+    ],
+    "result": {
+        "item": "automobility:automobile_wheel",
+        "component": "automobility:tractor"
+    }
+}

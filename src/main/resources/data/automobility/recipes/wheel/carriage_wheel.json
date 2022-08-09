@@ -1,0 +1,14 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:wheels",
+    "sortnum": 0,
+    "ingredients": [
+        {"tag": "minecraft:planks"},
+        {"item": "minecraft:stick"},
+        {"tag": "minecraft:planks"}
+    ],
+    "result": {
+        "item": "automobility:automobile_wheel",
+        "component": "automobility:carriage"
+    }
+}

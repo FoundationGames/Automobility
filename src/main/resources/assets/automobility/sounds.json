@@ -11,6 +11,12 @@
             "automobility:landing"
         ]
     },
+    "entity.automobile.skid": {
+        "subtitle": "subtitles.automobility.skid",
+        "sounds": [
+            "automobility:skid"
+        ]
+    },
     "entity.automobile.stone_engine": {
         "subtitle": "subtitles.automobility.automobile_engine",
         "sounds": [

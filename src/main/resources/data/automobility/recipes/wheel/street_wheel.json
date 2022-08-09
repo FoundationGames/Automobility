@@ -1,0 +1,14 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:wheels",
+    "sortnum": 2,
+    "ingredients": [
+        {"item": "minecraft:cobbled_deepslate"},
+        {"item": "minecraft:iron_ingot"},
+        {"item": "minecraft:cobbled_deepslate"}
+    ],
+    "result": {
+        "item": "automobility:automobile_wheel",
+        "component": "automobility:street"
+    }
+}

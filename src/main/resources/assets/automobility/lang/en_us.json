@@ -21,6 +21,12 @@
   "tooltip.item.automobility.crowbar": "Use on Automobile to remove",
   "tooltip.block.automobility.allow": "Let Adventure drivers harvest/plow",
 
+  "container.automobility.auto_mechanic_table": "Auto Parts",
+
+  "part_category.automobility.frames": "Frames",
+  "part_category.automobility.engines": "Engines",
+  "part_category.automobility.wheels": "Wheels",
+
   "block.automobility.grass_off_road": "Grass Off Road",
   "block.automobility.dirt_off_road": "Dirt Off Road",
   "block.automobility.sand_off_road": "Sand Off Road",
@@ -42,6 +48,7 @@
   "subtitles.automobility.automobile_engine": "Engine runs",
   "subtitles.automobility.collision": "Automobile bonks",
   "subtitles.automobility.landing": "Automobile thuds",
+  "subtitles.automobility.skid": "Automobile skids",
 
   "prefab.automobility.wooden_motorcar": "Wooden Motorcar",
   "prefab.automobility.copper_motorcar": "Copper Motorcar",
