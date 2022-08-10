@@ -1,31 +1,33 @@
-# Automobility
-A Minecraft vehicle mod adding customizable cars. <br/><br/>
+![Automobility](./md/banner.png)
 
-### Screenshots
-![Standard Cars](./md/standard.png) <br/>
-![Turbo](./md/turbo.png) <br/>
+### A Minecraft mod adding customizable vehicles.
 
-### Try it out!
-Recommended to use along with [MidnightControls](https://www.curseforge.com/minecraft/mc-mods/midnightcontrols), which allows for controller support when driving an automobile. (Already loaded when using in dev environment)
-<br/><br/>
-There are no official releases yet. <br/>
-#### If you would like to try it out:
-**Option A:** Clone the repository and run the game in the dev environment. <br/>
-**Option B:** Download a GitHub Actions artifact from this repository, and use the jar not suffixed with `dev` or `sources`. <br/>
-<br/>
-To get an automobile in game, construct it on an Automobile Assembler using a frame, engine, and four wheels. *Features are not obtainable in survival.* <br/>
-<br/>
-**Driving with Keyboard/Mouse:**
+## Available for Fabric/Quilt
+- Requires **[Fabric API](https://modrinth.com/mod/fabric-api)** (Fabric) or **[QSL](https://modrinth.com/mod/qsl)** (Quilt)
+
+**Support for Forge or old versions is NOT PLANNED.**
+
+## Getting Started
+- **Recipes:** Crafting recipes can be viewed using [**EMI**](https://www.curseforge.com/minecraft/mc-mods/emi).
+- **Automobile Parts:** Craft an Auto Mechanic Table. Use the GUI to craft the frame, engine, and wheels for your automobile. You can optionally craft an attachment.
+- **Building your Automobile:** Craft an Automobile Assembler, as well as a Crowbar. Place parts on the assembler until the vehicle is complete. Use a crowbar to destroy the vehicle. After building, add your attachments.
+
+![Automobile Construction](./md/construction.png)
+![Automobile Types](./md/parking.png)
+
+## Driving
 - W - Accelerate
-- S - Brake/Reverse
+- S - Brake/Reverse/Burnout
 - A/D - Steer left/right
 - Space - Drift
 
-**Driving with Controller (MidnightControls):**
+**Controller Support:** when using [MidnightControls](), you will be able to control automobiles with the following default controls:
 - A - Accelerate
 - B - Brake/Reverse
 - LStick - Steer left/right
 - RTrigger - Drift
+
+![Driving](./md/driving.png)
 
 ### Credit: Audio
 All sound effects used (originals licensed under CC0) from [freesound.org](https://freesound.org/): <br/>

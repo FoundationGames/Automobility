@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
+
 public class AutomobilityMidnightControls implements CompatHandler {
     public static final PairPredicate<MinecraftClient, ButtonBinding> ON_AUTOMOBILE = (client, button) -> client.player != null && client.player.getVehicle() instanceof AutomobileEntity;
 
