@@ -1,7 +1,10 @@
 package io.github.foundationgames.automobility.automobile.attachment.rear;
 
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
+import io.github.foundationgames.automobility.block.AutoMechanicTableBlock;
+import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import io.github.foundationgames.automobility.screen.AutoMechanicTableScreenHandler;
 import io.github.foundationgames.automobility.util.duck.EnderChestInventoryDuck;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -97,5 +100,11 @@ public class BlockRearAttachment extends RearAttachment {
         );
     }
 
-
+    public static BlockRearAttachment autoMechanicTable(RearAttachmentType<?> type, AutomobileEntity entity) {
+        return new BlockRearAttachment(type, entity,
+                AutomobilityBlocks.AUTO_MECHANIC_TABLE.getDefaultState(),
+                (ctx, att) -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) ->
+                        new AutoMechanicTableScreenHandler(syncId, inventory, ctx), AutoMechanicTableBlock.UI_TITLE)
+        );
+    }
 }

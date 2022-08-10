@@ -68,7 +68,7 @@ public record AutomobileFrame(
                     new FrameModel(
                             Automobility.id("textures/entity/automobile/frame/shopping_cart.png"),
                             Automobility.id("frame_shopping_cart"),
-                            WheelBase.basic(17.05f, 12),
+                            WheelBase.basic(17, 12.05f),
                             25,
                             11,
                             7,

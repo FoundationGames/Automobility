@@ -26,6 +26,7 @@
   "part_category.automobility.frames": "Frames",
   "part_category.automobility.engines": "Engines",
   "part_category.automobility.wheels": "Wheels",
+  "part_category.automobility.attachments": "Attachments",
 
   "block.automobility.grass_off_road": "Grass Off Road",
   "block.automobility.dirt_off_road": "Dirt Off Road",
@@ -49,6 +50,9 @@
   "subtitles.automobility.collision": "Automobile bonks",
   "subtitles.automobility.landing": "Automobile thuds",
   "subtitles.automobility.skid": "Automobile skids",
+
+  "dialog.automobility.use_crowbar": "Use a crowbar to remove parts.",
+  "dialog.automobility.incomplete_automobile": "Incomplete automobile!",
 
   "prefab.automobility.wooden_motorcar": "Wooden Motorcar",
   "prefab.automobility.copper_motorcar": "Copper Motorcar",
@@ -160,6 +164,7 @@
   "attachment.rear.automobility.smithing_table": "Smithing Table",
   "attachment.rear.automobility.grindstone": "Grindstone",
   "attachment.rear.automobility.stonecutter": "Stonecutter",
+  "attachment.rear.automobility.auto_mechanic_table": "Auto Mechanic Table",
   "attachment.rear.automobility.chest": "Chest",
   "attachment.rear.automobility.ender_chest": "Ender Chest",
 

@@ -50,6 +50,7 @@ import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.CuboidBlockIterator;
 import net.minecraft.util.Hand;
@@ -63,6 +64,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -1269,6 +1271,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
     }
 
+    public void playHitSound() {
+        world.emitGameEvent(GameEvent.ENTITY_DAMAGED, this);
+        world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_COPPER_BREAK, SoundCategory.AMBIENT, 1, 0.9f + (this.world.random.nextFloat() * 0.2f));
+    }
+
     private void dropParts(Vec3d pos) {
         world.spawnEntity(new ItemEntity(world, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_FRAME.createStack(this.getFrame())));
         world.spawnEntity(new ItemEntity(world, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_ENGINE.createStack(this.getEngine())));
@@ -1329,12 +1336,18 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
             if (angleDiff < 0 && !this.frontAttachment.type.isEmpty()) {
                 this.destroyFrontAttachment(!player.isCreative());
+                this.playHitSound();
+
                 return ActionResult.success(world.isClient);
             } else if (!this.rearAttachment.type.isEmpty()) {
                 this.destroyRearAttachment(!player.isCreative());
+                this.playHitSound();
+
                 return ActionResult.success(world.isClient);
             } else {
                 this.destroyAutomobile(!player.isCreative(), RemovalReason.KILLED);
+                this.playHitSound();
+
                 return ActionResult.success(world.isClient);
             }
         }

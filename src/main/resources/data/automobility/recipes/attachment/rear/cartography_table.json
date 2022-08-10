@@ -1,0 +1,15 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:attachments",
+    "sortnum": 203,
+    "ingredients": [
+        {"item": "minecraft:cartography_table"},
+        {"tag": "minecraft:stone_crafting_materials"},
+        {"item": "minecraft:stick"},
+        {"tag": "minecraft:planks"}
+    ],
+    "result": {
+        "item": "automobility:rear_attachment",
+        "component": "automobility:cartography_table"
+    }
+}

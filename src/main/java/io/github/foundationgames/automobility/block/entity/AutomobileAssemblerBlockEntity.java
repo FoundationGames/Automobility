@@ -184,6 +184,10 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
                 }
             }
         }
+        if (!this.world.isClient() && stack.isOf(AutomobilityItems.FRONT_ATTACHMENT) || stack.isOf(AutomobilityItems.REAR_ATTACHMENT)) {
+            player.sendMessage(AutomobileAssemblerBlock.INCOMPLETE_AUTOMOBILE_DIALOG, true);
+        }
+
         return ActionResult.FAIL;
     }
 

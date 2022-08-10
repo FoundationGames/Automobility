@@ -42,6 +42,7 @@ public record RearAttachmentType<T extends RearAttachment>(
     public static final RearAttachmentType<BlockRearAttachment> SMITHING_TABLE = register(block("smithing_table", BlockRearAttachment::smithingTable));
     public static final RearAttachmentType<BlockRearAttachment> GRINDSTONE = register(block("grindstone", Automobility.id("rearatt_grindstone"), BlockRearAttachment::grindstone));
     public static final RearAttachmentType<BlockRearAttachment> STONECUTTER = register(block("stonecutter", Automobility.id("rearatt_stonecutter"), BlockRearAttachment::stonecutter));
+    public static final RearAttachmentType<BlockRearAttachment> AUTO_MECHANIC_TABLE = register(block("auto_mechanic_table", BlockRearAttachment::autoMechanicTable));
 
     public static final RearAttachmentType<BlockRearAttachment> CHEST = register(chest("chest", BaseChestRearAttachment::chest));
     public static final RearAttachmentType<BlockRearAttachment> ENDER_CHEST = register(chest("ender_chest", BaseChestRearAttachment::enderChest));

@@ -1,0 +1,18 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:attachments",
+    "sortnum": 2,
+    "ingredients": [
+        {"item": "minecraft:flint"},
+        {"item": "minecraft:gold_ingot"},
+        {"item": "minecraft:copper_ingot"},
+        {"item": "minecraft:emerald"},
+        {"item": "minecraft:redstone"},
+        {"item": "minecraft:iron_nugget"},
+        {"item": "minecraft:flint"}
+    ],
+    "result": {
+        "item": "automobility:front_attachment",
+        "component": "automobility:mob_controller"
+    }
+}

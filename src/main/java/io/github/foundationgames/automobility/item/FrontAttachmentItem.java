@@ -20,6 +20,7 @@ public class FrontAttachmentItem extends AutomobileComponentItem<FrontAttachment
             }
 
             automobile.setFrontAttachment(getComponent(stack));
+            automobile.playHitSound();
             if (!player.isCreative()) {
                 stack.decrement(1);
             }

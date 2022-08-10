@@ -7,12 +7,17 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -24,6 +29,9 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class AutomobileAssemblerBlock extends HorizontalFacingBlock implements BlockEntityProvider {
+    public static final Text USE_CROWBAR_DIALOG = new TranslatableText("dialog.automobility.use_crowbar").formatted(Formatting.GOLD);
+    public static final Text INCOMPLETE_AUTOMOBILE_DIALOG = new TranslatableText("dialog.automobility.incomplete_automobile").formatted(Formatting.RED);
+
     public static final BooleanProperty POWERED = Properties.POWERED;
 
     private static final VoxelShape BASE = VoxelShapes.union(
@@ -51,20 +59,30 @@ public class AutomobileAssemblerBlock extends HorizontalFacingBlock implements B
     }
 
     @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        if (!world.isClient() && placer instanceof PlayerEntity player) {
+            player.sendMessage(USE_CROWBAR_DIALOG, true);
+        }
+
+        super.onPlaced(world, pos, state, placer, itemStack);
+    }
+
+    @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (world.getBlockEntity(pos) instanceof AutomobileAssemblerBlockEntity assembler) {
             return assembler.interact(player, hand);
         }
+
         return super.onUse(state, world, pos, player, hand, hit);
     }
 
     @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        super.onStateReplaced(state, world, pos, newState, moved);
-
         if (!newState.isOf(this) && world.getBlockEntity(pos) instanceof AutomobileAssemblerBlockEntity assembler) {
             assembler.dropParts();
         }
+
+        super.onStateReplaced(state, world, pos, newState, moved);
     }
 
     @Override

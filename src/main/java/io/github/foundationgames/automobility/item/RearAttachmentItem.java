@@ -32,6 +32,7 @@ public class RearAttachmentItem extends AutomobileComponentItem<RearAttachmentTy
             }
 
             automobile.setRearAttachment(getComponent(stack));
+            automobile.playHitSound();
             if (!player.isCreative()) {
                 stack.decrement(1);
             }

@@ -21,6 +21,8 @@ public class ChestRearAttachmentModel extends RearAttachmentRenderModel {
 
     @Override
     public void setRenderState(@Nullable RearAttachment attachment, float wheelAngle, float tickDelta) {
+        super.setRenderState(attachment, wheelAngle, tickDelta);
+
         if (attachment instanceof BaseChestRearAttachment chest) {
             float angle = 1 - chest.lidAnimator.getProgress(tickDelta);
             angle = 1 - (angle * angle * angle);

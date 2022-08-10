@@ -5,6 +5,7 @@ import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.recipe.AutoMechanicTableRecipe;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.sound.PositionedSoundInstance;
@@ -131,6 +132,16 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
         this.drawMissingIngredients(matrices);
     }
 
+    @Override
+    protected void drawForeground(MatrixStack matrices, int mouseX, int mouseY) {
+        super.drawForeground(matrices, mouseX, mouseY);
+
+        int hoveredRecipe = this.getHoveredRecipe(mouseX, mouseY);
+        if (hoveredRecipe >= 0) {
+            this.renderTooltip(matrices, this.handler.recipes.get(hoveredRecipe).getOutput(), mouseX - this.x, mouseY - this.y);
+        }
+    }
+
     private void changeCategory(int by) {
         this.currentCategory = Math.floorMod((this.currentCategory + by), this.orderedCategories.size());
         this.categoryTitle = createCategoryTitle(this.orderedCategories.get(this.currentCategory));
@@ -195,7 +206,7 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
     }
 
     protected final void drawMissingIngredient(MatrixStack matrices, Ingredient ing, int x, int y) {
-        DrawableHelper.fill(matrices, x, y, x + 16, y + 16, 0x30FF0000);
+        DrawableHelper.fill(matrices, x, y, x + 16, y + 16, 0x45FF0000);
 
         var stacks = ing.getMatchingStacks();
         this.itemRenderer.renderInGui(stacks[MathHelper.floor((float)this.time / 30) % stacks.length], x, y);
