@@ -16,7 +16,7 @@
     "EntityRenderersMixin",
     "GameRendererMixin",
     "ModelElementDeserializerMixin",
-    "lambdacontrols.InputHandlersMixin"
+    "midnightcontrols.InputHandlersMixin"
   ],
   "injectors": {
     "defaultRequire": 1

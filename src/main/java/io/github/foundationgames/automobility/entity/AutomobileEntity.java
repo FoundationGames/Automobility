@@ -21,7 +21,7 @@ import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.sound.AutomobileSoundInstance;
 import io.github.foundationgames.automobility.sound.AutomobilitySounds;
 import io.github.foundationgames.automobility.util.AUtils;
-import io.github.foundationgames.automobility.util.lambdacontrols.ControllerUtils;
+import io.github.foundationgames.automobility.util.midnightcontrols.ControllerUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

@@ -6,7 +6,7 @@ A Minecraft vehicle mod adding customizable cars. <br/><br/>
 ![Turbo](./md/turbo.png) <br/>
 
 ### Try it out!
-Recommended to use along with [LambdaControls](https://www.curseforge.com/minecraft/mc-mods/lambdacontrols), which allows for controller support when driving an automobile. (Already loaded when using in dev environment)
+Recommended to use along with [MidnightControls](https://www.curseforge.com/minecraft/mc-mods/midnightcontrols), which allows for controller support when driving an automobile. (Already loaded when using in dev environment)
 <br/><br/>
 There are no official releases yet. <br/>
 #### If you would like to try it out:
@@ -21,7 +21,7 @@ To get an automobile in game, construct it on an Automobile Assembler using a fr
 - A/D - Steer left/right
 - Space - Drift
 
-**Driving with Controller (LambdaControls):**
+**Driving with Controller (MidnightControls):**
 - A - Accelerate
 - B - Brake/Reverse
 - LStick - Steer left/right

@@ -1,12 +1,13 @@
-package io.github.foundationgames.automobility.util.lambdacontrols;
+package io.github.foundationgames.automobility.util.midnightcontrols;
 
-import dev.lambdaurora.lambdacontrols.ControlsMode;
-import dev.lambdaurora.lambdacontrols.client.LambdaControlsClient;
-import dev.lambdaurora.lambdacontrols.client.compat.CompatHandler;
-import dev.lambdaurora.lambdacontrols.client.compat.LambdaControlsCompat;
-import dev.lambdaurora.lambdacontrols.client.controller.ButtonBinding;
-import dev.lambdaurora.lambdacontrols.client.controller.ButtonCategory;
-import dev.lambdaurora.lambdacontrols.client.controller.InputManager;
+import eu.midnightdust.midnightcontrols.ControlsMode;
+import eu.midnightdust.midnightcontrols.client.MidnightControlsClient;
+import eu.midnightdust.midnightcontrols.client.MidnightControlsConfig;
+import eu.midnightdust.midnightcontrols.client.compat.CompatHandler;
+import eu.midnightdust.midnightcontrols.client.compat.MidnightControlsCompat;
+import eu.midnightdust.midnightcontrols.client.controller.ButtonBinding;
+import eu.midnightdust.midnightcontrols.client.controller.ButtonCategory;
+import eu.midnightdust.midnightcontrols.client.controller.InputManager;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.client.MinecraftClient;
@@ -19,12 +20,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static org.lwjgl.glfw.GLFW.*;
-
-/*
- * LambdaControls is discontinued and this has a nearly 100% chance of being removed in the future (once the mod is broken)
- */
-//
-public class AutomobilityLC implements CompatHandler {
+public class AutomobilityMidnightControls implements CompatHandler {
     public static final PairPredicate<MinecraftClient, ButtonBinding> ON_AUTOMOBILE = (client, button) -> client.player != null && client.player.getVehicle() instanceof AutomobileEntity;
 
     public static final Set<ButtonBinding> AUTOMOBILITY_BINDINGS = new HashSet<>();
@@ -44,13 +40,13 @@ public class AutomobilityLC implements CompatHandler {
     public static Supplier<Boolean> IN_CONTROLLER_MODE = () -> false;
 
     public static void init() {
-        LambdaControlsCompat.registerCompatHandler(new AutomobilityLC());
+        MidnightControlsCompat.registerCompatHandler(new AutomobilityMidnightControls());
     }
 
     @Override
-    public void handle(@NotNull LambdaControlsClient mod) {
+    public void handle(@NotNull MidnightControlsClient mod) {
         AUTOMOBILITY_CATEGORY.registerAllBindings(ACCELERATE, BRAKE, DRIFT);
-        IN_CONTROLLER_MODE = () -> mod.config.getControlsMode() == ControlsMode.CONTROLLER;
+        IN_CONTROLLER_MODE = () -> MidnightControlsConfig.controlsMode == ControlsMode.CONTROLLER;
     }
 
     private static ButtonBinding binding(ButtonBinding binding) {

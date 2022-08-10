@@ -37,9 +37,12 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// Controller Support
-	modApi ("dev.lambdaurora:lambdacontrols:${project.lambdacontrols_version}") {
-		exclude (group: "com.google.guava")
-		exclude (group: "net.fabricmc.fabric-api")
+	modImplementation "dev.lambdaurora:spruceui:${project.spruceui_version}"
+	modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
+	modImplementation "maven.modrinth:midnightcontrols:${project.midnightcontrols_version}"
+	api('org.aperlambda:lambdajcommon:1.8.1') {
+		exclude group: 'com.google.code.gson'
+		exclude group: 'com.google.guava'
 	}
 
 	// OBJ loader
