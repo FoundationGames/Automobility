@@ -54,6 +54,12 @@
   "dialog.automobility.use_crowbar": "Use a crowbar to remove parts.",
   "dialog.automobility.incomplete_automobile": "Incomplete automobile!",
 
+  "automobile_control.accelerate": "Accelerate",
+  "automobile_control.brake": "Brake/Reverse",
+  "automobile_control.steer_left": "Steer Left",
+  "automobile_control.steer_right": "Steer Right",
+  "automobile_control.drift": "Drift",
+
   "prefab.automobility.wooden_motorcar": "Wooden Motorcar",
   "prefab.automobility.copper_motorcar": "Copper Motorcar",
   "prefab.automobility.steel_motorcar": "Steel Motorcar",

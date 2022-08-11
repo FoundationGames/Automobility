@@ -9,6 +9,7 @@ import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.render.AutomobilityModels;
 import io.github.foundationgames.automobility.resource.AutomobilityAssets;
 import io.github.foundationgames.automobility.screen.AutoMechanicTableScreen;
+import io.github.foundationgames.automobility.screen.AutomobileHud;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.ClientModInitializer;
@@ -38,13 +39,7 @@ public class AutomobilityClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register((matrices, delta) -> {
             var player = MinecraftClient.getInstance().player;
             if (player.getVehicle() instanceof AutomobileEntity auto) {
-                float speed = Math.abs(auto.getHSpeed() * 20);
-                int color = 0xFFFFFF;
-                if (auto.getBoostTimer() > 0) color = 0xFF6F00;
-                if (auto.getTurboCharge() > AutomobileEntity.SMALL_TURBO_TIME) color = 0xFFEA4A;
-                if (auto.getTurboCharge() > AutomobileEntity.MEDIUM_TURBO_TIME) color = 0x7DE9FF;
-                if (auto.getTurboCharge() > AutomobileEntity.LARGE_TURBO_TIME) color = 0x906EFF;
-                DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, new LiteralText(AUtils.DEC_TWO_PLACES.format(speed) +" m/s"), 20, 20, color);
+                AutomobileHud.render(matrices, player, auto, delta);
             }
         });
 

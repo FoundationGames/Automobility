@@ -21,7 +21,7 @@
 - A/D - Steer left/right
 - Space - Drift
 
-**Controller Support:** when using [MidnightControls](), you will be able to control automobiles with the following default controls:
+**Controller Support:** when using [MidnightControls](https://www.curseforge.com/minecraft/mc-mods/midnightcontrols), you will be able to control automobiles with the following default controls:
 - A - Accelerate
 - B - Brake/Reverse
 - LStick - Steer left/right

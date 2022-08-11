@@ -173,6 +173,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     private boolean wasEngineRunning = false;
 
+    private float standStillTime = -1.3f;
+
     public void writeSyncToClientData(PacketByteBuf buf) {
         buf.writeInt(boostTimer);
         buf.writeFloat(steering);
@@ -518,6 +520,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     @Environment(EnvType.CLIENT)
     private void playEngineSound() {
+        if (this.getEngine().isEmpty()) {
+            return;
+        }
+
         var client = MinecraftClient.getInstance();
         client.getSoundManager().play(new AutomobileSoundInstance.EngineSound(client, this));
     }
@@ -610,6 +616,12 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             lastSusBounceTimer = suspensionBounceTimer;
             if (suspensionBounceTimer > 0) {
                 suspensionBounceTimer--;
+            }
+
+            if (Math.abs(this.hSpeed) < 0.05 && !this.burningOut && this.getPrimaryPassenger() instanceof PlayerEntity) {
+                this.standStillTime = AUtils.shift(this.standStillTime, 0.05f, 1f);
+            } else {
+                this.standStillTime = AUtils.shift(this.standStillTime, 0.15f, -1.3f);
             }
         }
 
@@ -1269,6 +1281,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         if (factory != null) {
             player.openHandledScreen(factory);
         }
+    }
+
+    public float getStandStillTime() {
+        return this.standStillTime;
     }
 
     public void playHitSound() {

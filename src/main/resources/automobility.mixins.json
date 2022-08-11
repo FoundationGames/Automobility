@@ -8,7 +8,7 @@
     "EntityMixin",
     "ForgingScreenHandlerMixin",
     "ScreenHandlerMixin",
-    "ServerPlayNetworkHandlerMixin"
+    "ServerPlayNetworkHandlerMixin",
   ],
   "client": [
     "ClientPlayerEntityMixin",
@@ -16,7 +16,8 @@
     "EntityRenderersMixin",
     "GameRendererMixin",
     "ModelElementDeserializerMixin",
-    "midnightcontrols.InputHandlersMixin"
+    "midnightcontrols.InputHandlersMixin",
+    "myron.AbstractObjLoaderMixin"
   ],
   "injectors": {
     "defaultRequire": 1
