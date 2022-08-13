@@ -27,6 +27,7 @@ import java.util.function.BiFunction;
 public class BaseChestRearAttachment extends BlockRearAttachment {
     public static final Text TITLE_CHEST = new TranslatableText("container.chest");
     public static final Text TITLE_ENDER_CHEST = new TranslatableText("container.enderchest");
+    public static final Text TITLE_BARREL = new TranslatableText("container.barrel");
 
     private final ViewerCountManager viewerManager;
     public final ChestLidAnimator lidAnimator;
@@ -117,5 +118,11 @@ public class BaseChestRearAttachment extends BlockRearAttachment {
                     return GenericContainerScreenHandler.createGeneric9x3(syncId, inventory, enderChest);
                 }, TITLE_ENDER_CHEST)
         );
+    }
+
+    public static BaseChestRearAttachment saddledBarrel(RearAttachmentType<?> type, AutomobileEntity entity) {
+        return new SaddledBarrelRearAttachment(type, entity,
+                Blocks.BARREL.getDefaultState(),
+                (ctx, att) -> att instanceof SaddledBarrelRearAttachment barrel ? barrel : null);
     }
 }

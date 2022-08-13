@@ -5,6 +5,7 @@ import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -52,6 +53,9 @@ public abstract class BaseAttachment<T extends AutomobileComponent<T>> {
     public abstract void writeNbt(NbtCompound nbt);
 
     public abstract void readNbt(NbtCompound nbt);
+
+    public void updatePacketRequested(ServerPlayerEntity player) {
+    }
 
     protected boolean canModifyBlocks() {
         if (this.automobile.getFirstPassenger() instanceof PlayerEntity player && player.canModifyBlocks()) {

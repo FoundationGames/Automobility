@@ -3,6 +3,7 @@ package io.github.foundationgames.automobility.automobile.attachment;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.AutomobileComponent;
 import io.github.foundationgames.automobility.automobile.DisplayStat;
+import io.github.foundationgames.automobility.automobile.attachment.rear.BannerPostRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.BaseChestRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.EmptyRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.PassengerSeatRearAttachment;
@@ -46,6 +47,12 @@ public record RearAttachmentType<T extends RearAttachment>(
 
     public static final RearAttachmentType<BlockRearAttachment> CHEST = register(chest("chest", BaseChestRearAttachment::chest));
     public static final RearAttachmentType<BlockRearAttachment> ENDER_CHEST = register(chest("ender_chest", BaseChestRearAttachment::enderChest));
+    public static final RearAttachmentType<BlockRearAttachment> SADDLED_BARREL = register(block("saddled_barrel", BaseChestRearAttachment::saddledBarrel));
+
+    public static final RearAttachmentType<BannerPostRearAttachment> BANNER_POST = register(new RearAttachmentType<>(
+            Automobility.id("banner_post"), BannerPostRearAttachment::new,
+            new RearAttachmentModel(Automobility.id("textures/entity/automobile/rear_attachment/banner_post.png"), Automobility.id("rearatt_banner_post"), 10)
+    ));
 
     @Override
     public boolean isEmpty() {

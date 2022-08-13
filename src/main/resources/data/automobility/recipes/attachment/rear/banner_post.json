@@ -1,0 +1,16 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:attachments",
+    "sortnum": 208,
+    "ingredients": [
+        {"item": "minecraft:stick"},
+        {"item": "minecraft:stick"},
+        {"tag": "minecraft:stone_crafting_materials"},
+        {"item": "minecraft:iron_ingot"},
+        {"tag": "minecraft:logs"}
+    ],
+    "result": {
+        "item": "automobility:rear_attachment",
+        "component": "automobility:banner_post"
+    }
+}

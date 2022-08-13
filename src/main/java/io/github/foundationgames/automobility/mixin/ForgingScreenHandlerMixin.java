@@ -1,6 +1,6 @@
 package io.github.foundationgames.automobility.mixin;
 
-import io.github.foundationgames.automobility.automobile.screen.handler.AutomobileScreenHandlerContext;
+import io.github.foundationgames.automobility.screen.AutomobileScreenHandlerContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.screen.ForgingScreenHandler;

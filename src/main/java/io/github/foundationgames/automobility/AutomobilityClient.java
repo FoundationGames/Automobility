@@ -10,6 +10,7 @@ import io.github.foundationgames.automobility.render.AutomobilityModels;
 import io.github.foundationgames.automobility.resource.AutomobilityAssets;
 import io.github.foundationgames.automobility.screen.AutoMechanicTableScreen;
 import io.github.foundationgames.automobility.screen.AutomobileHud;
+import io.github.foundationgames.automobility.screen.SingleSlotScreen;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.ClientModInitializer;
@@ -35,6 +36,7 @@ public class AutomobilityClient implements ClientModInitializer {
         AutomobilityAssets.setup();
 
         HandledScreens.register(Automobility.AUTO_MECHANIC_SCREEN, AutoMechanicTableScreen::new);
+        HandledScreens.register(Automobility.SINGLE_SLOT_SCREEN, SingleSlotScreen::new);
 
         HudRenderCallback.EVENT.register((matrices, delta) -> {
             var player = MinecraftClient.getInstance().player;

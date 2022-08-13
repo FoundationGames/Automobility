@@ -11,7 +11,7 @@ import io.github.foundationgames.automobility.automobile.attachment.RearAttachme
 import io.github.foundationgames.automobility.automobile.attachment.front.FrontAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
-import io.github.foundationgames.automobility.automobile.screen.handler.AutomobileScreenHandlerContext;
+import io.github.foundationgames.automobility.screen.AutomobileScreenHandlerContext;
 import io.github.foundationgames.automobility.block.AutomobileAssemblerBlock;
 import io.github.foundationgames.automobility.block.LaunchGelBlock;
 import io.github.foundationgames.automobility.block.OffRoadBlock;
@@ -426,7 +426,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     private void setBurningOut(boolean burningOut) {
-        if (this.world.isClient()&& !this.drifting && !this.burningOut && burningOut) {
+        if (this.world.isClient() && !this.drifting && !this.burningOut && burningOut) {
             playSkiddingSound();
         }
 
@@ -484,7 +484,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         if (!world.isClient()) syncComponents();
     }
 
-    private void forNearbyPlayers(int radius, boolean ignoreDriver, Consumer<ServerPlayerEntity> action) {
+    public void forNearbyPlayers(int radius, boolean ignoreDriver, Consumer<ServerPlayerEntity> action) {
         for (PlayerEntity p : world.getPlayers()) {
             if (ignoreDriver && p == getFirstPassenger()) {
                 continue;
@@ -625,7 +625,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             }
         }
 
-        displacementTick(first || this.getPos().subtract(prevPos).length() > 0.01);
+        displacementTick(first || (this.getPos().subtract(prevPos).length() > 0.01 || this.getYaw() != this.prevYaw));
     }
 
     public void positionTrackingTick() {
@@ -1408,7 +1408,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         } else if (this.hasPassenger(passenger)) {
             var pos = this.getPos().add(
                     new Vec3d(0, this.displacement.verticalTarget, this.getFrame().model().rearAttachmentPos() * 0.0625)
-                        .rotateY((float) Math.toRadians(180 - this.getYaw())).add(0, this.rearAttachment.getPassengerHeightOffset() + passenger.getHeightOffset(), 0)
+                        .rotateY((float) Math.toRadians(180 - this.getYaw())).add(0, this.rearAttachment.getPassengerHeightOffset() + passenger.getHeightOffset() - 0.14, 0)
                         .add(this.rearAttachment.scaledYawVec())
                         .rotateX((float) Math.toRadians(-this.displacement.currAngularX))
                         .rotateZ((float) Math.toRadians(-this.displacement.currAngularZ)));

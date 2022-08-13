@@ -1,4 +1,4 @@
-package io.github.foundationgames.automobility.automobile.screen.handler;
+package io.github.foundationgames.automobility.screen;
 
 import io.github.foundationgames.automobility.automobile.attachment.rear.BlockRearAttachment;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;

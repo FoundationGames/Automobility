@@ -38,7 +38,7 @@ public class FrontAttachmentRenderModel extends BaseModel {
     }
 
     @Override
-    public void renderOther(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public void renderExtra(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         if (this.ground != null) {
             matrices.push();
             matrices.translate(0, groundHeight, 0);

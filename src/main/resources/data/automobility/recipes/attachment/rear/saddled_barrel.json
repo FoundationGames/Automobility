@@ -1,0 +1,16 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:attachments",
+    "sortnum": 207,
+    "ingredients": [
+        {"item": "minecraft:saddle"},
+        {"item": "minecraft:barrel"},
+        {"item": "minecraft:smooth_stone"},
+        {"item": "minecraft:iron_ingot"},
+        {"tag": "minecraft:logs"}
+    ],
+    "result": {
+        "item": "automobility:rear_attachment",
+        "component": "automobility:saddled_barrel"
+    }
+}

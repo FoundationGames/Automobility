@@ -6,6 +6,7 @@ import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
+import io.github.foundationgames.automobility.automobile.attachment.rear.BannerPostRearAttachment;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -13,6 +14,9 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -61,6 +65,17 @@ public enum PayloadPackets {;
         ServerPlayNetworking.send(player, Automobility.id("sync_automobile_attachments"), buf);
     }
 
+    public static void sendBannerPostAttachmentUpdatePacket(AutomobileEntity entity, NbtCompound banner, ServerPlayerEntity player) {
+        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+
+        var rearAtt = entity.getRearAttachment();
+        if (rearAtt instanceof BannerPostRearAttachment) {
+            buf.writeInt(entity.getId());
+            buf.writeNbt(banner);
+            ServerPlayNetworking.send(player, Automobility.id("update_banner_post"), buf);
+        }
+    }
+
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile_inputs"), (server, player, handler, buf, responseSender) -> {
             boolean fwd = buf.readBoolean();
@@ -82,6 +97,12 @@ public enum PayloadPackets {;
                 if (player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
                     sendSyncAutomobileComponentsPacket(automobile, player);
                     sendSyncAutomobileAttachmentsPacket(automobile, player);
+
+                    var fAtt = automobile.getFrontAttachment();
+                    if (fAtt != null) fAtt.updatePacketRequested(player);
+
+                    var rAtt = automobile.getRearAttachment();
+                    if (rAtt != null) rAtt.updatePacketRequested(player);
                 }
             });
         });
@@ -117,6 +138,16 @@ public enum PayloadPackets {;
                 if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
                     automobile.setRearAttachment(rearAtt);
                     automobile.setFrontAttachment(frontAtt);
+                }
+            });
+        });
+        ClientPlayNetworking.registerGlobalReceiver(Automobility.id("update_banner_post"), (client, handler, buf, responseSender) -> {
+            int entityId = buf.readInt();
+            var banner = buf.readNbt();
+            client.execute(() -> {
+                if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile &&
+                        automobile.getRearAttachment() instanceof BannerPostRearAttachment bannerPost) {
+                    bannerPost.setFromNbt(banner);
                 }
             });
         });

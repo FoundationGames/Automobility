@@ -16,7 +16,7 @@ public class CopperEngineModel extends BaseModel {
     }
 
     @Override
-    protected void transform(MatrixStack matrices) {
+    protected void prepare(MatrixStack matrices) {
         matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
     }
 }

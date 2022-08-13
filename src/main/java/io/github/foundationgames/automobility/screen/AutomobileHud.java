@@ -33,7 +33,11 @@ public enum AutomobileHud {;
 
         if (!ControllerUtils.inControllerMode()) {
             float alpha = Math.max(0, (auto.getStandStillTime() * 2) - 1);
-            if (alpha > 0) {
+
+            // Check on a 0-255 converted version of alpha, because 0 alpha will render things at 100% alpha for some
+            // reason, and small enough numbers (which would result in 0 alpha as an int, but non zero as a float) would
+            // result in a brief tick of 100% alpha, messing up the smoothness of the fade in animation
+            if ((int)(alpha * 0xFF) > 0) {
                 renderControlHints(matrices, alpha);
             }
         }

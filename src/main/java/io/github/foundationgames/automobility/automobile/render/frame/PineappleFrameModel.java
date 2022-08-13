@@ -15,7 +15,7 @@ public class PineappleFrameModel extends BaseModel {
     }
 
     @Override
-    protected void transform(MatrixStack matrices) {
+    protected void prepare(MatrixStack matrices) {
         matrices.scale(2, 2, 2);
     }
 }

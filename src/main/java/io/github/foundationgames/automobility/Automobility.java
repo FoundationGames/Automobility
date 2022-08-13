@@ -8,6 +8,7 @@ import io.github.foundationgames.automobility.recipe.AutoMechanicTableRecipe;
 import io.github.foundationgames.automobility.recipe.AutoMechanicTableRecipeSerializer;
 import io.github.foundationgames.automobility.resource.AutomobilityData;
 import io.github.foundationgames.automobility.screen.AutoMechanicTableScreenHandler;
+import io.github.foundationgames.automobility.screen.SingleSlotScreenHandler;
 import io.github.foundationgames.automobility.sound.AutomobilitySounds;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.midnightcontrols.ControllerUtils;
@@ -35,6 +36,8 @@ public class Automobility implements ModInitializer {
 
     public static final ScreenHandlerType<AutoMechanicTableScreenHandler> AUTO_MECHANIC_SCREEN =
             Registry.register(Registry.SCREEN_HANDLER, Automobility.id("auto_mechanic_table"), new ScreenHandlerType<>(AutoMechanicTableScreenHandler::new));
+    public static final ScreenHandlerType<SingleSlotScreenHandler> SINGLE_SLOT_SCREEN =
+            Registry.register(Registry.SCREEN_HANDLER, Automobility.id("single_slot"), new ScreenHandlerType<>(SingleSlotScreenHandler::new));
 
     @Override
     public void onInitialize() {
