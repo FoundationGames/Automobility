@@ -98,7 +98,7 @@
 
   "stat.automobility.automobile.acceleration": "加速",
   "stat.automobility.automobile.acceleration.readout": "%s",
-  "stat.automobility.automobile.comfortable_speed": "舒适速度",
+  "stat.automobility.automobile.comfortable_speed": "适宜速度",
   "stat.automobility.automobile.comfortable_speed.readout": "%s m/s",
   "stat.automobility.automobile.handling": "操作",
   "stat.automobility.automobile.handling.readout": "%s",
@@ -154,7 +154,7 @@
   "wheel.automobility.off_road": "越野",
   "wheel.automobility.tractor": "拖拉机",
   "wheel.automobility.steel": "钢制",
-  "wheel.automobility.convertible": "可转换",
+  "wheel.automobility.convertible": "敞篷",
 
   "engine.automobility.stone": "石质",
   "engine.automobility.copper": "铜质",
