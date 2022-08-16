@@ -44,7 +44,7 @@ public enum AutomobileHud {;
     }
 
     private static void renderSpeedometer(MatrixStack matrices, AutomobileEntity auto) {
-        float speed = Math.abs(auto.getHSpeed() * 20);
+        float speed = (float) auto.getEffectiveSpeed() * 20;
         int color = 0xFFFFFF;
         if (auto.getBoostTimer() > 0) color = 0xFF6F00;
         if (auto.getTurboCharge() > AutomobileEntity.SMALL_TURBO_TIME) color = 0xFFEA4A;

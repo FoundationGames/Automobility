@@ -58,7 +58,7 @@ public abstract class AutomobileSoundInstance extends MovingSoundInstance {
 
         if (player.getVehicle() != this.automobile) {
             double distance = this.automobile.getPos().subtract(player.getPos()).length();
-            this.pitch += (0.36 * (lastDistance - distance));
+            this.pitch += (0.36 * Math.atan(lastDistance - distance));
 
             this.lastDistance = distance;
         } else {
@@ -78,7 +78,7 @@ public abstract class AutomobileSoundInstance extends MovingSoundInstance {
 
         @Override
         protected float getPitch(AutomobileEntity automobile) {
-            return (float) (Math.pow(4, (automobile.getHSpeed() - 0.9)) + 0.32);
+            return (float) (Math.pow(4, (automobile.getEffectiveSpeed() - 0.9)) + 0.32);
         }
 
         @Override

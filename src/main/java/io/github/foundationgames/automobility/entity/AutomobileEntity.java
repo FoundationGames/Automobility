@@ -181,6 +181,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         buf.writeFloat(wheelAngle);
         buf.writeInt(turboCharge);
         buf.writeFloat(engineSpeed);
+        buf.writeFloat(boostSpeed);
         buf.writeByte(compactInputData());
 
         buf.writeBoolean(drifting);
@@ -193,6 +194,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         wheelAngle = buf.readFloat();
         turboCharge = buf.readInt();
         engineSpeed = buf.readFloat();
+        boostSpeed = buf.readFloat();
         readCompactedInputData(buf.readByte());
 
         setDrifting(buf.readBoolean());
@@ -396,6 +398,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     @Override
     public int getBoostTimer() {
         return boostTimer;
+    }
+
+    public double getEffectiveSpeed() {
+        if (this.getPrimaryPassenger() instanceof PlayerEntity player && player.isMainPlayer()) {
+            return Math.max(this.addedVelocity.length(), Math.abs(this.hSpeed));
+        }
+
+        return Math.max(this.addedVelocity.length(), Math.abs(this.engineSpeed + this.boostSpeed));
     }
 
     @Override
