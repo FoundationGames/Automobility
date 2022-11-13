@@ -9,7 +9,6 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -54,6 +53,6 @@ public class SteepSlopeBlockItem extends BlockItem {
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
-        if (base != null) tooltip.add(new TranslatableText(base.getTranslationKey()).formatted(Formatting.BLUE));
+        if (base != null) tooltip.add(Text.translatable(base.getTranslationKey()).formatted(Formatting.BLUE));
     }
 }

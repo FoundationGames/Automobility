@@ -17,7 +17,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -25,9 +24,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.BiFunction;
 
 public class BaseChestRearAttachment extends BlockRearAttachment {
-    public static final Text TITLE_CHEST = new TranslatableText("container.chest");
-    public static final Text TITLE_ENDER_CHEST = new TranslatableText("container.enderchest");
-    public static final Text TITLE_BARREL = new TranslatableText("container.barrel");
+    public static final Text TITLE_CHEST = Text.translatable("container.chest");
+    public static final Text TITLE_ENDER_CHEST = Text.translatable("container.enderchest");
+    public static final Text TITLE_BARREL = Text.translatable("container.barrel");
 
     private final ViewerCountManager viewerManager;
     public final ChestLidAnimator lidAnimator;

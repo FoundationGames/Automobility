@@ -15,7 +15,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.item.Item;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.registry.Registry;
 
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 public enum AutomobilityItems {;
-    public static final Item CROWBAR = register("crowbar", new TooltipItem(new TranslatableText("tooltip.item.automobility.crowbar").formatted(Formatting.BLUE), new Item.Settings().maxCount(1).group(Automobility.GROUP)));
+    public static final Item CROWBAR = register("crowbar", new TooltipItem(Text.translatable("tooltip.item.automobility.crowbar").formatted(Formatting.BLUE), new Item.Settings().maxCount(1).group(Automobility.GROUP)));
     public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Settings().maxCount(1).group(Automobility.PREFABS)));
     public static final AutomobileFrameItem AUTOMOBILE_FRAME = register("automobile_frame", new AutomobileFrameItem(new Item.Settings().maxCount(16).group(Automobility.GROUP)));
     public static final AutomobileWheelItem AUTOMOBILE_WHEEL = register("automobile_wheel", new AutomobileWheelItem(new Item.Settings().group(Automobility.GROUP)));

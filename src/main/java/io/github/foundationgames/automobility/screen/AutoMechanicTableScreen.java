@@ -13,7 +13,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -151,9 +150,9 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
     private OrderedText createCategoryTitle(Identifier category) {
         var translated = I18n.translate("part_category."+category.getNamespace()+"."+category.getPath());
         if (this.textRenderer.getWidth(translated) > 64) {
-            return new LiteralText(this.textRenderer.trimToWidth(translated, 57) + "...").asOrderedText();
+            return Text.literal(this.textRenderer.trimToWidth(translated, 57) + "...").asOrderedText();
         }
-        return new LiteralText(this.textRenderer.trimToWidth(translated, 64)).asOrderedText();
+        return Text.literal(this.textRenderer.trimToWidth(translated, 64)).asOrderedText();
     }
 
     private void buttonClicked() {

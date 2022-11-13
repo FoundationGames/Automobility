@@ -26,7 +26,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -39,7 +39,7 @@ public enum AutomobilityBlocks {;
 
     public static final Block LAUNCH_GEL = register("launch_gel", new LaunchGelBlock(FabricBlockSettings.copyOf(Blocks.GLOW_LICHEN).sounds(BlockSoundGroup.HONEY).noCollision()), Automobility.COURSE_ELEMENTS);
     public static final Block ALLOW = register("allow", new Block(FabricBlockSettings.copyOf(Blocks.BARRIER).sounds(BlockSoundGroup.METAL)),
-            b -> new TooltipBlockItem(b, new TranslatableText("tooltip.block.automobility.allow").formatted(Formatting.AQUA), new Item.Settings().group(Automobility.COURSE_ELEMENTS)));
+            b -> new TooltipBlockItem(b, Text.translatable("tooltip.block.automobility.allow").formatted(Formatting.AQUA), new Item.Settings().group(Automobility.COURSE_ELEMENTS)));
 
     public static final Block GRASS_OFF_ROAD = register("grass_off_road", new OffRoadBlock(FabricBlockSettings.copyOf(Blocks.GRASS_BLOCK).noCollision(), AUtils.colorFromInt(0x406918)), Automobility.COURSE_ELEMENTS);
     public static final Block DIRT_OFF_ROAD = register("dirt_off_road", new OffRoadBlock(FabricBlockSettings.copyOf(Blocks.DIRT).noCollision(), AUtils.colorFromInt(0x594227)), Automobility.COURSE_ELEMENTS);

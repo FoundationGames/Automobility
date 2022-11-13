@@ -12,9 +12,7 @@ import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 import java.util.List;
 import java.util.function.Function;
@@ -50,7 +48,7 @@ public enum AutomobileHud {;
         if (auto.getTurboCharge() > AutomobileEntity.SMALL_TURBO_TIME) color = 0xFFEA4A;
         if (auto.getTurboCharge() > AutomobileEntity.MEDIUM_TURBO_TIME) color = 0x7DE9FF;
         if (auto.getTurboCharge() > AutomobileEntity.LARGE_TURBO_TIME) color = 0x906EFF;
-        DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, new LiteralText(AUtils.DEC_TWO_PLACES.format(speed) +" m/s"), 20, 20, color);
+        DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.literal(AUtils.DEC_TWO_PLACES.format(speed) +" m/s"), 20, 20, color);
     }
 
     private static void renderControlHints(MatrixStack matrices, float alpha) {
@@ -75,7 +73,7 @@ public enum AutomobileHud {;
 
     public record ControlHint(String name, Function<GameOptions, KeyBinding> keybind) {
         public Text getText() {
-            return new TranslatableText("automobile_control."+name);
+            return Text.translatable("automobile_control."+name);
         }
 
         public Text getKeybindText(GameOptions options) {

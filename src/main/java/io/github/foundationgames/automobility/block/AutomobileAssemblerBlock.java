@@ -15,7 +15,6 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -29,8 +28,8 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class AutomobileAssemblerBlock extends HorizontalFacingBlock implements BlockEntityProvider {
-    public static final Text USE_CROWBAR_DIALOG = new TranslatableText("dialog.automobility.use_crowbar").formatted(Formatting.GOLD);
-    public static final Text INCOMPLETE_AUTOMOBILE_DIALOG = new TranslatableText("dialog.automobility.incomplete_automobile").formatted(Formatting.RED);
+    public static final Text USE_CROWBAR_DIALOG = Text.translatable("dialog.automobility.use_crowbar").formatted(Formatting.GOLD);
+    public static final Text INCOMPLETE_AUTOMOBILE_DIALOG = Text.translatable("dialog.automobility.incomplete_automobile").formatted(Formatting.RED);
 
     public static final BooleanProperty POWERED = Properties.POWERED;
 

@@ -17,9 +17,9 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.random.Random;
 
 import java.text.DecimalFormat;
-import java.util.Random;
 
 public enum AUtils {;
     /**
@@ -42,7 +42,7 @@ public enum AUtils {;
      */
     public static boolean IGNORE_ENTITY_GROUND_CHECK_STEPPING = false;
 
-    private static final Random RANDOM = new Random();
+    private static final Random RANDOM = Random.create();
 
     /**
      * Shifts the number 'in' towards zero by the amount 'by'

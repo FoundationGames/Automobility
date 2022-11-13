@@ -32,7 +32,7 @@ import io.github.foundationgames.automobility.entity.render.AutomobileEntityRend
 import io.github.foundationgames.jsonem.JsonEM;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
@@ -57,7 +57,7 @@ public enum AutomobilityEntities {;
 
     @Environment(EnvType.CLIENT)
     public static void initClient() {
-        EntityRendererRegistry.INSTANCE.register(AUTOMOBILE, AutomobileEntityRenderer::new);
+        EntityRendererRegistry.register(AUTOMOBILE, AutomobileEntityRenderer::new);
 
         JsonEM.registerModelLayer(StandardFrameModel.MODEL_LAYER);
         JsonEM.registerModelLayer(TractorFrameModel.MODEL_LAYER);

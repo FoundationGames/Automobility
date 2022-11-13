@@ -1297,8 +1297,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         return this.standStillTime;
     }
 
-    public void playHitSound() {
-        world.emitGameEvent(GameEvent.ENTITY_DAMAGED, this);
+    public void playHitSound(Vec3d pos) {
+        world.emitGameEvent(this, GameEvent.ENTITY_DAMAGE, pos);
         world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_COPPER_BREAK, SoundCategory.AMBIENT, 1, 0.9f + (this.world.random.nextFloat() * 0.2f));
     }
 
@@ -1362,17 +1362,17 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
             if (angleDiff < 0 && !this.frontAttachment.type.isEmpty()) {
                 this.destroyFrontAttachment(!player.isCreative());
-                this.playHitSound();
+                this.playHitSound(this.getHeadPos());
 
                 return ActionResult.success(world.isClient);
             } else if (!this.rearAttachment.type.isEmpty()) {
                 this.destroyRearAttachment(!player.isCreative());
-                this.playHitSound();
+                this.playHitSound(this.rearAttachment.pos());
 
                 return ActionResult.success(world.isClient);
             } else {
                 this.destroyAutomobile(!player.isCreative(), RemovalReason.KILLED);
-                this.playHitSound();
+                this.playHitSound(this.getPos());
 
                 return ActionResult.success(world.isClient);
             }
@@ -1438,7 +1438,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     @Override
-    public boolean collides() {
+    public boolean canHit() {
         return !this.isRemoved();
     }
 

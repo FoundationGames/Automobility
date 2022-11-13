@@ -19,19 +19,17 @@ import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.screen.SmithingScreenHandler;
 import net.minecraft.screen.StonecutterScreenHandler;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class BlockRearAttachment extends RearAttachment {
-    public static final Text TITLE_CRAFTING = new TranslatableText("container.crafting");
-    public static final Text TITLE_LOOM = new TranslatableText("container.loom");
-    public static final Text TITLE_CARTOGRAPHY = new TranslatableText("container.cartography_table");
-    public static final Text TITLE_SMITHING = new TranslatableText("container.upgrade");
-    public static final Text TITLE_GRINDSTONE = new TranslatableText("container.grindstone_title");
-    public static final Text TITLE_STONECUTTER = new TranslatableText("container.stonecutter");
+    public static final Text TITLE_CRAFTING = Text.translatable("container.crafting");
+    public static final Text TITLE_LOOM = Text.translatable("container.loom");
+    public static final Text TITLE_CARTOGRAPHY = Text.translatable("container.cartography_table");
+    public static final Text TITLE_SMITHING = Text.translatable("container.upgrade");
+    public static final Text TITLE_GRINDSTONE = Text.translatable("container.grindstone_title");
+    public static final Text TITLE_STONECUTTER = Text.translatable("container.stonecutter");
 
     public final BlockState block;
     private final @Nullable BiFunction<ScreenHandlerContext, BlockRearAttachment, NamedScreenHandlerFactory> screenProvider;

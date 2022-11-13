@@ -1,18 +1,17 @@
 package io.github.foundationgames.automobility.item;
 
-import io.github.foundationgames.automobility.automobile.*;
+import io.github.foundationgames.automobility.automobile.AutomobileData;
+import io.github.foundationgames.automobility.automobile.AutomobilePrefab;
+import io.github.foundationgames.automobility.automobile.AutomobileStats;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.entity.AutomobilityEntities;
-import io.github.foundationgames.automobility.util.AUtils;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.collection.DefaultedList;
@@ -58,19 +57,19 @@ public class AutomobileItem extends Item {
         } else {
             if (!data.isPrefab()) {
                 tooltip.add(
-                        new TranslatableText("tooltip.automobility.frameLabel").formatted(Formatting.BLUE)
-                                .append(new TranslatableText(data.getFrame().getTranslationKey()).formatted(Formatting.DARK_GREEN))
+                        Text.translatable("tooltip.automobility.frameLabel").formatted(Formatting.BLUE)
+                                .append(Text.translatable(data.getFrame().getTranslationKey()).formatted(Formatting.DARK_GREEN))
                 );
                 tooltip.add(
-                        new TranslatableText("tooltip.automobility.wheelLabel").formatted(Formatting.BLUE)
-                                .append(new TranslatableText(data.getWheel().getTranslationKey()).formatted(Formatting.DARK_GREEN))
+                        Text.translatable("tooltip.automobility.wheelLabel").formatted(Formatting.BLUE)
+                                .append(Text.translatable(data.getWheel().getTranslationKey()).formatted(Formatting.DARK_GREEN))
                 );
                 tooltip.add(
-                        new TranslatableText("tooltip.automobility.engineLabel").formatted(Formatting.BLUE)
-                                .append(new TranslatableText(data.getEngine().getTranslationKey()).formatted(Formatting.DARK_GREEN))
+                        Text.translatable("tooltip.automobility.engineLabel").formatted(Formatting.BLUE)
+                                .append(Text.translatable(data.getEngine().getTranslationKey()).formatted(Formatting.DARK_GREEN))
                 );
             }
-            tooltip.add(new TranslatableText("tooltip.automobility.shiftForStats").formatted(Formatting.GOLD));
+            tooltip.add(Text.translatable("tooltip.automobility.shiftForStats").formatted(Formatting.GOLD));
         }
     }
 

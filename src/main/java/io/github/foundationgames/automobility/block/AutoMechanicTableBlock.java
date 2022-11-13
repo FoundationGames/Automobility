@@ -8,7 +8,6 @@ import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -17,7 +16,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class AutoMechanicTableBlock extends Block {
-    public static final Text UI_TITLE = new TranslatableText("container.automobility.auto_mechanic_table");
+    public static final Text UI_TITLE = Text.translatable("container.automobility.auto_mechanic_table");
 
     public AutoMechanicTableBlock(Settings settings) {
         super(settings);

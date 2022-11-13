@@ -14,27 +14,25 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.screen.LoomScreenHandler;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.registry.RegistryEntry;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
 
 public class BannerPostRearAttachment extends RearAttachment {
-    private static final Text UI_TITLE = new TranslatableText("container.automobility.banner_post");
+    private static final Text UI_TITLE = Text.translatable("container.automobility.banner_post");
 
     private @Nullable DyeColor baseColor = null;
 
     private NbtList patternNbt = new NbtList();
-    private List<Pair<BannerPattern, DyeColor>> patterns;
+    private List<Pair<RegistryEntry<BannerPattern>, DyeColor>> patterns;
 
     public final Inventory inventory = new SimpleInventory(1) {
         @Override
@@ -126,7 +124,7 @@ public class BannerPostRearAttachment extends RearAttachment {
         return this.baseColor;
     }
 
-    public List<Pair<BannerPattern, DyeColor>> getPatterns() {
+    public List<Pair<RegistryEntry<BannerPattern>, DyeColor>> getPatterns() {
         if (this.patterns == null) {
             this.patterns = BannerBlockEntity.getPatternsFromNbt(this.baseColor, this.patternNbt);
         }

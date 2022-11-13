@@ -1,6 +1,6 @@
 package io.github.foundationgames.automobility.automobile.render.wheel;
 
-import dev.monarkhes.myron.api.Myron;
+// import dev.monarkhes.myron.api.Myron;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.util.AUtils;
 import net.minecraft.client.model.Model;
@@ -13,7 +13,7 @@ import net.minecraft.util.math.Vec3f;
 
 public class ConvertibleWheelModel extends Model {
     // Credit to https://github.com/Sk3leCreeper for model
-    private final BakedModel model = Myron.getModel(Automobility.id("models/misc/automobile/wheel/convertible"));
+    // private final BakedModel model = Myron.getModel(Automobility.id("models/misc/automobile/wheel/convertible"));
 
     public ConvertibleWheelModel(EntityRendererFactory.Context ctx) {
         super(id -> RenderLayer.getSolid());
@@ -21,6 +21,7 @@ public class ConvertibleWheelModel extends Model {
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+        /*
         if (model == null) return;
         matrices.push();
         matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
@@ -28,5 +29,6 @@ public class ConvertibleWheelModel extends Model {
         matrices.translate(0, -0.325, 0);
         AUtils.renderMyronObj(model, vertices, matrices, light, overlay);
         matrices.pop();
+         */
     }
 }

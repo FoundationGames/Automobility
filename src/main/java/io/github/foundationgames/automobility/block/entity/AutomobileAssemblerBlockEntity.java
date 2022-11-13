@@ -126,7 +126,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     private void partChanged() {
         this.sync();
         this.markDirty();
-        this.world.emitGameEvent(GameEvent.BLOCK_CHANGE, this.getPos());
+        this.world.emitGameEvent(GameEvent.BLOCK_CHANGE, this.getPos(), new GameEvent.Emitter(null, this.getCachedState()));
     }
 
     protected ActionResult handleItemInteract(PlayerEntity player, ItemStack stack) {

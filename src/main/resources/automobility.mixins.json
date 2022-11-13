@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "io.github.foundationgames.automobility.mixin",
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
     "EnderChestInventoryMixin",
     "EntityMixin",
@@ -16,8 +16,7 @@
     "EntityRenderersMixin",
     "GameRendererMixin",
     "ModelElementDeserializerMixin",
-    "midnightcontrols.InputHandlersMixin",
-    "myron.AbstractObjLoaderMixin"
+    "midnightcontrols.InputHandlersMixin"
   ],
   "injectors": {
     "defaultRequire": 1

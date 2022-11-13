@@ -1,6 +1,7 @@
 package io.github.foundationgames.automobility.item;
 
 import io.github.foundationgames.automobility.automobile.AutomobileComponent;
+import io.github.foundationgames.automobility.util.FloatFunc;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -11,7 +12,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
@@ -61,7 +61,7 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
         var component = this.getComponent(stack);
         var id = component.getId();
         var compKey = id.getNamespace()+"."+id.getPath();
-        tooltip.add(new TranslatableText(this.translationKey+"."+compKey).formatted(Formatting.BLUE));
+        tooltip.add(Text.translatable(this.translationKey+"."+compKey).formatted(Formatting.BLUE));
 
         component.appendTexts(tooltip, component);
     }
@@ -85,7 +85,7 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
     }
 
     @Environment(EnvType.CLIENT)
-    public void registerItemRenderer(Function<T, Model> modelProvider, Function<T, Identifier> textureProvider, ToFloatFunction<T> scaleProvider) {
+    public void registerItemRenderer(Function<T, Model> modelProvider, Function<T, Identifier> textureProvider, FloatFunc<T> scaleProvider) {
         BuiltinItemRendererRegistry.INSTANCE.register(this, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
             var component = this.getComponent(stack);
             if (this.renders(component)) {

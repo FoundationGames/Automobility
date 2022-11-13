@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
+	id 'fabric-loom' version '0.11-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -22,9 +22,11 @@ repositories {
 	maven { url = "https://maven.gegy.dev/" }
 	maven { url = terraformersUrl() }
 	maven { url = "https://aperlambda.github.io/maven" }
-	maven { url = "https://hephaestus.dev/release" }
+	// maven { url = "https://hephaestus.dev/release" }
 	maven { url = "https://storage.googleapis.com/devan-maven/" }
 	maven { url = "https://api.modrinth.com/maven" }
+
+	maven { url = "https://jitpack.io" }
 }
 
 dependencies {
@@ -45,9 +47,9 @@ dependencies {
 		exclude group: 'com.google.guava'
 	}
 
-	// OBJ loader
-	modImplementation "dev.monarkhes:myron:${project.myron_version}"
-	include "dev.monarkhes:myron:${project.myron_version}"
+	// OBJ loader TODO: Update
+	// modImplementation "dev.monarkhes:myron:${project.myron_version}"
+	// include "dev.monarkhes:myron:${project.myron_version}"
 
 	// Json't
 	modImplementation "net.devtech:arrp:${project.arrp_version}"
@@ -76,8 +78,7 @@ tasks.withType(JavaCompile).configureEach {
 	// If Javadoc is generated, this must be specified in that task too.
 	it.options.encoding = "UTF-8"
 
-	// Minecraft 1.17 (21w19a) upwards uses Java 16.
-	it.options.release = 16
+	it.options.release = 17
 }
 
 java {

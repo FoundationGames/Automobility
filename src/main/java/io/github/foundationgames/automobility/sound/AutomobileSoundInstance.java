@@ -16,7 +16,7 @@ public abstract class AutomobileSoundInstance extends MovingSoundInstance {
     private boolean die = false;
 
     public AutomobileSoundInstance(SoundEvent sound, MinecraftClient client, AutomobileEntity automobile) {
-        super(sound, SoundCategory.AMBIENT);
+        super(sound, SoundCategory.AMBIENT, automobile.getEntityWorld().getRandom());
         this.client = client;
         this.automobile = automobile;
         this.repeat = true;

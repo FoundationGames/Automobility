@@ -15,6 +15,7 @@ import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.registry.RegistryEntry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class BannerPostRearAttachmentModel extends RearAttachmentRenderModel {
 
     private boolean renderPole;
     private boolean renderFlag;
-    private List<Pair<BannerPattern, DyeColor>> patterns;
+    private List<Pair<RegistryEntry<BannerPattern>, DyeColor>> patterns;
 
     public BannerPostRearAttachmentModel(EntityRendererFactory.Context ctx) {
         super(RenderLayer::getEntityCutoutNoCull, ctx, MODEL_LAYER);

@@ -27,7 +27,7 @@ public class GameRendererMixin {
     private double automobility$applyBoostFovEffect(double old) {
         var player = client.player;
         if (player.getVehicle() instanceof AutomobileEntity auto) {
-            return old + ((auto.getBoostSpeed(tickDelta) * 18) * client.options.fovEffectScale);
+            return old + ((auto.getBoostSpeed(tickDelta) * 18) * client.options.getFovEffectScale().getValue());
         }
         return old;
     }
