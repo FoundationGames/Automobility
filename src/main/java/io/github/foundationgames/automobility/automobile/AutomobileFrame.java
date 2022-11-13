@@ -56,6 +56,10 @@ public record AutomobileFrame(
     public static final AutomobileFrame STANDARD_RED = REGISTRY.register(standard("red"));
     public static final AutomobileFrame STANDARD_BLACK = REGISTRY.register(standard("black"));
 
+    public static final AutomobileFrame AMETHYST_RICKSHAW = REGISTRY.register(rickshaw("amethyst", 0.2f));
+    public static final AutomobileFrame QUARTZ_RICKSHAW = REGISTRY.register(rickshaw("quartz", 0.25f));
+    public static final AutomobileFrame PRISMARINE_RICKSHAW = REGISTRY.register(rickshaw("prismarine", 0.14f));
+
     public static final AutomobileFrame RED_TRACTOR = REGISTRY.register(tractor("red"));
     public static final AutomobileFrame YELLOW_TRACTOR = REGISTRY.register(tractor("yellow"));
     public static final AutomobileFrame GREEN_TRACTOR = REGISTRY.register(tractor("green"));
@@ -188,6 +192,29 @@ public record AutomobileFrame(
                         8,
                         12,
                         19
+                )
+        );
+    }
+
+    private static AutomobileFrame rickshaw(String prefix, float weight) {
+        return new AutomobileFrame(
+                Automobility.id(prefix+"_rickshaw"),
+                weight,
+                new FrameModel(
+                        Automobility.id("textures/entity/automobile/frame/"+prefix+"_rickshaw.png"),
+                        Automobility.id("frame_rickshaw"),
+                        new WheelBase(
+                                new WheelBase.WheelPos(-11, -7.5f, 1, 0, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.LEFT),
+                                new WheelBase.WheelPos(-11, 7.5f, 1, 180, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.RIGHT),
+                                new WheelBase.WheelPos(11, -0.1f, 1, 0, WheelBase.WheelEnd.FRONT, WheelBase.WheelSide.LEFT),
+                                new WheelBase.WheelPos(11, 0.1f, 1, 180, WheelBase.WheelEnd.FRONT, WheelBase.WheelSide.RIGHT)
+                        ),
+                        26,
+                        2.5f,
+                        13,
+                        3,
+                        17.5f,
+                        14.5f
                 )
         );
     }

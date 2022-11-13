@@ -1,0 +1,17 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:attachments",
+    "sortnum": 301,
+    "ingredients": [
+        {"item": "minecraft:gold_ingot"},
+        {"item": "minecraft:iron_shovel"},
+        {"tag": "minecraft:stone_crafting_materials"},
+        {"item": "minecraft:iron_ingot"},
+        {"item": "minecraft:stick"},
+        {"tag": "minecraft:logs"}
+    ],
+    "result": {
+        "item": "automobility:rear_attachment",
+        "component": "automobility:paver"
+    }
+}

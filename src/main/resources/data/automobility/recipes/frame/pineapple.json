@@ -1,7 +1,7 @@
 {
     "type": "automobility:auto_mechanic_table",
     "category": "automobility:frames",
-    "sortnum": 400,
+    "sortnum": 99900,
     "ingredients": [
         {"item": "minecraft:blaze_powder"},
         {"item": "minecraft:carved_pumpkin"},

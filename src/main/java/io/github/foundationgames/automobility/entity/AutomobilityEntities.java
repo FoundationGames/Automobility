@@ -10,6 +10,7 @@ import io.github.foundationgames.automobility.automobile.render.attachment.rear.
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.ChestRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.GrindstoneRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.PassengerSeatRearAttachmentModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.rear.PlowRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.StonecutterRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CopperEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
@@ -20,6 +21,7 @@ import io.github.foundationgames.automobility.automobile.render.engine.StoneEngi
 import io.github.foundationgames.automobility.automobile.render.frame.CARRFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.MotorcarFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.PineappleFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.RickshawFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.ShoppingCartFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.TractorFrameModel;
@@ -65,6 +67,7 @@ public enum AutomobilityEntities {;
         JsonEM.registerModelLayer(ShoppingCartFrameModel.MODEL_LAYER);
         JsonEM.registerModelLayer(CARRFrameModel.MODEL_LAYER);
         JsonEM.registerModelLayer(PineappleFrameModel.MODEL_LAYER);
+        JsonEM.registerModelLayer(RickshawFrameModel.MODEL_LAYER);
 
         JsonEM.registerModelLayer(StandardWheelModel.MODEL_LAYER);
         JsonEM.registerModelLayer(OffRoadWheelModel.MODEL_LAYER);
@@ -85,6 +88,7 @@ public enum AutomobilityEntities {;
         JsonEM.registerModelLayer(StonecutterRearAttachmentModel.MODEL_LAYER);
         JsonEM.registerModelLayer(ChestRearAttachmentModel.MODEL_LAYER);
         JsonEM.registerModelLayer(BannerPostRearAttachmentModel.MODEL_LAYER);
+        JsonEM.registerModelLayer(PlowRearAttachmentModel.MODEL_LAYER);
 
         JsonEM.registerModelLayer(MobControllerFrontAttachmentModel.MODEL_LAYER);
         JsonEM.registerModelLayer(HarvesterFrontAttachmentModel.MODEL_LAYER);

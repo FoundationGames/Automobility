@@ -1,0 +1,19 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:frames",
+    "sortnum": 400,
+    "ingredients": [
+        {"item": "minecraft:redstone"},
+        {"tag": "minecraft:stone_crafting_materials"},
+        {"item": "minecraft:iron_ingot"},
+        {"item": "minecraft:amethyst_block"},
+        {"tag": "minecraft:logs"},
+        {"tag": "minecraft:wool"},
+        {"item": "minecraft:iron_ingot"},
+        {"item": "minecraft:amethyst_shard"}
+    ],
+    "result": {
+        "item": "automobility:automobile_frame",
+        "component": "automobility:amethyst_rickshaw"
+    }
+}

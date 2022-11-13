@@ -9,6 +9,7 @@ import io.github.foundationgames.automobility.automobile.render.attachment.rear.
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.ChestRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.GrindstoneRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.PassengerSeatRearAttachmentModel;
+import io.github.foundationgames.automobility.automobile.render.attachment.rear.PlowRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.StonecutterRearAttachmentModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CopperEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.CreativeEngineModel;
@@ -20,6 +21,7 @@ import io.github.foundationgames.automobility.automobile.render.frame.CARRFrameM
 import io.github.foundationgames.automobility.automobile.render.frame.DaBabyFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.MotorcarFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.PineappleFrameModel;
+import io.github.foundationgames.automobility.automobile.render.frame.RickshawFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.ShoppingCartFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.TractorFrameModel;
@@ -53,6 +55,7 @@ public enum AutomobilityModels {;
         MODELS.put(Automobility.id("frame_c_arr"), CARRFrameModel::new);
         MODELS.put(Automobility.id("frame_pineapple"), PineappleFrameModel::new);
         MODELS.put(Automobility.id("frame_motorcar"), MotorcarFrameModel::new);
+        MODELS.put(Automobility.id("frame_rickshaw"), RickshawFrameModel::new);
         MODELS.put(Automobility.id("frame_dababy"), DaBabyFrameModel::new);
 
         MODELS.put(Automobility.id("wheel_standard"), StandardWheelModel::new);
@@ -75,6 +78,7 @@ public enum AutomobilityModels {;
         MODELS.put(Automobility.id("rearatt_stonecutter"), StonecutterRearAttachmentModel::new);
         MODELS.put(Automobility.id("rearatt_chest"), ChestRearAttachmentModel::new);
         MODELS.put(Automobility.id("rearatt_banner_post"), BannerPostRearAttachmentModel::new);
+        MODELS.put(Automobility.id("rearatt_plow"), PlowRearAttachmentModel::new);
 
         MODELS.put(Automobility.id("frontatt_mob_controller"), MobControllerFrontAttachmentModel::new);
         MODELS.put(Automobility.id("frontatt_harvester"), HarvesterFrontAttachmentModel::new);

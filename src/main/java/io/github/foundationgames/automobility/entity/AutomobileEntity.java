@@ -9,6 +9,7 @@ import io.github.foundationgames.automobility.automobile.WheelBase;
 import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.front.FrontAttachment;
+import io.github.foundationgames.automobility.automobile.attachment.rear.DeployableRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import io.github.foundationgames.automobility.screen.AutomobileScreenHandlerContext;
@@ -21,6 +22,7 @@ import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.sound.AutomobileSoundInstance;
 import io.github.foundationgames.automobility.sound.AutomobilitySounds;
 import io.github.foundationgames.automobility.util.AUtils;
+import io.github.foundationgames.automobility.util.duck.CollisionArea;
 import io.github.foundationgames.automobility.util.midnightcontrols.ControllerUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.EnvType;
@@ -69,9 +71,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class AutomobileEntity extends Entity implements RenderableAutomobile, EntityWithInventory {
@@ -154,8 +158,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     private Vec3d prevTailPos = null;
 
-    // Prevents jittering when going down slopes
     private int slopeStickingTimer = 0;
+    private float grip = 1;
 
     private int suspensionBounceTimer = 0;
     private int lastSusBounceTimer = suspensionBounceTimer;
@@ -635,7 +639,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             }
         }
 
-        displacementTick(first || (this.getPos().subtract(prevPos).length() > 0.01 || this.getYaw() != this.prevYaw));
+        displacementTick(first || (this.getPos().subtract(prevPos).length() > 0 || this.getYaw() != this.prevYaw));
     }
 
     public void positionTrackingTick() {
@@ -767,7 +771,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
         // Get block below's friction
         var blockBelow = new BlockPos(getX(), getY() - 0.05, getZ());
-        float grip = 1 - ((MathHelper.clamp((world.getBlockState(blockBelow).getBlock().getSlipperiness() - 0.6f) / 0.4f, 0, 1) * (1 - stats.getGrip() * 0.8f)));
+        this.grip = 1 - ((MathHelper.clamp((world.getBlockState(blockBelow).getBlock().getSlipperiness() - 0.6f) / 0.4f, 0, 1) * (1 - stats.getGrip() * 0.8f)));
+        this.grip *= this.grip;
 
         // Bounce on gel
         if (this.automobileOnGround && this.jumpCooldown <= 0 && world.getBlockState(this.getBlockPos()).getBlock() instanceof LaunchGelBlock) {
@@ -786,8 +791,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         // Reduce gravity underwater
         cumulative = cumulative.add(0, (vSpeed * (isSubmergedInWater() ? 0.15f : 1)), 0);
 
-        // This is the general direction the automobile will move, which is slightly offset to the side when drifting and delayed when on slippery surface
-        this.speedDirection = MathHelper.lerp(grip, getYaw(), getYaw() - (drifting ? Math.min(turboCharge * 6, 43 + (-steering * 12)) * driftDir : -steering * 12));
+        // This is the general direction the automobile will move, which is slightly offset to the side when drifting
+        this.speedDirection = getYaw() - (drifting ? Math.min(turboCharge * 6, 43 + (-steering * 12)) * driftDir : -steering * 12); //MathHelper.lerp(grip, getYaw(), getYaw() - (drifting ? Math.min(turboCharge * 6, 43 + (-steering * 12)) * driftDir : -steering * 12));
 
         // Handle acceleration
         if (accelerating) {
@@ -869,6 +874,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             cumulative = cumulative.add(Math.sin(angle) * hSpeed, 0, Math.cos(angle) * hSpeed);
         }
 
+        cumulative = cumulative.multiply(this.grip).add(this.lastVelocity.multiply(1 - this.grip));
+        if (cumulative.length() < 0.001) {
+            cumulative = Vec3d.ZERO;
+        }
+
         // Turn the wheels
         float wheelCircumference = (float)(2 * (wheels.model().radius() / 16) * Math.PI);
         if (hSpeed > 0) markDirty();
@@ -878,6 +888,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         if (this.isLogicalSideForUpdatingMovement()) {
             this.setVelocity(cumulative);
         }
+        this.scheduleVelocityUpdate();
+        this.velocityDirty = true;
 
         lastVelocity = cumulative;
 
@@ -957,21 +969,27 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             }
         }
 
+        float newAngularSpeed = this.angularSpeed;
         if (this.burningOut()) {
             float speed = (float) this.addedVelocity.length();
             float acc = (1.7f / (1 + this.frame.weight())) + (4 * speed);
             float lim = 9 + (4 * speed);
             if (this.steering != 0) {
-                this.angularSpeed = MathHelper.clamp(this.angularSpeed + (acc * this.steering), -lim, lim);
+                newAngularSpeed = MathHelper.clamp(newAngularSpeed + (acc * this.steering), -lim, lim);
             } else {
-                this.angularSpeed = AUtils.shift(this.angularSpeed, acc * 0.5f, 0);
+                newAngularSpeed = AUtils.shift(newAngularSpeed, acc * 0.5f, 0);
             }
         } else if (hSpeed != 0) {
             float traction = (1 / (1 + (4 * this.hSpeed))) + (0.3f * this.stats.getGrip());
-            this.angularSpeed = AUtils.shift(this.angularSpeed, 6 * traction,
+            newAngularSpeed = AUtils.shift(newAngularSpeed, 6 * traction,
                     (drifting ? (((this.steering + (driftDir)) * driftDir * 2.5f + 1.5f) * driftDir) * (((1 - stats.getGrip()) + 2) / 2.5f) : this.steering * ((4f * Math.min(hSpeed, 1)) + (hSpeed > 0 ? 2 : -3.5f))) * ((stats.getHandling() + 1) / 2));
         } else {
-            this.angularSpeed = AUtils.shift(this.angularSpeed, 3, 0);
+            newAngularSpeed = AUtils.shift(newAngularSpeed, 3, 0);
+        }
+
+        this.angularSpeed = (newAngularSpeed * this.grip) + (this.angularSpeed * (1 - this.grip));
+        if (Math.abs(this.angularSpeed) < 0.00003) {
+            this.angularSpeed = 0;
         }
 
         // Turns the automobile based on steering/drifting
@@ -1017,11 +1035,19 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         return false; // Riders shouldn't take fall damage
     }
 
+    public void accumulateCollisionAreas(Collection<CollisionArea> areas) {
+        this.world.getEntitiesByClass(Entity.class, this.getBoundingBox().expand(3, 3, 3), e -> e != this && e.getVehicle() != this)
+                .forEach(e -> areas.add(CollisionArea.entity(e)));
+    }
+
     public void displacementTick(boolean tick) {
         if (this.world.isClient()) {
             this.displacement.preTick();
 
             if (tick) {
+                this.displacement.otherColliders.clear();
+                this.accumulateCollisionAreas(this.displacement.otherColliders);
+
                 this.displacement.tick(this.world, this, this.getPos(), this.getYaw(), this.stepHeight);
             }
 
@@ -1062,15 +1088,19 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                         pos.set(x, y, z);
                         var state = this.world.getBlockState(pos);
                         var blockShape = state.getCollisionShape(this.world, pos, shapeCtx).offset(pos.getX(), pos.getY(), pos.getZ());
-                        this.automobileOnGround = this.automobileOnGround || VoxelShapes.matchesAnywhere(blockShape, groundCuboid, BooleanBiFunction.AND);
-                        this.isFloorDirectlyBelow = this.isFloorDirectlyBelow || VoxelShapes.matchesAnywhere(blockShape, floorCuboid, BooleanBiFunction.AND);
-                        wallHit = wallHit || VoxelShapes.matchesAnywhere(blockShape, wallCuboid, BooleanBiFunction.AND);
-                        stepWallHit = stepWallHit || VoxelShapes.matchesAnywhere(blockShape, stepWallCuboid, BooleanBiFunction.AND);
+                        this.automobileOnGround |= VoxelShapes.matchesAnywhere(blockShape, groundCuboid, BooleanBiFunction.AND);
+                        this.isFloorDirectlyBelow |= VoxelShapes.matchesAnywhere(blockShape, floorCuboid, BooleanBiFunction.AND);
+                        wallHit |= VoxelShapes.matchesAnywhere(blockShape, wallCuboid, BooleanBiFunction.AND);
+                        stepWallHit |= VoxelShapes.matchesAnywhere(blockShape, stepWallCuboid, BooleanBiFunction.AND);
                     }
                 }
             }
         }
         this.touchingWall = (wallHit && stepWallHit);
+
+        var otherColliders = new HashSet<CollisionArea>();
+        this.accumulateCollisionAreas(otherColliders);
+        this.automobileOnGround |= otherColliders.stream().anyMatch(col -> col.boxIntersects(groundBox));
     }
 
     public void updateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate) {
@@ -1102,7 +1132,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     public void setInputs(boolean fwd, boolean back, boolean left, boolean right, boolean space) {
-        this.prevHoldDrift = this.holdingDrift;
         this.accelerating = fwd;
         this.braking = back;
         this.steeringLeft = left;
@@ -1147,15 +1176,18 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     private void driftingTick() {
         // Handles starting a drift
-        if (steering != 0) {
-            if (!drifting && !prevHoldDrift && holdingDrift && hSpeed > 0.4f && automobileOnGround) {
+        if (!prevHoldDrift && holdingDrift) {
+            if (steering != 0 && !drifting && hSpeed > 0.4f && automobileOnGround) {
                 setDrifting(true);
                 driftDir = steering > 0 ? 1 : -1;
                 // Reduce speed when a drift starts, based on how long the last drift was for
                 // This allows you to do a series of short drifts without tanking all your speed, while still reducing your speed when you begin the drift(s)
                 engineSpeed -= 0.028 * engineSpeed;
+            } else if (steering == 0 && !this.getWorld().isClient() && this.getRearAttachment() instanceof DeployableRearAttachment att) {
+                att.deploy();
             }
         }
+
         // Handles drifting effects, ending a drift, and the drift timer (for drift turbos)
         if (drifting) {
             if (this.automobileOnGround()) createDriftParticles();
@@ -1170,6 +1202,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             }
             if (automobileOnGround) turboCharge += ((steeringLeft && driftDir < 0) || (steeringRight && driftDir > 0)) ? 2 : 1;
         }
+
+        this.prevHoldDrift = this.holdingDrift;
     }
 
     private void endBurnout() {
@@ -1514,6 +1548,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         private float angularXTarget = 0;
         private float angularZTarget = 0;
         private final List<Vec3d> scanPoints = new ArrayList<>();
+        public final Set<CollisionArea> otherColliders = new HashSet<>();
 
         public void preTick() {
             this.lastAngularX = currAngularX;
@@ -1529,14 +1564,15 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             Vec3d lowestDisplacementPos = null;
             Vec3d highestDisplacementPos = null;
             var scannedPoints = new ArrayList<Vec3d>();
-            var collBoxes = new HashSet<Box>();
+            var colliders = new HashSet<CollisionArea>();
             boolean anyOnGround = false;
             boolean allOnGround = true;
             for (var scanPoint : scanPoints) {
                 scanPoint = scanPoint
                         .rotateY((float) Math.toRadians(yaw));
                 var pointPos = scanPoint.add(centerPos);
-                collBoxes.clear();
+                colliders.clear();
+                colliders.addAll(this.otherColliders);
 
                 double scanDist = scanPoint.length();
 
@@ -1556,10 +1592,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                     var shape = world.getBlockState(mpos).getCollisionShape(world, mpos);
                     if (!shape.isEmpty()) {
                         if (shape == VoxelShapes.fullCube()) {
-                            collBoxes.add(new Box(mpos.getX(), mpos.getY(), mpos.getZ(), mpos.getX() + 1, mpos.getY() + 1, mpos.getZ() + 1));
+                            colliders.add(CollisionArea.box(mpos.getX(), mpos.getY() - (INV_SCAN_STEPS * 2), mpos.getZ(), mpos.getX() + 1, mpos.getY() + 1, mpos.getZ() + 1));
                         } else {
                             shape.offset(mpos.getX(), mpos.getY(), mpos.getZ()).forEachBox(((minX, minY, minZ, maxX, maxY, maxZ) ->
-                                    collBoxes.add(new Box(minX, minY, minZ, maxX, maxY, maxZ))));
+                                    colliders.add(CollisionArea.box(minX, minY - (INV_SCAN_STEPS * 2), minZ, maxX, maxY, maxZ))));
                         }
                     }
                 }
@@ -1573,14 +1609,12 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                     pointY -= INV_SCAN_STEPS * 1.5;
 
                     boolean ground = false;
-                    for (var box : collBoxes) {
-                        if (pointX > box.minX && pointX < box.maxX &&
-                                pointZ > box.minZ && pointZ < box.maxZ &&
-                                pointY >= (box.minY - (INV_SCAN_STEPS * 2)) && pointY <= box.maxY
-                        ) {
-                            double diff = box.maxY - pointY;
+                    for (var col : colliders) {
+                        if (col.isPointInside(pointX, pointY, pointZ)) {
+                            double hY = col.highestY(pointX, pointY, pointZ);
+                            double diff = hY - pointY;
                             if (diff < (stepHeight + (INV_SCAN_STEPS * 1.5))) {
-                                pointY = box.maxY;
+                                pointY = hY;
                                 ground = true;
                             }
                         }

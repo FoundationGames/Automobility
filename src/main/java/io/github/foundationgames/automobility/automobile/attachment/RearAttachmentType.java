@@ -3,10 +3,12 @@ package io.github.foundationgames.automobility.automobile.attachment;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.AutomobileComponent;
 import io.github.foundationgames.automobility.automobile.DisplayStat;
+import io.github.foundationgames.automobility.automobile.attachment.rear.BackhoeRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.BannerPostRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.BaseChestRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.EmptyRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.PassengerSeatRearAttachment;
+import io.github.foundationgames.automobility.automobile.attachment.rear.PaverRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.BlockRearAttachment;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
@@ -52,6 +54,16 @@ public record RearAttachmentType<T extends RearAttachment>(
     public static final RearAttachmentType<BannerPostRearAttachment> BANNER_POST = register(new RearAttachmentType<>(
             Automobility.id("banner_post"), BannerPostRearAttachment::new,
             new RearAttachmentModel(Automobility.id("textures/entity/automobile/rear_attachment/banner_post.png"), Automobility.id("rearatt_banner_post"), 10)
+    ));
+
+    public static final RearAttachmentType<BackhoeRearAttachment> BACKHOE = register(new RearAttachmentType<>(
+            Automobility.id("backhoe"), BackhoeRearAttachment::new,
+            new RearAttachmentModel(Automobility.id("textures/entity/automobile/rear_attachment/backhoe.png"), Automobility.id("rearatt_plow"), 11)
+    ));
+
+    public static final RearAttachmentType<PaverRearAttachment> PAVER = register(new RearAttachmentType<>(
+            Automobility.id("paver"), PaverRearAttachment::new,
+            new RearAttachmentModel(Automobility.id("textures/entity/automobile/rear_attachment/paver.png"), Automobility.id("rearatt_plow"), 11)
     ));
 
     @Override
