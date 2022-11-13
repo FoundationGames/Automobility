@@ -61,7 +61,7 @@ public class AutoMechanicTableScreenHandler extends ScreenHandler {
             this.addSlot(new Slot(playerInv, s, 8 + (s * 18), playerInvY + 58));
         }
 
-        this.recipes = world.getRecipeManager().listAllOfType(AutoMechanicTableRecipe.TYPE);
+        this.recipes = new ArrayList<>(world.getRecipeManager().listAllOfType(AutoMechanicTableRecipe.TYPE));
         Collections.sort(this.recipes);
 
         this.selectedRecipe.set(-1);

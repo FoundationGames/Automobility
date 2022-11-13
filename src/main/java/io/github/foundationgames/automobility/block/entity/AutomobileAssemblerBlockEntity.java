@@ -171,7 +171,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
                         this.wheel = wheelType;
                         this.wheelCount = 0; // Fix wheel count if ever invalid
                     }
-                    if (this.wheel == wheelType) {
+                    if (this.wheel == wheelType && this.wheelCount < this.frame.model().wheelBase().wheelCount) {
                         this.wheelCount++;
                         if (!player.isCreative()) {
                             stack.decrement(1);
@@ -213,7 +213,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     public boolean isComplete() {
         return !this.frame.isEmpty() &&
                !this.engine.isEmpty() &&
-               ((!this.wheel.isEmpty()) && (this.wheelCount == this.frame.model().wheelBase().wheelCount));
+               ((!this.wheel.isEmpty()) && (this.wheelCount >= this.frame.model().wheelBase().wheelCount));
     }
 
     public void tryConstructAutomobile() {

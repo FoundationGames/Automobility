@@ -5,6 +5,8 @@ import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.util.AUtils;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderLayers;
+import net.minecraft.client.render.TexturedRenderLayers;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.model.BakedModel;
@@ -16,7 +18,7 @@ public class DaBabyFrameModel extends Model {
     // private final BakedModel model = Myron.getModel(Automobility.id("models/misc/automobile/frame/dababy"));
 
     public DaBabyFrameModel(EntityRendererFactory.Context ctx) {
-        super(id -> RenderLayer.getSolid());
+        super(id -> TexturedRenderLayers.getEntitySolid());
     }
 
     @Override

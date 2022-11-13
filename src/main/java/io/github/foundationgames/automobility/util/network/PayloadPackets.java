@@ -7,6 +7,7 @@ import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.rear.BannerPostRearAttachment;
+import io.github.foundationgames.automobility.automobile.attachment.rear.ExtendableRearAttachment;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -24,7 +25,7 @@ import net.minecraft.util.Identifier;
 public enum PayloadPackets {;
     @Environment(EnvType.CLIENT)
     public static void sendSyncAutomobileInputPacket(AutomobileEntity entity, boolean fwd, boolean back, boolean left, boolean right, boolean space) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        var buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeBoolean(fwd);
         buf.writeBoolean(back);
         buf.writeBoolean(left);
@@ -36,20 +37,20 @@ public enum PayloadPackets {;
 
     @Environment(EnvType.CLIENT)
     public static void requestSyncAutomobileComponentsPacket(AutomobileEntity entity) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        var buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
         ClientPlayNetworking.send(Automobility.id("request_sync_automobile_components"), buf);
     }
 
     public static void sendSyncAutomobileDataPacket(AutomobileEntity entity, ServerPlayerEntity player) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        var buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
         entity.writeSyncToClientData(buf);
         ServerPlayNetworking.send(player, Automobility.id("sync_automobile_data"), buf);
     }
 
     public static void sendSyncAutomobileComponentsPacket(AutomobileEntity entity, ServerPlayerEntity player) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        var buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
         buf.writeString(entity.getFrame().id().toString());
         buf.writeString(entity.getWheels().id().toString());
@@ -58,7 +59,7 @@ public enum PayloadPackets {;
     }
 
     public static void sendSyncAutomobileAttachmentsPacket(AutomobileEntity entity, ServerPlayerEntity player) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        var buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
         buf.writeString(entity.getRearAttachmentType().id().toString());
         buf.writeString(entity.getFrontAttachmentType().id().toString());
@@ -66,13 +67,22 @@ public enum PayloadPackets {;
     }
 
     public static void sendBannerPostAttachmentUpdatePacket(AutomobileEntity entity, NbtCompound banner, ServerPlayerEntity player) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        var buf = new PacketByteBuf(Unpooled.buffer());
 
-        var rearAtt = entity.getRearAttachment();
-        if (rearAtt instanceof BannerPostRearAttachment) {
+        if (entity.getRearAttachment() instanceof BannerPostRearAttachment) {
             buf.writeInt(entity.getId());
             buf.writeNbt(banner);
             ServerPlayNetworking.send(player, Automobility.id("update_banner_post"), buf);
+        }
+    }
+
+    public static void sendExtendableAttachmentUpdatePacket(AutomobileEntity entity, boolean extended, ServerPlayerEntity player) {
+        var buf = new PacketByteBuf(Unpooled.buffer());
+
+        if (entity.getRearAttachment() instanceof ExtendableRearAttachment) {
+            buf.writeInt(entity.getId());
+            buf.writeBoolean(extended);
+            ServerPlayNetworking.send(player, Automobility.id("update_extendable_attachment"), buf);
         }
     }
 
@@ -148,6 +158,16 @@ public enum PayloadPackets {;
                 if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile &&
                         automobile.getRearAttachment() instanceof BannerPostRearAttachment bannerPost) {
                     bannerPost.setFromNbt(banner);
+                }
+            });
+        });
+        ClientPlayNetworking.registerGlobalReceiver(Automobility.id("update_extendable_attachment"), (client, handler, buf, responseSender) -> {
+            int entityId = buf.readInt();
+            boolean extended = buf.readBoolean();
+            client.execute(() -> {
+                if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile &&
+                        automobile.getRearAttachment() instanceof ExtendableRearAttachment att) {
+                    att.setExtended(extended);
                 }
             });
         });
