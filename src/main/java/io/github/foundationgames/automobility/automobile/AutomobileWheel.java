@@ -49,7 +49,7 @@ public record AutomobileWheel(
     public static final AutomobileWheel BEJEWELED = REGISTRY.register(carriage("bejeweled", 0.475f));
 
     public static final AutomobileWheel CONVERTIBLE = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("convertible"), 0.75f, 0.45f, new WheelModel(5.2f, 4.1f, Automobility.id("textures/entity/automobile/frame/dababy.png"), Automobility.id("wheel_convertible")))
+            new AutomobileWheel(Automobility.id("convertible"), 0.75f, 0.45f, new WheelModel(5.2f, 4.1f, Automobility.id("textures/entity/automobile/frame/c_arr.png"), Automobility.id("wheel_convertible")))
     );
 
     private static AutomobileWheel carriage(String name, float grip) {

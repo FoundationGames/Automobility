@@ -59,6 +59,7 @@ public record AutomobileFrame(
     public static final AutomobileFrame AMETHYST_RICKSHAW = REGISTRY.register(rickshaw("amethyst", 0.2f));
     public static final AutomobileFrame QUARTZ_RICKSHAW = REGISTRY.register(rickshaw("quartz", 0.25f));
     public static final AutomobileFrame PRISMARINE_RICKSHAW = REGISTRY.register(rickshaw("prismarine", 0.14f));
+    public static final AutomobileFrame ECHO_RICKSHAW = REGISTRY.register(rickshaw("echo", 0.1f));
 
     public static final AutomobileFrame RED_TRACTOR = REGISTRY.register(tractor("red"));
     public static final AutomobileFrame YELLOW_TRACTOR = REGISTRY.register(tractor("yellow"));
@@ -124,7 +125,7 @@ public record AutomobileFrame(
                     Automobility.id("dababy"),
                     0.93f,
                     new FrameModel(
-                            Automobility.id("textures/entity/automobile/frame/dababy.png"),
+                            Automobility.id("textures/entity/automobile/frame/c_arr.png"),
                             Automobility.id("frame_dababy"),
                             WheelBase.basic(40, 8),
                             40,

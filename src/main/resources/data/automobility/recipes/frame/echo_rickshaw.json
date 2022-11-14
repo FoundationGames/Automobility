@@ -1,0 +1,19 @@
+{
+    "type": "automobility:auto_mechanic_table",
+    "category": "automobility:frames",
+    "sortnum": 403,
+    "ingredients": [
+        {"item": "minecraft:redstone"},
+        {"item": "minecraft:sculk"},
+        {"item": "minecraft:cobbled_deepslate"},
+        {"item": "minecraft:bone"},
+        {"item": "minecraft:bone_block"},
+        {"tag": "minecraft:wool"},
+        {"item": "minecraft:iron_ingot"},
+        {"item": "minecraft:echo_shard"}
+    ],
+    "result": {
+        "item": "automobility:automobile_frame",
+        "component": "automobility:echo_rickshaw"
+    }
+}
