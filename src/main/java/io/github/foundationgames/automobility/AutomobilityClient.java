@@ -16,9 +16,10 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderType;
 
 public class AutomobilityClient implements ClientModInitializer {
     @Override
@@ -32,17 +33,17 @@ public class AutomobilityClient implements ClientModInitializer {
 
         AutomobilityAssets.setup();
 
-        HandledScreens.register(Automobility.AUTO_MECHANIC_SCREEN, AutoMechanicTableScreen::new);
-        HandledScreens.register(Automobility.SINGLE_SLOT_SCREEN, SingleSlotScreen::new);
+        MenuScreens.register(Automobility.AUTO_MECHANIC_SCREEN, AutoMechanicTableScreen::new);
+        MenuScreens.register(Automobility.SINGLE_SLOT_SCREEN, SingleSlotScreen::new);
 
         HudRenderCallback.EVENT.register((matrices, delta) -> {
-            var player = MinecraftClient.getInstance().player;
+            var player = Minecraft.getInstance().player;
             if (player.getVehicle() instanceof AutomobileEntity auto) {
                 AutomobileHud.render(matrices, player, auto, delta);
             }
         });
 
-        BlockRenderLayerMap.INSTANCE.putBlock(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER, RenderType.cutout());
 
         BlockEntityRendererRegistry.register(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER_ENTITY, AutomobileAssemblerBlockEntityRenderer::new);
     }

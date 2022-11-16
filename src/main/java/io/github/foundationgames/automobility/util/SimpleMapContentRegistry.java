@@ -1,16 +1,15 @@
 package io.github.foundationgames.automobility.util;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.util.Identifier;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import net.minecraft.resources.ResourceLocation;
 
 public class SimpleMapContentRegistry<V extends SimpleMapContentRegistry.Identifiable> {
-    private final Map<Identifier, V> entries = new Object2ObjectOpenHashMap<>();
-    private final List<Identifier> orderedKeys = new ArrayList<>();
+    private final Map<ResourceLocation, V> entries = new Object2ObjectOpenHashMap<>();
+    private final List<ResourceLocation> orderedKeys = new ArrayList<>();
 
     public SimpleMapContentRegistry() {
     }
@@ -21,11 +20,11 @@ public class SimpleMapContentRegistry<V extends SimpleMapContentRegistry.Identif
         return entry;
     }
 
-    public V get(Identifier name) {
+    public V get(ResourceLocation name) {
         return entries.get(name);
     }
 
-    public V getOrDefault(Identifier name) {
+    public V getOrDefault(ResourceLocation name) {
         if (orderedKeys.size() <= 0) throw new IllegalStateException("Tried to get from empty registry!");
         return entries.getOrDefault(name, entries.get(orderedKeys.get(0)));
     }
@@ -35,6 +34,6 @@ public class SimpleMapContentRegistry<V extends SimpleMapContentRegistry.Identif
     }
 
     public interface Identifiable {
-        Identifier getId();
+        ResourceLocation getId();
     }
 }

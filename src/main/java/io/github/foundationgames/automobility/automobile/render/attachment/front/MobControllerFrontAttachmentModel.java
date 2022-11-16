@@ -1,14 +1,14 @@
 package io.github.foundationgames.automobility.automobile.render.attachment.front;
 
 import io.github.foundationgames.automobility.Automobility;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
 public class MobControllerFrontAttachmentModel extends FrontAttachmentRenderModel {
-    public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile/front_attachment/mob_controller"), "main");
+    public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(Automobility.rl("automobile/front_attachment/mob_controller"), "main");
 
-    public MobControllerFrontAttachmentModel(EntityRendererFactory.Context ctx) {
-        super(RenderLayer::getEntityCutout, ctx, MODEL_LAYER);
+    public MobControllerFrontAttachmentModel(EntityRendererProvider.Context ctx) {
+        super(RenderType::entityCutout, ctx, MODEL_LAYER);
     }
 }

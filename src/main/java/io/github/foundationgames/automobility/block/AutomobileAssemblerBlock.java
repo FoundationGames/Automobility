@@ -1,92 +1,92 @@
 package io.github.foundationgames.automobility.block;
 
 import io.github.foundationgames.automobility.block.entity.AutomobileAssemblerBlockEntity;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class AutomobileAssemblerBlock extends HorizontalFacingBlock implements BlockEntityProvider {
-    public static final Text USE_CROWBAR_DIALOG = Text.translatable("dialog.automobility.use_crowbar").formatted(Formatting.GOLD);
-    public static final Text INCOMPLETE_AUTOMOBILE_DIALOG = Text.translatable("dialog.automobility.incomplete_automobile").formatted(Formatting.RED);
+public class AutomobileAssemblerBlock extends HorizontalDirectionalBlock implements EntityBlock {
+    public static final Component USE_CROWBAR_DIALOG = Component.translatable("dialog.automobility.use_crowbar").withStyle(ChatFormatting.GOLD);
+    public static final Component INCOMPLETE_AUTOMOBILE_DIALOG = Component.translatable("dialog.automobility.incomplete_automobile").withStyle(ChatFormatting.RED);
 
-    public static final BooleanProperty POWERED = Properties.POWERED;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
-    private static final VoxelShape BASE = VoxelShapes.union(
-            Block.createCuboidShape(0, 0, 0, 16, 4, 16),
-            Block.createCuboidShape(5, 4, 5, 11, 12, 11));
+    private static final VoxelShape BASE = Shapes.or(
+            Block.box(0, 0, 0, 16, 4, 16),
+            Block.box(5, 4, 5, 11, 12, 11));
 
-    private static final VoxelShape NORTH_SOUTH = VoxelShapes.union(BASE,
-            Block.createCuboidShape(0, 8, 6, 16, 12, 10));
-    private static final VoxelShape EAST_WEST = VoxelShapes.union(BASE,
-            Block.createCuboidShape(6, 8, 0, 10, 12, 16));
+    private static final VoxelShape NORTH_SOUTH = Shapes.or(BASE,
+            Block.box(0, 8, 6, 16, 12, 10));
+    private static final VoxelShape EAST_WEST = Shapes.or(BASE,
+            Block.box(6, 8, 0, 10, 12, 16));
 
-    public AutomobileAssemblerBlock(Settings settings) {
+    public AutomobileAssemblerBlock(Properties settings) {
         super(settings);
-        this.setDefaultState(this.getDefaultState().with(FACING, Direction.NORTH).with(POWERED, false));
+        this.registerDefaultState(this.defaultBlockState().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
-        super.neighborUpdate(state, world, pos, block, fromPos, notify);
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
+        super.neighborChanged(state, world, pos, block, fromPos, notify);
 
-        boolean power = world.isReceivingRedstonePower(pos);
-        if (power != state.get(POWERED)) {
-            world.setBlockState(pos, state.with(POWERED, power));
+        boolean power = world.hasNeighborSignal(pos);
+        if (power != state.getValue(POWERED)) {
+            world.setBlockAndUpdate(pos, state.setValue(POWERED, power));
         }
     }
 
     @Override
-    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        if (!world.isClient() && placer instanceof PlayerEntity player) {
-            player.sendMessage(USE_CROWBAR_DIALOG, true);
+    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        if (!world.isClientSide() && placer instanceof Player player) {
+            player.displayClientMessage(USE_CROWBAR_DIALOG, true);
         }
 
-        super.onPlaced(world, pos, state, placer, itemStack);
+        super.setPlacedBy(world, pos, state, placer, itemStack);
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (world.getBlockEntity(pos) instanceof AutomobileAssemblerBlockEntity assembler) {
             return assembler.interact(player, hand);
         }
 
-        return super.onUse(state, world, pos, player, hand, hit);
+        return super.use(state, world, pos, player, hand, hit);
     }
 
     @Override
-    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (!newState.isOf(this) && world.getBlockEntity(pos) instanceof AutomobileAssemblerBlockEntity assembler) {
+    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved) {
+        if (!newState.is(this) && world.getBlockEntity(pos) instanceof AutomobileAssemblerBlockEntity assembler) {
             assembler.dropParts();
         }
 
-        super.onStateReplaced(state, world, pos, newState, moved);
+        super.onRemove(state, world, pos, newState, moved);
     }
 
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return switch (state.get(FACING)) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return switch (state.getValue(FACING)) {
             case EAST, WEST -> EAST_WEST;
             default -> NORTH_SOUTH;
         };
@@ -94,19 +94,19 @@ public class AutomobileAssemblerBlock extends HorizontalFacingBlock implements B
 
     @Nullable
     @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return super.getPlacementState(ctx).with(FACING, ctx.getPlayerFacing().getOpposite());
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        return super.getStateForPlacement(ctx).setValue(FACING, ctx.getHorizontalDirection().getOpposite());
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        super.appendProperties(builder);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(FACING, POWERED);
     }
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new AutomobileAssemblerBlockEntity(pos, state);
     }
 }

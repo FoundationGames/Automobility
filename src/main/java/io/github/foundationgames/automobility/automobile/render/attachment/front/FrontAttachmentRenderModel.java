@@ -1,28 +1,28 @@
 package io.github.foundationgames.automobility.automobile.render.attachment.front;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.foundationgames.automobility.automobile.attachment.front.FrontAttachment;
 import io.github.foundationgames.automobility.automobile.render.BaseModel;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.NoSuchElementException;
 import java.util.function.Function;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 
 public class FrontAttachmentRenderModel extends BaseModel {
     protected final @Nullable ModelPart ground;
     private float groundHeight = 0;
 
-    public FrontAttachmentRenderModel(Function<Identifier, RenderLayer> layerFactory, EntityRendererFactory.Context ctx, EntityModelLayer layer) {
+    public FrontAttachmentRenderModel(Function<ResourceLocation, RenderType> layerFactory, EntityRendererProvider.Context ctx, ModelLayerLocation layer) {
         super(layerFactory, ctx, layer);
         ModelPart ground;
         try {
-            ground = ctx.getPart(layer).getChild("ground");
+            ground = ctx.bakeLayer(layer).getChild("ground");
         } catch (NoSuchElementException ignored) {
             ground = null;
         }
@@ -38,12 +38,12 @@ public class FrontAttachmentRenderModel extends BaseModel {
     }
 
     @Override
-    public void renderExtra(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public void renderExtra(PoseStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         if (this.ground != null) {
-            matrices.push();
+            matrices.pushPose();
             matrices.translate(0, groundHeight, 0);
             this.ground.render(matrices, vertices, light, overlay, red, green, blue, alpha);
-            matrices.pop();
+            matrices.popPose();
         }
     }
 }

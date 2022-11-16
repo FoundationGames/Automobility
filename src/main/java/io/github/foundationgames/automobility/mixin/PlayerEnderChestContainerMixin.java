@@ -1,9 +1,9 @@
 package io.github.foundationgames.automobility.mixin;
 
 import io.github.foundationgames.automobility.automobile.attachment.rear.BaseChestRearAttachment;
-import io.github.foundationgames.automobility.util.duck.EnderChestInventoryDuck;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EnderChestInventory;
+import io.github.foundationgames.automobility.util.duck.EnderChestContainerDuck;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.PlayerEnderChestContainer;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(EnderChestInventory.class)
-public class EnderChestInventoryMixin implements EnderChestInventoryDuck {
+@Mixin(PlayerEnderChestContainer.class)
+public class PlayerEnderChestContainerMixin implements EnderChestContainerDuck {
     private @Nullable BaseChestRearAttachment automobility$activeAttachment = null;
 
     @Override
@@ -20,22 +20,22 @@ public class EnderChestInventoryMixin implements EnderChestInventoryDuck {
         this.automobility$activeAttachment = attachment;
     }
 
-    @Inject(method = "canPlayerUse", at = @At("HEAD"), cancellable = true)
-    private void automobility$allowPlayerUseWithAttachment(PlayerEntity player, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "stillValid", at = @At("HEAD"), cancellable = true)
+    private void automobility$allowPlayerUseWithAttachment(Player player, CallbackInfoReturnable<Boolean> cir) {
         if (this.automobility$activeAttachment != null) {
             cir.setReturnValue(true);
         }
     }
 
-    @Inject(method = "onOpen", at = @At("TAIL"))
-    private void automobility$openActiveAttachment(PlayerEntity player, CallbackInfo ci) {
+    @Inject(method = "startOpen", at = @At("TAIL"))
+    private void automobility$openActiveAttachment(Player player, CallbackInfo ci) {
         if (this.automobility$activeAttachment != null) {
             this.automobility$activeAttachment.open(player);
         }
     }
 
-    @Inject(method = "onClose", at = @At("TAIL"))
-    private void automobility$closeActiveAttachment(PlayerEntity player, CallbackInfo ci) {
+    @Inject(method = "stopOpen", at = @At("TAIL"))
+    private void automobility$closeActiveAttachment(Player player, CallbackInfo ci) {
         if (this.automobility$activeAttachment != null) {
             this.automobility$activeAttachment.close(player);
         }

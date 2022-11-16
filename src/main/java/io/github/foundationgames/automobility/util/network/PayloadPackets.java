@@ -15,79 +15,77 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
 public enum PayloadPackets {;
     @Environment(EnvType.CLIENT)
     public static void sendSyncAutomobileInputPacket(AutomobileEntity entity, boolean fwd, boolean back, boolean left, boolean right, boolean space) {
-        var buf = new PacketByteBuf(Unpooled.buffer());
+        var buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeBoolean(fwd);
         buf.writeBoolean(back);
         buf.writeBoolean(left);
         buf.writeBoolean(right);
         buf.writeBoolean(space);
         buf.writeInt(entity.getId());
-        ClientPlayNetworking.send(Automobility.id("sync_automobile_inputs"), buf);
+        ClientPlayNetworking.send(Automobility.rl("sync_automobile_inputs"), buf);
     }
 
     @Environment(EnvType.CLIENT)
     public static void requestSyncAutomobileComponentsPacket(AutomobileEntity entity) {
-        var buf = new PacketByteBuf(Unpooled.buffer());
+        var buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
-        ClientPlayNetworking.send(Automobility.id("request_sync_automobile_components"), buf);
+        ClientPlayNetworking.send(Automobility.rl("request_sync_automobile_components"), buf);
     }
 
-    public static void sendSyncAutomobileDataPacket(AutomobileEntity entity, ServerPlayerEntity player) {
-        var buf = new PacketByteBuf(Unpooled.buffer());
+    public static void sendSyncAutomobileDataPacket(AutomobileEntity entity, ServerPlayer player) {
+        var buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
         entity.writeSyncToClientData(buf);
-        ServerPlayNetworking.send(player, Automobility.id("sync_automobile_data"), buf);
+        ServerPlayNetworking.send(player, Automobility.rl("sync_automobile_data"), buf);
     }
 
-    public static void sendSyncAutomobileComponentsPacket(AutomobileEntity entity, ServerPlayerEntity player) {
-        var buf = new PacketByteBuf(Unpooled.buffer());
+    public static void sendSyncAutomobileComponentsPacket(AutomobileEntity entity, ServerPlayer player) {
+        var buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
-        buf.writeString(entity.getFrame().id().toString());
-        buf.writeString(entity.getWheels().id().toString());
-        buf.writeString(entity.getEngine().id().toString());
-        ServerPlayNetworking.send(player, Automobility.id("sync_automobile_components"), buf);
+        buf.writeUtf(entity.getFrame().id().toString());
+        buf.writeUtf(entity.getWheels().id().toString());
+        buf.writeUtf(entity.getEngine().id().toString());
+        ServerPlayNetworking.send(player, Automobility.rl("sync_automobile_components"), buf);
     }
 
-    public static void sendSyncAutomobileAttachmentsPacket(AutomobileEntity entity, ServerPlayerEntity player) {
-        var buf = new PacketByteBuf(Unpooled.buffer());
+    public static void sendSyncAutomobileAttachmentsPacket(AutomobileEntity entity, ServerPlayer player) {
+        var buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
-        buf.writeString(entity.getRearAttachmentType().id().toString());
-        buf.writeString(entity.getFrontAttachmentType().id().toString());
-        ServerPlayNetworking.send(player, Automobility.id("sync_automobile_attachments"), buf);
+        buf.writeUtf(entity.getRearAttachmentType().id().toString());
+        buf.writeUtf(entity.getFrontAttachmentType().id().toString());
+        ServerPlayNetworking.send(player, Automobility.rl("sync_automobile_attachments"), buf);
     }
 
-    public static void sendBannerPostAttachmentUpdatePacket(AutomobileEntity entity, NbtCompound banner, ServerPlayerEntity player) {
-        var buf = new PacketByteBuf(Unpooled.buffer());
+    public static void sendBannerPostAttachmentUpdatePacket(AutomobileEntity entity, CompoundTag banner, ServerPlayer player) {
+        var buf = new FriendlyByteBuf(Unpooled.buffer());
 
         if (entity.getRearAttachment() instanceof BannerPostRearAttachment) {
             buf.writeInt(entity.getId());
             buf.writeNbt(banner);
-            ServerPlayNetworking.send(player, Automobility.id("update_banner_post"), buf);
+            ServerPlayNetworking.send(player, Automobility.rl("update_banner_post"), buf);
         }
     }
 
-    public static void sendExtendableAttachmentUpdatePacket(AutomobileEntity entity, boolean extended, ServerPlayerEntity player) {
-        var buf = new PacketByteBuf(Unpooled.buffer());
+    public static void sendExtendableAttachmentUpdatePacket(AutomobileEntity entity, boolean extended, ServerPlayer player) {
+        var buf = new FriendlyByteBuf(Unpooled.buffer());
 
         if (entity.getRearAttachment() instanceof ExtendableRearAttachment) {
             buf.writeInt(entity.getId());
             buf.writeBoolean(extended);
-            ServerPlayNetworking.send(player, Automobility.id("update_extendable_attachment"), buf);
+            ServerPlayNetworking.send(player, Automobility.rl("update_extendable_attachment"), buf);
         }
     }
 
     public static void init() {
-        ServerPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile_inputs"), (server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(Automobility.rl("sync_automobile_inputs"), (server, player, handler, buf, responseSender) -> {
             boolean fwd = buf.readBoolean();
             boolean back = buf.readBoolean();
             boolean left = buf.readBoolean();
@@ -95,16 +93,16 @@ public enum PayloadPackets {;
             boolean space = buf.readBoolean();
             int entityId = buf.readInt();
             server.execute(() -> {
-                if (player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
+                if (player.level.getEntity(entityId) instanceof AutomobileEntity automobile) {
                     automobile.setInputs(fwd, back, left, right, space);
                     automobile.markDirty();
                 }
             });
         });
-        ServerPlayNetworking.registerGlobalReceiver(Automobility.id("request_sync_automobile_components"), (server, player, handler, buf, responseSender) -> {
+        ServerPlayNetworking.registerGlobalReceiver(Automobility.rl("request_sync_automobile_components"), (server, player, handler, buf, responseSender) -> {
             int entityId = buf.readInt();
             server.execute(() -> {
-                if (player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
+                if (player.level.getEntity(entityId) instanceof AutomobileEntity automobile) {
                     sendSyncAutomobileComponentsPacket(automobile, player);
                     sendSyncAutomobileAttachmentsPacket(automobile, player);
 
@@ -120,52 +118,52 @@ public enum PayloadPackets {;
 
     @Environment(EnvType.CLIENT)
     public static void initClient() {
-        ClientPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile_data"), (client, handler, buf, responseSender) -> {
-            PacketByteBuf dup = PacketByteBufs.copy(buf);
+        ClientPlayNetworking.registerGlobalReceiver(Automobility.rl("sync_automobile_data"), (client, handler, buf, responseSender) -> {
+            FriendlyByteBuf dup = PacketByteBufs.copy(buf);
             int entityId = dup.readInt();
             client.execute(() -> {
-                if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
+                if (client.player.level.getEntity(entityId) instanceof AutomobileEntity automobile) {
                     automobile.readSyncToClientData(dup);
                 }
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile_components"), (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(Automobility.rl("sync_automobile_components"), (client, handler, buf, responseSender) -> {
             int entityId = buf.readInt();
-            var frame = AutomobileFrame.REGISTRY.getOrDefault(Identifier.tryParse(buf.readString()));
-            var wheel = AutomobileWheel.REGISTRY.getOrDefault(Identifier.tryParse(buf.readString()));
-            var engine = AutomobileEngine.REGISTRY.getOrDefault(Identifier.tryParse(buf.readString()));
+            var frame = AutomobileFrame.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
+            var wheel = AutomobileWheel.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
+            var engine = AutomobileEngine.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
             client.execute(() -> {
-                if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
+                if (client.player.level.getEntity(entityId) instanceof AutomobileEntity automobile) {
                     automobile.setComponents(frame, wheel, engine);
                 }
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile_attachments"), (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(Automobility.rl("sync_automobile_attachments"), (client, handler, buf, responseSender) -> {
             int entityId = buf.readInt();
-            var rearAtt = RearAttachmentType.REGISTRY.getOrDefault(Identifier.tryParse(buf.readString()));
-            var frontAtt = FrontAttachmentType.REGISTRY.getOrDefault(Identifier.tryParse(buf.readString()));
+            var rearAtt = RearAttachmentType.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
+            var frontAtt = FrontAttachmentType.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
             client.execute(() -> {
-                if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile) {
+                if (client.player.level.getEntity(entityId) instanceof AutomobileEntity automobile) {
                     automobile.setRearAttachment(rearAtt);
                     automobile.setFrontAttachment(frontAtt);
                 }
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(Automobility.id("update_banner_post"), (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(Automobility.rl("update_banner_post"), (client, handler, buf, responseSender) -> {
             int entityId = buf.readInt();
             var banner = buf.readNbt();
             client.execute(() -> {
-                if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile &&
+                if (client.player.level.getEntity(entityId) instanceof AutomobileEntity automobile &&
                         automobile.getRearAttachment() instanceof BannerPostRearAttachment bannerPost) {
                     bannerPost.setFromNbt(banner);
                 }
             });
         });
-        ClientPlayNetworking.registerGlobalReceiver(Automobility.id("update_extendable_attachment"), (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(Automobility.rl("update_extendable_attachment"), (client, handler, buf, responseSender) -> {
             int entityId = buf.readInt();
             boolean extended = buf.readBoolean();
             client.execute(() -> {
-                if (client.player.world.getEntityById(entityId) instanceof AutomobileEntity automobile &&
+                if (client.player.level.getEntity(entityId) instanceof AutomobileEntity automobile &&
                         automobile.getRearAttachment() instanceof ExtendableRearAttachment att) {
                     att.setExtended(extended);
                 }

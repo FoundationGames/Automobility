@@ -1,8 +1,8 @@
 package io.github.foundationgames.automobility.mixin;
 
 import io.github.foundationgames.automobility.util.AUtils;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,16 +15,16 @@ public class EntityMixin {
 
     @Shadow protected boolean onGround;
 
-    @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At("HEAD"))
-    private void automobility$spoofGroundStart(Vec3d movement, CallbackInfoReturnable<Vec3d> cir) {
+    @Inject(method = "collide", at = @At("HEAD"))
+    private void automobility$spoofGroundStart(Vec3 movement, CallbackInfoReturnable<Vec3> cir) {
         if (AUtils.IGNORE_ENTITY_GROUND_CHECK_STEPPING) {
             this.automobility$cacheOnGround = this.onGround;
             this.onGround = true;
         }
     }
 
-    @Inject(method = "adjustMovementForCollisions(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;", at = @At("TAIL"))
-    private void automobility$spoofGroundEnd(Vec3d movement, CallbackInfoReturnable<Vec3d> cir) {
+    @Inject(method = "collide", at = @At("TAIL"))
+    private void automobility$spoofGroundEnd(Vec3 movement, CallbackInfoReturnable<Vec3> cir) {
         if (AUtils.IGNORE_ENTITY_GROUND_CHECK_STEPPING) {
             this.onGround = this.automobility$cacheOnGround;
             AUtils.IGNORE_ENTITY_GROUND_CHECK_STEPPING = false;

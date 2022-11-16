@@ -6,40 +6,40 @@ import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public record AutomobileWheel(
-        Identifier id,
+        ResourceLocation id,
         float size,
         float grip,
         WheelModel model,
         Ability ... abilities
 ) implements AutomobileComponent<AutomobileWheel> {
-    public static final Identifier ID = Automobility.id("wheel");
+    public static final ResourceLocation ID = Automobility.rl("wheel");
     public static final SimpleMapContentRegistry<AutomobileWheel> REGISTRY = new SimpleMapContentRegistry<>();
 
     public static final AutomobileWheel EMPTY = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("empty"), 0.01f, 0.01f, new WheelModel(1, 1, new Identifier("empty"), Automobility.id("empty")))
+            new AutomobileWheel(Automobility.rl("empty"), 0.01f, 0.01f, new WheelModel(1, 1, new ResourceLocation("empty"), Automobility.rl("empty")))
     );
 
     public static final AutomobileWheel STANDARD = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("standard"), 0.6f, 0.5f, new WheelModel(3, 3, Automobility.id("textures/entity/automobile/wheel/standard.png"), Automobility.id("wheel_standard")))
+            new AutomobileWheel(Automobility.rl("standard"), 0.6f, 0.5f, new WheelModel(3, 3, Automobility.rl("textures/entity/automobile/wheel/standard.png"), Automobility.rl("wheel_standard")))
     );
 
     public static final AutomobileWheel OFF_ROAD = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("off_road"), 1.1f, 0.8f, new WheelModel(8.4f, 5, Automobility.id("textures/entity/automobile/wheel/off_road.png"), Automobility.id("wheel_off_road")))
+            new AutomobileWheel(Automobility.rl("off_road"), 1.1f, 0.8f, new WheelModel(8.4f, 5, Automobility.rl("textures/entity/automobile/wheel/off_road.png"), Automobility.rl("wheel_off_road")))
     );
 
     public static final AutomobileWheel STEEL = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("steel"), 0.69f, 0.4f, new WheelModel(3.625f, 3, Automobility.id("textures/entity/automobile/wheel/steel.png"), Automobility.id("wheel_steel")))
+            new AutomobileWheel(Automobility.rl("steel"), 0.69f, 0.4f, new WheelModel(3.625f, 3, Automobility.rl("textures/entity/automobile/wheel/steel.png"), Automobility.rl("wheel_steel")))
     );
 
     public static final AutomobileWheel TRACTOR = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("tractor"), 1.05f, 0.69f, new WheelModel(3.625f, 3, Automobility.id("textures/entity/automobile/wheel/tractor.png"), Automobility.id("wheel_tractor")))
+            new AutomobileWheel(Automobility.rl("tractor"), 1.05f, 0.69f, new WheelModel(3.625f, 3, Automobility.rl("textures/entity/automobile/wheel/tractor.png"), Automobility.rl("wheel_tractor")))
     );
 
     public static final AutomobileWheel CARRIAGE = REGISTRY.register(carriage("carriage", 0.2f));
@@ -49,11 +49,11 @@ public record AutomobileWheel(
     public static final AutomobileWheel BEJEWELED = REGISTRY.register(carriage("bejeweled", 0.475f));
 
     public static final AutomobileWheel CONVERTIBLE = REGISTRY.register(
-            new AutomobileWheel(Automobility.id("convertible"), 0.75f, 0.45f, new WheelModel(5.2f, 4.1f, Automobility.id("textures/entity/automobile/frame/c_arr.png"), Automobility.id("wheel_convertible")))
+            new AutomobileWheel(Automobility.rl("convertible"), 0.75f, 0.45f, new WheelModel(5.2f, 4.1f, Automobility.rl("textures/entity/automobile/frame/c_arr.png"), Automobility.rl("wheel_convertible")))
     );
 
     private static AutomobileWheel carriage(String name, float grip) {
-        return new AutomobileWheel(Automobility.id(name), 1.05f, grip, new WheelModel(5, 2, Automobility.id("textures/entity/automobile/wheel/"+name+".png"), Automobility.id("wheel_carriage")));
+        return new AutomobileWheel(Automobility.rl(name), 1.05f, grip, new WheelModel(5, 2, Automobility.rl("textures/entity/automobile/wheel/"+name+".png"), Automobility.rl("wheel_carriage")));
     }
 
     public static final DisplayStat<AutomobileWheel> STAT_SIZE = new DisplayStat<>("size", AutomobileWheel::size);
@@ -65,7 +65,7 @@ public record AutomobileWheel(
     }
 
     @Override
-    public Identifier containerId() {
+    public ResourceLocation containerId() {
         return ID;
     }
 
@@ -76,7 +76,7 @@ public record AutomobileWheel(
     }
 
     @Override
-    public Identifier getId() {
+    public ResourceLocation getId() {
         return this.id;
     }
 
@@ -90,11 +90,11 @@ public record AutomobileWheel(
     public static record WheelModel(
         float radius,
         float width,
-        Identifier texture,
-        Identifier modelId
+        ResourceLocation texture,
+        ResourceLocation modelId
     ) {
         @Environment(EnvType.CLIENT)
-        public Function<EntityRendererFactory.Context, Model> model() {
+        public Function<EntityRendererProvider.Context, Model> model() {
             return AutomobilityModels.MODELS.get(modelId);
         }
     }

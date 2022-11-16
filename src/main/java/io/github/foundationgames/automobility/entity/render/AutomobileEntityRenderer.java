@@ -1,40 +1,39 @@
 package io.github.foundationgames.automobility.entity.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
 import io.github.foundationgames.automobility.automobile.render.AutomobileRenderer;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
 
 public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
-    private final EntityRendererFactory.Context ctx;
+    private final EntityRendererProvider.Context ctx;
 
-    public AutomobileEntityRenderer(EntityRendererFactory.Context ctx) {
+    public AutomobileEntityRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
         this.ctx = ctx;
     }
 
     @Override
-    public Identifier getTexture(AutomobileEntity entity) {
+    public ResourceLocation getTextureLocation(AutomobileEntity entity) {
         return null;
     }
 
     @Override
-    public void render(AutomobileEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-        matrices.push();
+    public void render(AutomobileEntity entity, float yaw, float tickDelta, PoseStack pose, MultiBufferSource buffers, int light) {
+        pose.pushPose();
         float angX = entity.getDisplacement().getAngularX(tickDelta);
         float angZ = entity.getDisplacement().getAngularZ(tickDelta);
         float offsetY = entity.getDisplacement().getVertical(tickDelta);
 
-        matrices.translate(0, offsetY, 0);
-        matrices.multiply(Quaternion.fromEulerXyz((float) Math.toRadians(angX), 0, (float) Math.toRadians(angZ)));
+        pose.translate(0, offsetY, 0);
+        pose.mulPose(Quaternion.fromXYZ((float) Math.toRadians(angX), 0, (float) Math.toRadians(angZ)));
 
-        AutomobileRenderer.render(matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, tickDelta, ctx, entity);
-        matrices.pop();
+        AutomobileRenderer.render(pose, buffers, light, OverlayTexture.NO_OVERLAY, tickDelta, ctx, entity);
+        pose.popPose();
     }
 }

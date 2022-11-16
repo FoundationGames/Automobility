@@ -4,9 +4,9 @@ import io.github.foundationgames.automobility.automobile.attachment.RearAttachme
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 
 public abstract class ExtendableRearAttachment extends DeployableRearAttachment {
     protected boolean extended;
@@ -19,11 +19,11 @@ public abstract class ExtendableRearAttachment extends DeployableRearAttachment 
     }
 
     public float extendAnimation(float delta) {
-        return MathHelper.lerp(delta, lastExtendAnimation, extendAnimation) / 14;
+        return Mth.lerp(delta, lastExtendAnimation, extendAnimation) / 14;
     }
 
     public void setExtended(boolean extended) {
-        if (!this.world().isClient()) {
+        if (!this.world().isClientSide()) {
             this.updateTrackedAnimation(extended ? 1f : 0f);
         }
 
@@ -38,28 +38,28 @@ public abstract class ExtendableRearAttachment extends DeployableRearAttachment 
     public void tick() {
         super.tick();
 
-        if (this.world().isClient()) {
+        if (this.world().isClientSide()) {
             this.lastExtendAnimation = this.extendAnimation;
             this.extendAnimation = AUtils.shift(this.extendAnimation, 1, this.extended() ? 0 : this.extendAnimTime());
         }
     }
 
     @Override
-    public void updatePacketRequested(ServerPlayerEntity player) {
+    public void updatePacketRequested(ServerPlayer player) {
         super.updatePacketRequested(player);
 
         PayloadPackets.sendExtendableAttachmentUpdatePacket(this.automobile(), this.extended(), player);
     }
 
     @Override
-    public void writeNbt(NbtCompound nbt) {
+    public void writeNbt(CompoundTag nbt) {
         super.writeNbt(nbt);
 
         nbt.putBoolean("extended", this.extended());
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
+    public void readNbt(CompoundTag nbt) {
         super.readNbt(nbt);
 
         this.setExtended(nbt.getBoolean("extended"));

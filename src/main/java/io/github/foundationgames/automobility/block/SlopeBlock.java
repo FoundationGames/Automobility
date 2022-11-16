@@ -2,26 +2,30 @@ package io.github.foundationgames.automobility.block;
 
 import io.github.foundationgames.automobility.item.SlopePlacementContext;
 import io.github.foundationgames.automobility.util.AUtils;
-import net.minecraft.block.*;
-import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class SlopeBlock extends HorizontalFacingBlock implements Waterloggable {
+public class SlopeBlock extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock {
     public static final VoxelShape NORTH_BOTTOM_SHAPE;
     public static final VoxelShape SOUTH_BOTTOM_SHAPE;
     public static final VoxelShape EAST_BOTTOM_SHAPE;
@@ -31,58 +35,58 @@ public class SlopeBlock extends HorizontalFacingBlock implements Waterloggable {
     public static final VoxelShape EAST_TOP_SHAPE;
     public static final VoxelShape WEST_TOP_SHAPE;
 
-    public static final EnumProperty<BlockHalf> HALF = Properties.BLOCK_HALF;
-    public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
+    public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public SlopeBlock(Settings settings) {
+    public SlopeBlock(Properties settings) {
         super(settings);
-        setDefaultState(getDefaultState().with(FACING, Direction.NORTH).with(HALF, BlockHalf.BOTTOM).with(WATERLOGGED, false));
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(HALF, Half.BOTTOM).setValue(WATERLOGGED, false));
     }
 
     @Nullable
     @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         return ctx instanceof SlopePlacementContext slopeCtx ?
-                super.getPlacementState(ctx)
-                        .with(FACING, slopeCtx.getSlopeFacing())
-                        .with(WATERLOGGED, ctx.getWorld().getBlockState(ctx.getBlockPos()).isOf(Blocks.WATER))
-                        .with(HALF, slopeCtx.getSlopeHalf())
+                super.getStateForPlacement(ctx)
+                        .setValue(FACING, slopeCtx.getSlopeFacing())
+                        .setValue(WATERLOGGED, ctx.getLevel().getBlockState(ctx.getClickedPos()).is(Blocks.WATER))
+                        .setValue(HALF, slopeCtx.getSlopeHalf())
                 :
-                super.getPlacementState(ctx)
-                        .with(FACING, ctx.getPlayerFacing().getOpposite())
-                        .with(WATERLOGGED, ctx.getWorld().getBlockState(ctx.getBlockPos()).isOf(Blocks.WATER))
-                        .with(HALF, ctx.getHitPos().y - ctx.getBlockPos().getY() > 0.5 ? BlockHalf.TOP : BlockHalf.BOTTOM);
+                super.getStateForPlacement(ctx)
+                        .setValue(FACING, ctx.getHorizontalDirection().getOpposite())
+                        .setValue(WATERLOGGED, ctx.getLevel().getBlockState(ctx.getClickedPos()).is(Blocks.WATER))
+                        .setValue(HALF, ctx.getClickLocation().y - ctx.getClickedPos().getY() > 0.5 ? Half.TOP : Half.BOTTOM);
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        super.appendProperties(builder);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(FACING, HALF, WATERLOGGED);
     }
 
     @Override
     public FluidState getFluidState(BlockState state) {
-        return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return switch (state.get(HALF)) {
-            case BOTTOM -> switch (state.get(FACING)) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return switch (state.getValue(HALF)) {
+            case BOTTOM -> switch (state.getValue(FACING)) {
                 case NORTH -> NORTH_BOTTOM_SHAPE;
                 case SOUTH -> SOUTH_BOTTOM_SHAPE;
                 case WEST -> WEST_BOTTOM_SHAPE;
                 case EAST -> EAST_BOTTOM_SHAPE;
-                default -> VoxelShapes.empty();
+                default -> Shapes.empty();
             };
-            case TOP -> switch (state.get(FACING)) {
+            case TOP -> switch (state.getValue(FACING)) {
                 case NORTH -> NORTH_TOP_SHAPE;
                 case SOUTH -> SOUTH_TOP_SHAPE;
                 case WEST -> WEST_TOP_SHAPE;
                 case EAST -> EAST_TOP_SHAPE;
-                default -> VoxelShapes.empty();
+                default -> Shapes.empty();
             };
-            default -> VoxelShapes.empty();
+            default -> Shapes.empty();
         };
     }
 
@@ -101,16 +105,16 @@ public class SlopeBlock extends HorizontalFacingBlock implements Waterloggable {
                     default -> 0;
                 };
                 var shape = switch (dir) {
-                    case NORTH -> Block.createCuboidShape(0, -1.5, 0, 16, 0.5, 0.5);
-                    case SOUTH -> Block.createCuboidShape(0, -1.5, 15.5, 16, 0.5, 16);
-                    case EAST -> Block.createCuboidShape(15.5, -1.5, 0, 16, 0.5, 16);
-                    case WEST -> Block.createCuboidShape(0, -1.5, 0, 0.5, 0.5, 16);
-                    default -> VoxelShapes.empty();
+                    case NORTH -> Block.box(0, -1.5, 0, 16, 0.5, 0.5);
+                    case SOUTH -> Block.box(0, -1.5, 15.5, 16, 0.5, 16);
+                    case EAST -> Block.box(15.5, -1.5, 0, 16, 0.5, 16);
+                    case WEST -> Block.box(0, -1.5, 0, 0.5, 0.5, 16);
+                    default -> Shapes.empty();
                 };
-                shape = shape.offset(0, i * 0.5, 0);
+                shape = shape.move(0, i * 0.5, 0);
                 var finalShape = shape;
                 for (int j = 1; j < 32; j++) {
-                    finalShape = VoxelShapes.union(finalShape, shape.offset((ox * j) / 16, (0.25 * j) / 16, (oz * j) / 16));
+                    finalShape = Shapes.or(finalShape, shape.move((ox * j) / 16, (0.25 * j) / 16, (oz * j) / 16));
                 }
                 shapes.add(finalShape);
             }

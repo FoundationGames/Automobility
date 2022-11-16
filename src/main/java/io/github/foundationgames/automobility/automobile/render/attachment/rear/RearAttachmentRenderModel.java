@@ -2,20 +2,20 @@ package io.github.foundationgames.automobility.automobile.render.attachment.rear
 
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.BaseModel;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.NoSuchElementException;
 import java.util.function.Function;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 
 public class RearAttachmentRenderModel extends BaseModel {
     private final @Nullable ModelPart wheels;
 
-    public RearAttachmentRenderModel(Function<Identifier, RenderLayer> layerFactory, EntityRendererFactory.Context ctx, EntityModelLayer layer) {
+    public RearAttachmentRenderModel(Function<ResourceLocation, RenderType> layerFactory, EntityRendererProvider.Context ctx, ModelLayerLocation layer) {
         super(layerFactory, ctx, layer);
         ModelPart wheels;
         try {
@@ -28,7 +28,7 @@ public class RearAttachmentRenderModel extends BaseModel {
 
     public void setRenderState(@Nullable RearAttachment attachment, float wheelAngle, float tickDelta) {
         if (this.wheels != null) {
-            this.wheels.setAngles(wheelAngle, 0, 0);
+            this.wheels.setRotation(wheelAngle, 0, 0);
         }
     }
 

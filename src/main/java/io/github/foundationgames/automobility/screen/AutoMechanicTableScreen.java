@@ -1,22 +1,9 @@
 package io.github.foundationgames.automobility.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.recipe.AutoMechanicTableRecipe;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayDeque;
@@ -25,9 +12,21 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.crafting.Ingredient;
 
-public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScreenHandler> {
-    private static final Identifier TEXTURE = Automobility.id("textures/gui/container/auto_mechanic_table.png");
+public class AutoMechanicTableScreen extends AbstractContainerScreen<AutoMechanicTableScreenHandler> {
+    private static final ResourceLocation TEXTURE = Automobility.rl("textures/gui/container/auto_mechanic_table.png");
 
     private static final int RECIPE_BUTTON_SIZE = 17;
     private static final int RECIPE_PANEL_WIDTH = 85;
@@ -51,17 +50,17 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
 
     private int currentCategory = 0;
     private int recipeScroll = 0;
-    private final List<Identifier> orderedCategories = createDefaultCategories();
-    private final Map<Identifier, List<RecipeEntry>> recipes = new HashMap<>();
+    private final List<ResourceLocation> orderedCategories = createDefaultCategories();
+    private final Map<ResourceLocation, List<RecipeEntry>> recipes = new HashMap<>();
 
-    private OrderedText categoryTitle;
+    private FormattedCharSequence categoryTitle;
 
-    public AutoMechanicTableScreen(AutoMechanicTableScreenHandler handler, PlayerInventory inventory, Text title) {
+    public AutoMechanicTableScreen(AutoMechanicTableScreenHandler handler, Inventory inventory, Component title) {
         super(handler, inventory, title);
-        this.backgroundWidth = 176;
-        this.backgroundHeight = 209;
+        this.imageWidth = 176;
+        this.imageHeight = 209;
 
-        this.titleY = 8;
+        this.titleLabelY = 8;
 
         for (int id = 0; id < handler.recipes.size(); id++) {
             var recipe = handler.recipes.get(id);
@@ -75,14 +74,14 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
             this.recipes.get(category).add(new RecipeEntry(id, recipe));
         }
 
-        this.playerInventoryTitleY = this.y + 115;
+        this.inventoryLabelY = this.topPos + 115;
     }
 
-    private static List<Identifier> createDefaultCategories() {
-        var list = new ArrayList<Identifier>();
-        list.add(Automobility.id("frames"));
-        list.add(Automobility.id("engines"));
-        list.add(Automobility.id("wheels"));
+    private static List<ResourceLocation> createDefaultCategories() {
+        var list = new ArrayList<ResourceLocation>();
+        list.add(Automobility.rl("frames"));
+        list.add(Automobility.rl("engines"));
+        list.add(Automobility.rl("wheels"));
 
         return list;
     }
@@ -91,26 +90,26 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
     protected void init() {
         super.init();
 
-        this.recipePanelX = this.x + 76;
-        this.recipePanelY = this.y + 21;
+        this.recipePanelX = this.leftPos + 76;
+        this.recipePanelY = this.topPos + 21;
 
-        this.categoryButtonsX = this.x + 75;
-        this.categoryButtonsY = this.y + 4;
+        this.categoryButtonsX = this.leftPos + 75;
+        this.categoryButtonsY = this.topPos + 4;
 
         this.categoryTitle = this.createCategoryTitle(this.orderedCategories.get(0));
     }
 
     @Override
-    protected void handledScreenTick() {
-        super.handledScreenTick();
+    protected void containerTick() {
+        super.containerTick();
 
         this.time++;
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
-        this.drawMouseoverTooltip(matrices, mouseX, mouseY);
+        this.renderTooltip(matrices, mouseX, mouseY);
     }
 
     private void preDraw() {
@@ -120,11 +119,11 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
     }
 
     @Override
-    protected void drawBackground(MatrixStack matrices, float delta, int mouseX, int mouseY) {
+    protected void renderBg(PoseStack matrices, float delta, int mouseX, int mouseY) {
         this.renderBackground(matrices);
 
         this.preDraw();
-        this.drawTexture(matrices, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
+        this.blit(matrices, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
         this.drawCategoryBar(matrices, mouseX, mouseY);
         this.drawRecipes(matrices, mouseX, mouseY);
 
@@ -132,12 +131,12 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
     }
 
     @Override
-    protected void drawForeground(MatrixStack matrices, int mouseX, int mouseY) {
-        super.drawForeground(matrices, mouseX, mouseY);
+    protected void renderLabels(PoseStack matrices, int mouseX, int mouseY) {
+        super.renderLabels(matrices, mouseX, mouseY);
 
         int hoveredRecipe = this.getHoveredRecipe(mouseX, mouseY);
         if (hoveredRecipe >= 0) {
-            this.renderTooltip(matrices, this.handler.recipes.get(hoveredRecipe).getOutput(), mouseX - this.x, mouseY - this.y);
+            this.renderTooltip(matrices, this.menu.recipes.get(hoveredRecipe).getResultItem(), mouseX - this.leftPos, mouseY - this.topPos);
         }
     }
 
@@ -147,17 +146,17 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
         this.recipeScroll = 0;
     }
 
-    private OrderedText createCategoryTitle(Identifier category) {
-        var translated = I18n.translate("part_category."+category.getNamespace()+"."+category.getPath());
-        if (this.textRenderer.getWidth(translated) > 64) {
-            return Text.literal(this.textRenderer.trimToWidth(translated, 57) + "...").asOrderedText();
+    private FormattedCharSequence createCategoryTitle(ResourceLocation category) {
+        var translated = I18n.get("part_category."+category.getNamespace()+"."+category.getPath());
+        if (this.font.width(translated) > 64) {
+            return Component.literal(this.font.plainSubstrByWidth(translated, 57) + "...").getVisualOrderText();
         }
-        return Text.literal(this.textRenderer.trimToWidth(translated, 64)).asOrderedText();
+        return Component.literal(this.font.plainSubstrByWidth(translated, 64)).getVisualOrderText();
     }
 
     private void buttonClicked() {
-        if (this.client != null) {
-            this.client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        if (this.minecraft != null) {
+            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
     }
 
@@ -184,19 +183,19 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
     }
 
     private void selectRecipe(int id) {
-        this.handler.onButtonClick(this.client.player, id);
-        this.client.interactionManager.clickButton(this.handler.syncId, id);
+        this.menu.clickMenuButton(this.minecraft.player, id);
+        this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, id);
     }
 
     private int getMaxRecipeScroll() {
-        return Math.max(0, MathHelper.ceil((float)this.getRecipeList().size() / 5) - 3);
+        return Math.max(0, Mth.ceil((float)this.getRecipeList().size() / 5) - 3);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
         if (amount != 0 && this.getHoveredRecipe((int) mouseX, (int) mouseY) >= -1) {
             this.recipeScroll += amount > 0 ? -1 : 1;
-            this.recipeScroll = MathHelper.clamp(this.recipeScroll, 0, this.getMaxRecipeScroll());
+            this.recipeScroll = Mth.clamp(this.recipeScroll, 0, this.getMaxRecipeScroll());
 
             return true;
         }
@@ -204,26 +203,26 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
         return false;
     }
 
-    protected final void drawMissingIngredient(MatrixStack matrices, Ingredient ing, int x, int y) {
-        DrawableHelper.fill(matrices, x, y, x + 16, y + 16, 0x45FF0000);
+    protected final void drawMissingIngredient(PoseStack matrices, Ingredient ing, int x, int y) {
+        GuiComponent.fill(matrices, x, y, x + 16, y + 16, 0x45FF0000);
 
-        var stacks = ing.getMatchingStacks();
-        this.itemRenderer.renderInGui(stacks[MathHelper.floor((float)this.time / 30) % stacks.length], x, y);
+        var stacks = ing.getItems();
+        this.itemRenderer.renderAndDecorateFakeItem(stacks[Mth.floor((float)this.time / 30) % stacks.length], x, y);
 
         RenderSystem.depthFunc(516);
-        DrawableHelper.fill(matrices, x, y, x + 16, y + 16, 0x30FFFFFF);
+        GuiComponent.fill(matrices, x, y, x + 16, y + 16, 0x30FFFFFF);
         RenderSystem.depthFunc(515);
     }
 
-    protected void drawMissingIngredients(MatrixStack matrices) {
-        var inputInv = this.handler.inputInv;
-        var missingIngs = new ArrayDeque<>(this.handler.missingIngredients);
+    protected void drawMissingIngredients(PoseStack matrices) {
+        var inputInv = this.menu.inputInv;
+        var missingIngs = new ArrayDeque<>(this.menu.missingIngredients);
 
-        for (int i = 0; i < inputInv.size(); i++) if (missingIngs.size() > 0) {
-            int x = this.x + 8 + (i * 18);
-            int y = this.y + 88;
+        for (int i = 0; i < inputInv.getContainerSize(); i++) if (missingIngs.size() > 0) {
+            int x = this.leftPos + 8 + (i * 18);
+            int y = this.topPos + 88;
 
-            if (inputInv.getStack(i).isEmpty()) {
+            if (inputInv.getItem(i).isEmpty()) {
                 this.drawMissingIngredient(matrices, missingIngs.removeFirst(), x, y);
             }
         }
@@ -261,8 +260,8 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
 
         if (this.currentCategory < this.orderedCategories.size() && this.currentCategory >= 0 &&
                 (mouseX >= 0 && mouseX < RECIPE_PANEL_WIDTH) && (mouseY >= 0 && mouseY < RECIPE_PANEL_HEIGHT)) {
-            int row = MathHelper.floor((float)mouseY / RECIPE_BUTTON_SIZE);
-            int col = MathHelper.floor((float)mouseX / RECIPE_BUTTON_SIZE);
+            int row = Mth.floor((float)mouseY / RECIPE_BUTTON_SIZE);
+            int col = Mth.floor((float)mouseX / RECIPE_BUTTON_SIZE);
 
             if (row >= 0 && col >= 0) {
                 int idx = (5 * (row + this.recipeScroll)) + col;
@@ -278,21 +277,21 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
         return -2;
     }
 
-    protected void drawCategoryBar(MatrixStack matrices, int mouseX, int mouseY) {
+    protected void drawCategoryBar(PoseStack matrices, int mouseX, int mouseY) {
         int hoveredCatButton = this.getHoveredCategoryButton(mouseX, mouseY);
 
         this.preDraw();
-        this.drawTexture(matrices, this.categoryButtonsX, this.categoryButtonsY,
+        this.blit(matrices, this.categoryButtonsX, this.categoryButtonsY,
                 176, 17 + (hoveredCatButton < 0 ? CATEGORY_BUTTON_HEIGHT : 0), CATEGORY_BUTTON_WIDTH, CATEGORY_BUTTON_HEIGHT);
-        this.drawTexture(matrices, this.categoryButtonsX + (CATEGORY_BUTTON_AREA_WIDTH - CATEGORY_BUTTON_WIDTH), this.categoryButtonsY,
+        this.blit(matrices, this.categoryButtonsX + (CATEGORY_BUTTON_AREA_WIDTH - CATEGORY_BUTTON_WIDTH), this.categoryButtonsY,
                 188, 17 + (hoveredCatButton > 0 ? CATEGORY_BUTTON_HEIGHT : 0), CATEGORY_BUTTON_WIDTH, CATEGORY_BUTTON_HEIGHT);
 
         if (this.categoryTitle != null) {
-            DrawableHelper.drawCenteredTextWithShadow(matrices, this.textRenderer, this.categoryTitle, this.x + 120, this.y + 8, 0xFFFFFF);
+            GuiComponent.drawCenteredString(matrices, this.font, this.categoryTitle, this.leftPos + 120, this.topPos + 8, 0xFFFFFF);
         }
     }
 
-    protected void drawRecipes(MatrixStack matrices, int mouseX, int mouseY) {
+    protected void drawRecipes(PoseStack matrices, int mouseX, int mouseY) {
         if (this.orderedCategories.size() > 0) {
             var recipes = this.recipes.get(this.orderedCategories.get(this.currentCategory));
 
@@ -307,8 +306,8 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
                         var entry = recipes.get(idx);
 
                         var state = RecipeButtonState.DEFAULT;
-                        if (this.handler.getSelectedRecipe().isPresent() &&
-                                this.handler.getSelectedRecipeId() == entry.id()) {
+                        if (this.menu.getSelectedRecipe().isPresent() &&
+                                this.menu.getSelectedRecipeId() == entry.id()) {
                             state = RecipeButtonState.SELECTED;
                         } else if (this.getHoveredRecipe(mouseX, mouseY) == entry.id()) {
                             state = RecipeButtonState.HOVERED;
@@ -325,21 +324,21 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
         this.preDraw();
         int maxScroll = this.getMaxRecipeScroll();
 
-        int scrollBarX = this.x + 162;
-        int scrollBarY = this.y + 21;
+        int scrollBarX = this.leftPos + 162;
+        int scrollBarY = this.topPos + 21;
         if (maxScroll > 0) {
             scrollBarY += (int)((SCROLL_BAR_AREA_HEIGHT - SCROLL_BAR_HEIGHT) * ((float)this.recipeScroll / maxScroll));
         }
 
-        this.drawTexture(matrices, scrollBarX, scrollBarY, 227, 0, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
+        this.blit(matrices, scrollBarX, scrollBarY, 227, 0, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
     }
 
-    protected void drawRecipeEntry(RecipeEntry entry, MatrixStack matrices, int x, int y, RecipeButtonState state) {
+    protected void drawRecipeEntry(RecipeEntry entry, PoseStack matrices, int x, int y, RecipeButtonState state) {
         this.preDraw();
-        this.drawTexture(matrices, x, y, 176 + (state.ordinal() * RECIPE_BUTTON_SIZE), 0, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE);
+        this.blit(matrices, x, y, 176 + (state.ordinal() * RECIPE_BUTTON_SIZE), 0, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE);
 
-        var stack = entry.recipe.getOutput();
-        this.itemRenderer.renderInGui(stack, x, y);
+        var stack = entry.recipe.getResultItem();
+        this.itemRenderer.renderAndDecorateFakeItem(stack, x, y);
     }
 
     public static record RecipeEntry(int id, AutoMechanicTableRecipe recipe) {}

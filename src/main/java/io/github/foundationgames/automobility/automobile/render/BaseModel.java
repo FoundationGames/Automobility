@@ -1,47 +1,46 @@
 package io.github.foundationgames.automobility.automobile.render;
 
 import net.minecraft.client.model.Model;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.function.Function;
 
 public class BaseModel extends Model {
     protected final ModelPart root;
 
-    public BaseModel(Function<Identifier, RenderLayer> layerFactory, EntityRendererFactory.Context ctx, EntityModelLayer layer) {
+    public BaseModel(Function<ResourceLocation, RenderType> layerFactory, EntityRendererProvider.Context ctx, ModelLayerLocation layer) {
         super(layerFactory);
-        this.root = ctx.getPart(layer).getChild("main");
+        this.root = ctx.bakeLayer(layer).getChild("main");
     }
 
-    protected void prepare(MatrixStack matrices) {
+    protected void prepare(PoseStack matrices) {
     }
 
     @Override
-    public final void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-        matrices.push();
+    public final void renderToBuffer(PoseStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+        matrices.pushPose();
         this.prepare(matrices);
         this.root.render(matrices, vertices, light, overlay, red, green, blue, alpha);
         renderExtra(matrices, vertices, light, overlay, red, green, blue, alpha);
-        matrices.pop();
+        matrices.popPose();
     }
 
-    public final void doOtherLayerRender(MatrixStack matrices, VertexConsumerProvider consumers, int light, int overlay) {
-        matrices.push();
+    public final void doOtherLayerRender(PoseStack matrices, MultiBufferSource consumers, int light, int overlay) {
+        matrices.pushPose();
         this.prepare(matrices);
         this.renderOtherLayer(matrices, consumers, light, overlay);
-        matrices.pop();
+        matrices.popPose();
     }
 
-    public void renderExtra(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public void renderExtra(PoseStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
     }
 
-    public void renderOtherLayer(MatrixStack matrices, VertexConsumerProvider consumers, int light, int overlay) {
+    public void renderOtherLayer(PoseStack matrices, MultiBufferSource consumers, int light, int overlay) {
     }
 }

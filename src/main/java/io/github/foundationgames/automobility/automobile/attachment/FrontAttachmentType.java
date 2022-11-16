@@ -14,36 +14,36 @@ import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public record FrontAttachmentType<T extends FrontAttachment>(
-        Identifier id, BiFunction<FrontAttachmentType<T>, AutomobileEntity, T> constructor, FrontAttachmentModel model
+        ResourceLocation id, BiFunction<FrontAttachmentType<T>, AutomobileEntity, T> constructor, FrontAttachmentModel model
 ) implements AutomobileComponent<FrontAttachmentType<?>> {
-    public static final Identifier ID = Automobility.id("front_attachment");
+    public static final ResourceLocation ID = Automobility.rl("front_attachment");
     public static final SimpleMapContentRegistry<FrontAttachmentType<?>> REGISTRY = new SimpleMapContentRegistry<>();
 
     public static final FrontAttachmentType<EmptyFrontAttachment> EMPTY = register(new FrontAttachmentType<>(
-            Automobility.id("empty"), EmptyFrontAttachment::new, new FrontAttachmentModel(new Identifier("empty"), Automobility.id("empty"), 1)
+            Automobility.rl("empty"), EmptyFrontAttachment::new, new FrontAttachmentModel(new ResourceLocation("empty"), Automobility.rl("empty"), 1)
     ));
 
     public static final FrontAttachmentType<MobControllerFrontAttachment> MOB_CONTROLLER = register(new FrontAttachmentType<>(
-            Automobility.id("mob_controller"), MobControllerFrontAttachment::new,
-            new FrontAttachmentModel(Automobility.id("textures/entity/automobile/front_attachment/mob_controller.png"), Automobility.id("frontatt_mob_controller"), 1.7f)
+            Automobility.rl("mob_controller"), MobControllerFrontAttachment::new,
+            new FrontAttachmentModel(Automobility.rl("textures/entity/automobile/front_attachment/mob_controller.png"), Automobility.rl("frontatt_mob_controller"), 1.7f)
     ));
 
     public static final FrontAttachmentType<CropHarvesterFrontAttachment> CROP_HARVESTER = register(new FrontAttachmentType<>(
-            Automobility.id("crop_harvester"), CropHarvesterFrontAttachment::new,
-            new FrontAttachmentModel(Automobility.id("textures/entity/automobile/front_attachment/crop_harvester.png"), Automobility.id("frontatt_harvester"), 0.83f)
+            Automobility.rl("crop_harvester"), CropHarvesterFrontAttachment::new,
+            new FrontAttachmentModel(Automobility.rl("textures/entity/automobile/front_attachment/crop_harvester.png"), Automobility.rl("frontatt_harvester"), 0.83f)
     ));
 
     public static final FrontAttachmentType<GrassCutterFrontAttachment> GRASS_CUTTER = register(new FrontAttachmentType<>(
-            Automobility.id("grass_cutter"), GrassCutterFrontAttachment::new,
-            new FrontAttachmentModel(Automobility.id("textures/entity/automobile/front_attachment/grass_cutter.png"), Automobility.id("frontatt_harvester"), 0.83f)
+            Automobility.rl("grass_cutter"), GrassCutterFrontAttachment::new,
+            new FrontAttachmentModel(Automobility.rl("textures/entity/automobile/front_attachment/grass_cutter.png"), Automobility.rl("frontatt_harvester"), 0.83f)
     ));
 
     @Override
@@ -52,7 +52,7 @@ public record FrontAttachmentType<T extends FrontAttachment>(
     }
 
     @Override
-    public Identifier containerId() {
+    public ResourceLocation containerId() {
         return ID;
     }
 
@@ -61,7 +61,7 @@ public record FrontAttachmentType<T extends FrontAttachment>(
     }
 
     @Override
-    public Identifier getId() {
+    public ResourceLocation getId() {
         return this.id();
     }
 
@@ -70,9 +70,9 @@ public record FrontAttachmentType<T extends FrontAttachment>(
         return entry;
     }
 
-    public record FrontAttachmentModel(Identifier texture, Identifier modelId, float scale) {
+    public record FrontAttachmentModel(ResourceLocation texture, ResourceLocation modelId, float scale) {
         @Environment(EnvType.CLIENT)
-        public Function<EntityRendererFactory.Context, Model> model() {
+        public Function<EntityRendererProvider.Context, Model> model() {
             return AutomobilityModels.MODELS.get(modelId);
         }
     }

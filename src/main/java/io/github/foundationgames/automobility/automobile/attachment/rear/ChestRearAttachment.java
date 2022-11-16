@@ -2,32 +2,33 @@ package io.github.foundationgames.automobility.automobile.attachment.rear;
 
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.collection.DefaultedList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.Containers;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
-public class ChestRearAttachment extends BaseChestRearAttachment implements Inventory, NamedScreenHandlerFactory {
-    private DefaultedList<ItemStack> inventory;
+public class ChestRearAttachment extends BaseChestRearAttachment implements Container, MenuProvider {
+    private NonNullList<ItemStack> inventory;
 
-    public ChestRearAttachment(RearAttachmentType<?> type, AutomobileEntity entity, BlockState block, @Nullable BiFunction<ScreenHandlerContext, BlockRearAttachment, NamedScreenHandlerFactory> screenProvider) {
+    public ChestRearAttachment(RearAttachmentType<?> type, AutomobileEntity entity, BlockState block, @Nullable BiFunction<ContainerLevelAccess, BlockRearAttachment, MenuProvider> screenProvider) {
         super(type, entity, block, screenProvider);
-        this.inventory = DefaultedList.ofSize(27, ItemStack.EMPTY);
+        this.inventory = NonNullList.withSize(27, ItemStack.EMPTY);
     }
 
     @Override
@@ -35,11 +36,11 @@ public class ChestRearAttachment extends BaseChestRearAttachment implements Inve
         super.onRemoved();
 
         var pos = this.pos();
-        this.inventory.forEach(s -> ItemScatterer.spawn(this.world(), pos.x, pos.y, pos.z, s));
+        this.inventory.forEach(s -> Containers.dropItemStack(this.world(), pos.x, pos.y, pos.z, s));
     }
 
     @Override
-    public int size() {
+    public int getContainerSize() {
         return this.inventory.size();
     }
 
@@ -49,82 +50,82 @@ public class ChestRearAttachment extends BaseChestRearAttachment implements Inve
     }
 
     @Override
-    public ItemStack getStack(int slot) {
+    public ItemStack getItem(int slot) {
         return this.inventory.get(slot);
     }
 
     @Override
-    public ItemStack removeStack(int slot, int amount) {
-        return Inventories.splitStack(this.inventory, slot, amount);
+    public ItemStack removeItem(int slot, int amount) {
+        return ContainerHelper.removeItem(this.inventory, slot, amount);
     }
 
     @Override
-    public ItemStack removeStack(int slot) {
-        return Inventories.removeStack(this.inventory, slot);
+    public ItemStack removeItemNoUpdate(int slot) {
+        return ContainerHelper.takeItem(this.inventory, slot);
     }
 
     @Override
-    public void setStack(int slot, ItemStack stack) {
+    public void setItem(int slot, ItemStack stack) {
         this.inventory.set(slot, stack);
     }
 
     @Override
-    public void markDirty() {
+    public void setChanged() {
         this.automobile.markDirty();
     }
 
     @Override
-    public boolean canPlayerUse(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return true;
     }
 
     @Override
-    public Text getDisplayName() {
+    public Component getDisplayName() {
         return BaseChestRearAttachment.TITLE_CHEST;
     }
 
     @Nullable
     @Override
-    public ScreenHandler createMenu(int syncId, PlayerInventory inv, PlayerEntity player) {
-        return GenericContainerScreenHandler.createGeneric9x3(syncId, inv, this);
+    public AbstractContainerMenu createMenu(int syncId, Inventory inv, Player player) {
+        return ChestMenu.threeRows(syncId, inv, this);
     }
 
     @Override
-    public void clear() {
+    public void clearContent() {
         this.inventory.clear();
     }
 
     @Override
-    public void onOpen(PlayerEntity player) {
+    public void startOpen(Player player) {
         this.open(player);
     }
 
     @Override
-    public void onClose(PlayerEntity player) {
+    public void stopOpen(Player player) {
         this.close(player);
     }
 
     @Override
     protected SoundEvent getOpenSound() {
-        return SoundEvents.BLOCK_CHEST_OPEN;
+        return SoundEvents.CHEST_OPEN;
     }
 
     @Override
     protected SoundEvent getCloseSound() {
-        return SoundEvents.BLOCK_CHEST_CLOSE;
+        return SoundEvents.CHEST_CLOSE;
     }
 
     @Override
-    public void writeNbt(NbtCompound nbt) {
+    public void writeNbt(CompoundTag nbt) {
         super.writeNbt(nbt);
 
-        nbt.put("Items", Inventories.writeNbt(new NbtCompound(), this.inventory));
+        nbt.put("Items", ContainerHelper.saveAllItems(new CompoundTag(), this.inventory));
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
+    public void readNbt(CompoundTag nbt) {
         super.readNbt(nbt);
 
-        Inventories.readNbt(nbt.getCompound("Items"), this.inventory);
+        ContainerHelper.loadAllItems(nbt.getCompound("Items"), this.inventory);
     }
 }

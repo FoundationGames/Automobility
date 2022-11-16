@@ -1,27 +1,27 @@
 package io.github.foundationgames.automobility.screen;
 
 import io.github.foundationgames.automobility.Automobility;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
-public class SingleSlotScreenHandler extends ScreenHandler {
-    private final Inventory inventory;
+public class SingleSlotScreenHandler extends AbstractContainerMenu {
+    private final Container inventory;
 
-    public SingleSlotScreenHandler(int syncId, PlayerInventory playerInv) {
-        this(syncId, playerInv, new SimpleInventory(1));
+    public SingleSlotScreenHandler(int syncId, Inventory playerInv) {
+        this(syncId, playerInv, new SimpleContainer(1));
     }
 
-    public SingleSlotScreenHandler(int syncId, PlayerInventory playerInv, Inventory inv) {
+    public SingleSlotScreenHandler(int syncId, Inventory playerInv, Container inv) {
         super(Automobility.SINGLE_SLOT_SCREEN, syncId);
 
-        checkSize(inv, 1);
+        checkContainerSize(inv, 1);
         this.inventory = inv;
-        inv.onOpen(playerInv.player);
+        inv.startOpen(playerInv.player);
 
         this.addSlot(new Slot(inventory, 0, 80, 23));
 
@@ -39,29 +39,29 @@ public class SingleSlotScreenHandler extends ScreenHandler {
     }
 
     @Override
-    public boolean canUse(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return true;
     }
 
-    public ItemStack transferSlot(PlayerEntity player, int fromSlotId) {
+    public ItemStack quickMoveStack(Player player, int fromSlotId) {
         var newStack = ItemStack.EMPTY;
         var fromSlot = this.slots.get(fromSlotId);
 
-        if (fromSlot.hasStack()) {
-            var fromStack = fromSlot.getStack();
+        if (fromSlot.hasItem()) {
+            var fromStack = fromSlot.getItem();
             newStack = fromStack.copy();
             if (fromSlotId == 0) {
-                if (!this.insertItem(fromStack, 1, 37, true)) {
+                if (!this.moveItemStackTo(fromStack, 1, 37, true)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.insertItem(fromStack, 0, 1, false)) {
+            } else if (!this.moveItemStackTo(fromStack, 0, 1, false)) {
                 return ItemStack.EMPTY;
             }
 
             if (fromStack.isEmpty()) {
-                fromSlot.setStack(ItemStack.EMPTY);
+                fromSlot.set(ItemStack.EMPTY);
             } else {
-                fromSlot.markDirty();
+                fromSlot.setChanged();
             }
         }
 

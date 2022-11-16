@@ -1,7 +1,7 @@
 package io.github.foundationgames.automobility.automobile;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 public class AutomobileData {
     private AutomobileFrame frame;
@@ -12,10 +12,10 @@ public class AutomobileData {
     public AutomobileData() {
     }
 
-    public void read(NbtCompound nbt) {
-        frame = AutomobileFrame.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("frame")));
-        wheel = AutomobileWheel.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("wheels")));
-        engine = AutomobileEngine.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("engine")));
+    public void read(CompoundTag nbt) {
+        frame = AutomobileFrame.REGISTRY.getOrDefault(ResourceLocation.tryParse(nbt.getString("frame")));
+        wheel = AutomobileWheel.REGISTRY.getOrDefault(ResourceLocation.tryParse(nbt.getString("wheels")));
+        engine = AutomobileEngine.REGISTRY.getOrDefault(ResourceLocation.tryParse(nbt.getString("engine")));
         prefab = nbt.contains("isPrefab") && nbt.getBoolean("isPrefab");
     }
 

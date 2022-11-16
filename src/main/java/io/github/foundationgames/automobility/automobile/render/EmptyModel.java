@@ -1,17 +1,17 @@
 package io.github.foundationgames.automobility.automobile.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
 public class EmptyModel extends Model {
-    public EmptyModel(EntityRendererFactory.Context ctx) {
-        super(RenderLayer::getEntitySolid);
+    public EmptyModel(EntityRendererProvider.Context ctx) {
+        super(RenderType::entitySolid);
     }
 
     @Override
-    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public void renderToBuffer(PoseStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
     }
 }

@@ -2,73 +2,72 @@ package io.github.foundationgames.automobility.automobile.attachment.rear;
 
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import io.github.foundationgames.automobility.util.duck.EnderChestInventoryDuck;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.ChestLidAnimator;
-import net.minecraft.block.entity.ViewerCountManager;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.GenericContainerScreenHandler;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import io.github.foundationgames.automobility.util.duck.EnderChestContainerDuck;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ChestLidController;
+import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BaseChestRearAttachment extends BlockRearAttachment {
-    public static final Text TITLE_CHEST = Text.translatable("container.chest");
-    public static final Text TITLE_ENDER_CHEST = Text.translatable("container.enderchest");
-    public static final Text TITLE_BARREL = Text.translatable("container.barrel");
+    public static final Component TITLE_CHEST = Component.translatable("container.chest");
+    public static final Component TITLE_ENDER_CHEST = Component.translatable("container.enderchest");
+    public static final Component TITLE_BARREL = Component.translatable("container.barrel");
 
-    private final ViewerCountManager viewerManager;
-    public final ChestLidAnimator lidAnimator;
+    private final ContainerOpenersCounter viewerManager;
+    public final ChestLidController lidAnimator;
 
-    public BaseChestRearAttachment(RearAttachmentType<?> type, AutomobileEntity entity, BlockState block, @Nullable BiFunction<ScreenHandlerContext, BlockRearAttachment, NamedScreenHandlerFactory> screenProvider) {
+    public BaseChestRearAttachment(RearAttachmentType<?> type, AutomobileEntity entity, BlockState block, @Nullable BiFunction<ContainerLevelAccess, BlockRearAttachment, MenuProvider> screenProvider) {
         super(type, entity, block, screenProvider);
-        this.viewerManager = new ViewerCountManager() {
-            protected void onContainerOpen(World world, BlockPos pos, BlockState state) {
+        this.viewerManager = new ContainerOpenersCounter() {
+            protected void onOpen(Level world, BlockPos pos, BlockState state) {
                 sound(world, pos, BaseChestRearAttachment.this.getOpenSound());
             }
 
-            protected void onContainerClose(World world, BlockPos pos, BlockState state) {
+            protected void onClose(Level world, BlockPos pos, BlockState state) {
                 sound(world, pos, BaseChestRearAttachment.this.getCloseSound());
             }
 
-            protected void onViewerCountUpdate(World world, BlockPos pos, BlockState state, int oldViewerCount, int newViewerCount) {
-                if (!world.isClient()) {
+            protected void openerCountChanged(Level world, BlockPos pos, BlockState state, int oldViewerCount, int newViewerCount) {
+                if (!world.isClientSide()) {
                     BaseChestRearAttachment.this.updateTrackedAnimation(newViewerCount);
                 }
             }
 
-            protected boolean isPlayerViewing(PlayerEntity player) {
-                if (!(player.currentScreenHandler instanceof GenericContainerScreenHandler)) {
+            protected boolean isOwnContainer(Player player) {
+                if (!(player.containerMenu instanceof ChestMenu)) {
                     return false;
                 } else {
-                    var inventory = ((GenericContainerScreenHandler)player.currentScreenHandler).getInventory();
+                    var inventory = ((ChestMenu)player.containerMenu).getContainer();
                     return inventory == BaseChestRearAttachment.this;
                 }
             }
         };
-        this.lidAnimator = new ChestLidAnimator();
+        this.lidAnimator = new ChestLidController();
     }
 
-    public void open(PlayerEntity player) {
+    public void open(Player player) {
         if (!player.isSpectator()) {
-            this.viewerManager.openContainer(player, this.world(), this.automobile.getBlockPos(), Blocks.AIR.getDefaultState());
+            this.viewerManager.incrementOpeners(player, this.world(), this.automobile.blockPosition(), Blocks.AIR.defaultBlockState());
         }
     }
 
-    public void close(PlayerEntity player) {
+    public void close(Player player) {
         if (!player.isSpectator()) {
-            this.viewerManager.closeContainer(player, this.world(), this.automobile.getBlockPos(), Blocks.AIR.getDefaultState());
+            this.viewerManager.decrementOpeners(player, this.world(), this.automobile.blockPosition(), Blocks.AIR.defaultBlockState());
         }
     }
 
@@ -76,52 +75,52 @@ public class BaseChestRearAttachment extends BlockRearAttachment {
     public void onTrackedAnimationUpdated(float animation) {
         super.onTrackedAnimationUpdated(animation);
 
-        this.lidAnimator.setOpen(animation > 0);
+        this.lidAnimator.shouldBeOpen(animation > 0);
     }
 
     @Override
     public void tick() {
         super.tick();
 
-        if (world().isClient()) {
-            this.lidAnimator.step();
+        if (world().isClientSide()) {
+            this.lidAnimator.tickLid();
         }
     }
 
     protected SoundEvent getOpenSound() {
-        return SoundEvents.BLOCK_ENDER_CHEST_OPEN;
+        return SoundEvents.ENDER_CHEST_OPEN;
     }
 
     protected SoundEvent getCloseSound() {
-        return SoundEvents.BLOCK_ENDER_CHEST_CLOSE;
+        return SoundEvents.ENDER_CHEST_CLOSE;
     }
 
-    private static void sound(World world, BlockPos pos, SoundEvent soundEvent) {
-        world.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, soundEvent, SoundCategory.BLOCKS, 0.5F, world.random.nextFloat() * 0.1F + 0.9F);
+    private static void sound(Level world, BlockPos pos, SoundEvent soundEvent) {
+        world.playSound(null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, soundEvent, SoundSource.BLOCKS, 0.5F, world.random.nextFloat() * 0.1F + 0.9F);
     }
 
     public static BaseChestRearAttachment chest(RearAttachmentType<?> type, AutomobileEntity entity) {
         return new ChestRearAttachment(type, entity,
-                Blocks.ENDER_CHEST.getDefaultState(),
+                Blocks.ENDER_CHEST.defaultBlockState(),
                 (ctx, att) -> att instanceof ChestRearAttachment chest ? chest : null);
     }
 
     public static BaseChestRearAttachment enderChest(RearAttachmentType<?> type, AutomobileEntity entity) {
         return new BaseChestRearAttachment(type, entity,
-                Blocks.ENDER_CHEST.getDefaultState(),
-                (ctx, att) -> new SimpleNamedScreenHandlerFactory((syncId, inventory, player) -> {
+                Blocks.ENDER_CHEST.defaultBlockState(),
+                (ctx, att) -> new SimpleMenuProvider((syncId, inventory, player) -> {
                     var enderChest = player.getEnderChestInventory();
                     if (att instanceof BaseChestRearAttachment chest) {
-                        EnderChestInventoryDuck.of(enderChest).automobility$setActiveAttachment(chest);
+                        EnderChestContainerDuck.of(enderChest).automobility$setActiveAttachment(chest);
                     }
-                    return GenericContainerScreenHandler.createGeneric9x3(syncId, inventory, enderChest);
+                    return ChestMenu.threeRows(syncId, inventory, enderChest);
                 }, TITLE_ENDER_CHEST)
         );
     }
 
     public static BaseChestRearAttachment saddledBarrel(RearAttachmentType<?> type, AutomobileEntity entity) {
         return new SaddledBarrelRearAttachment(type, entity,
-                Blocks.BARREL.getDefaultState(),
+                Blocks.BARREL.defaultBlockState(),
                 (ctx, att) -> att instanceof SaddledBarrelRearAttachment barrel ? barrel : null);
     }
 }

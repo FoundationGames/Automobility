@@ -34,53 +34,52 @@ import io.github.foundationgames.automobility.automobile.render.wheel.TractorWhe
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
 public enum AutomobilityModels {;
-    public static final Map<Identifier, Function<EntityRendererFactory.Context, Model>> MODELS = new HashMap<>();
+    public static final Map<ResourceLocation, Function<EntityRendererProvider.Context, Model>> MODELS = new HashMap<>();
 
     @Environment(EnvType.CLIENT)
     public static void init() {
-        MODELS.put(Automobility.id("empty"), EmptyModel::new);
+        MODELS.put(Automobility.rl("empty"), EmptyModel::new);
 
-        MODELS.put(Automobility.id("frame_standard"), StandardFrameModel::new);
-        MODELS.put(Automobility.id("frame_tractor"), TractorFrameModel::new);
-        MODELS.put(Automobility.id("frame_shopping_cart"), ShoppingCartFrameModel::new);
-        MODELS.put(Automobility.id("frame_c_arr"), CARRFrameModel::new);
-        MODELS.put(Automobility.id("frame_pineapple"), PineappleFrameModel::new);
-        MODELS.put(Automobility.id("frame_motorcar"), MotorcarFrameModel::new);
-        MODELS.put(Automobility.id("frame_rickshaw"), RickshawFrameModel::new);
-        MODELS.put(Automobility.id("frame_dababy"), DaBabyFrameModel::new);
+        MODELS.put(Automobility.rl("frame_standard"), StandardFrameModel::new);
+        MODELS.put(Automobility.rl("frame_tractor"), TractorFrameModel::new);
+        MODELS.put(Automobility.rl("frame_shopping_cart"), ShoppingCartFrameModel::new);
+        MODELS.put(Automobility.rl("frame_c_arr"), CARRFrameModel::new);
+        MODELS.put(Automobility.rl("frame_pineapple"), PineappleFrameModel::new);
+        MODELS.put(Automobility.rl("frame_motorcar"), MotorcarFrameModel::new);
+        MODELS.put(Automobility.rl("frame_rickshaw"), RickshawFrameModel::new);
+        MODELS.put(Automobility.rl("frame_dababy"), DaBabyFrameModel::new);
 
-        MODELS.put(Automobility.id("wheel_standard"), StandardWheelModel::new);
-        MODELS.put(Automobility.id("wheel_off_road"), OffRoadWheelModel::new);
-        MODELS.put(Automobility.id("wheel_steel"), SteelWheelModel::new);
-        MODELS.put(Automobility.id("wheel_tractor"), TractorWheelModel::new);
-        MODELS.put(Automobility.id("wheel_carriage"), CarriageWheelModel::new);
-        MODELS.put(Automobility.id("wheel_convertible"), ConvertibleWheelModel::new);
+        MODELS.put(Automobility.rl("wheel_standard"), StandardWheelModel::new);
+        MODELS.put(Automobility.rl("wheel_off_road"), OffRoadWheelModel::new);
+        MODELS.put(Automobility.rl("wheel_steel"), SteelWheelModel::new);
+        MODELS.put(Automobility.rl("wheel_tractor"), TractorWheelModel::new);
+        MODELS.put(Automobility.rl("wheel_carriage"), CarriageWheelModel::new);
+        MODELS.put(Automobility.rl("wheel_convertible"), ConvertibleWheelModel::new);
 
-        MODELS.put(Automobility.id("engine_stone"), StoneEngineModel::new);
-        MODELS.put(Automobility.id("engine_iron"), IronEngineModel::new);
-        MODELS.put(Automobility.id("engine_copper"), CopperEngineModel::new);
-        MODELS.put(Automobility.id("engine_gold"), GoldEngineModel::new);
-        MODELS.put(Automobility.id("engine_diamond"), DiamondEngineModel::new);
-        MODELS.put(Automobility.id("engine_creative"), CreativeEngineModel::new);
+        MODELS.put(Automobility.rl("engine_stone"), StoneEngineModel::new);
+        MODELS.put(Automobility.rl("engine_iron"), IronEngineModel::new);
+        MODELS.put(Automobility.rl("engine_copper"), CopperEngineModel::new);
+        MODELS.put(Automobility.rl("engine_gold"), GoldEngineModel::new);
+        MODELS.put(Automobility.rl("engine_diamond"), DiamondEngineModel::new);
+        MODELS.put(Automobility.rl("engine_creative"), CreativeEngineModel::new);
 
-        MODELS.put(Automobility.id("rearatt_passenger_seat"), PassengerSeatRearAttachmentModel::new);
-        MODELS.put(Automobility.id("rearatt_block"), BlockRearAttachmentModel::new);
-        MODELS.put(Automobility.id("rearatt_grindstone"), GrindstoneRearAttachmentModel::new);
-        MODELS.put(Automobility.id("rearatt_stonecutter"), StonecutterRearAttachmentModel::new);
-        MODELS.put(Automobility.id("rearatt_chest"), ChestRearAttachmentModel::new);
-        MODELS.put(Automobility.id("rearatt_banner_post"), BannerPostRearAttachmentModel::new);
-        MODELS.put(Automobility.id("rearatt_plow"), PlowRearAttachmentModel::new);
+        MODELS.put(Automobility.rl("rearatt_passenger_seat"), PassengerSeatRearAttachmentModel::new);
+        MODELS.put(Automobility.rl("rearatt_block"), BlockRearAttachmentModel::new);
+        MODELS.put(Automobility.rl("rearatt_grindstone"), GrindstoneRearAttachmentModel::new);
+        MODELS.put(Automobility.rl("rearatt_stonecutter"), StonecutterRearAttachmentModel::new);
+        MODELS.put(Automobility.rl("rearatt_chest"), ChestRearAttachmentModel::new);
+        MODELS.put(Automobility.rl("rearatt_banner_post"), BannerPostRearAttachmentModel::new);
+        MODELS.put(Automobility.rl("rearatt_plow"), PlowRearAttachmentModel::new);
 
-        MODELS.put(Automobility.id("frontatt_mob_controller"), MobControllerFrontAttachmentModel::new);
-        MODELS.put(Automobility.id("frontatt_harvester"), HarvesterFrontAttachmentModel::new);
+        MODELS.put(Automobility.rl("frontatt_mob_controller"), MobControllerFrontAttachmentModel::new);
+        MODELS.put(Automobility.rl("frontatt_harvester"), HarvesterFrontAttachmentModel::new);
     }
 }

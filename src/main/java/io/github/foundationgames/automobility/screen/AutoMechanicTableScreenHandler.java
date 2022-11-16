@@ -3,52 +3,52 @@ package io.github.foundationgames.automobility.screen;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.recipe.AutoMechanicTableRecipe;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.screen.Property;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.world.World;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.DataSlot;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
 
-public class AutoMechanicTableScreenHandler extends ScreenHandler {
-    private final World world;
-    private final ScreenHandlerContext context;
-    private final Property selectedRecipe = Property.create();
+public class AutoMechanicTableScreenHandler extends AbstractContainerMenu {
+    private final Level world;
+    private final ContainerLevelAccess context;
+    private final DataSlot selectedRecipe = DataSlot.standalone();
 
     public List<AutoMechanicTableRecipe> recipes;
 
     public final List<Ingredient> missingIngredients = new ArrayList<>();
-    public final SimpleInventory inputInv;
+    public final SimpleContainer inputInv;
     public final Slot outputSlot;
 
     private final int playerInvSlot;
 
-    public AutoMechanicTableScreenHandler(int syncId, PlayerInventory playerInv) {
-        this(syncId, playerInv, ScreenHandlerContext.EMPTY);
+    public AutoMechanicTableScreenHandler(int syncId, Inventory playerInv) {
+        this(syncId, playerInv, ContainerLevelAccess.NULL);
     }
 
-    public AutoMechanicTableScreenHandler(int syncId, PlayerInventory playerInv, ScreenHandlerContext ctx) {
+    public AutoMechanicTableScreenHandler(int syncId, Inventory playerInv, ContainerLevelAccess ctx) {
         super(Automobility.AUTO_MECHANIC_SCREEN, syncId);
-        this.world = playerInv.player.getWorld();
+        this.world = playerInv.player.getLevel();
         this.context = ctx;
-        this.inputInv = new SimpleInventory(9) {
-            @Override public void markDirty() { AutoMechanicTableScreenHandler.this.onInputUpdated(); }
+        this.inputInv = new SimpleContainer(9) {
+            @Override public void setChanged() { AutoMechanicTableScreenHandler.this.onInputUpdated(); }
         };
 
         for(int s = 0; s < 9; s++) {
             this.addSlot(new InputSlot(this.inputInv, s, 8 + (s * 18), 88));
         }
-        this.outputSlot = this.addSlot(new OutputSlot(new SimpleInventory(1), 0, 26, 38));
+        this.outputSlot = this.addSlot(new OutputSlot(new SimpleContainer(1), 0, 26, 38));
 
         this.playerInvSlot = this.slots.size();
         int playerInvY = 127;
@@ -61,11 +61,11 @@ public class AutoMechanicTableScreenHandler extends ScreenHandler {
             this.addSlot(new Slot(playerInv, s, 8 + (s * 18), playerInvY + 58));
         }
 
-        this.recipes = new ArrayList<>(world.getRecipeManager().listAllOfType(AutoMechanicTableRecipe.TYPE));
+        this.recipes = new ArrayList<>(world.getRecipeManager().getAllRecipesFor(AutoMechanicTableRecipe.TYPE));
         Collections.sort(this.recipes);
 
         this.selectedRecipe.set(-1);
-        this.addProperty(this.selectedRecipe);
+        this.addDataSlot(this.selectedRecipe);
     }
 
     public Optional<AutoMechanicTableRecipe> getSelectedRecipe() {
@@ -88,21 +88,21 @@ public class AutoMechanicTableScreenHandler extends ScreenHandler {
 
         this.getSelectedRecipe().ifPresent(recipe -> {
             if (recipe.matches(this.inputInv, this.world)) {
-                this.outputSlot.setStack(recipe.getOutput().copy());
+                this.outputSlot.set(recipe.getResultItem().copy());
             } else {
-                this.outputSlot.setStack(ItemStack.EMPTY);
+                this.outputSlot.set(ItemStack.EMPTY);
             }
         });
     }
 
     @Override
-    public boolean onButtonClick(PlayerEntity player, int id) {
+    public boolean clickMenuButton(Player player, int id) {
         if (id >= 0 && id < this.recipes.size()) {
             this.selectRecipe(id);
             return true;
         }
 
-        return super.onButtonClick(player, id);
+        return super.clickMenuButton(player, id);
     }
 
     private void onInputUpdated() {
@@ -115,101 +115,101 @@ public class AutoMechanicTableScreenHandler extends ScreenHandler {
     }
 
     @Override
-    public void close(PlayerEntity player) {
-        super.close(player);
+    public void removed(Player player) {
+        super.removed(player);
 
-        this.outputSlot.setStack(ItemStack.EMPTY);
-        this.context.run((world, pos) -> this.dropInventory(player, this.inputInv));
+        this.outputSlot.set(ItemStack.EMPTY);
+        this.context.execute((world, pos) -> this.clearContainer(player, this.inputInv));
     }
 
     @Override
-    public boolean canUse(PlayerEntity player) {
-        return canUse(this.context, player, AutomobilityBlocks.AUTO_MECHANIC_TABLE);
+    public boolean stillValid(Player player) {
+        return stillValid(this.context, player, AutomobilityBlocks.AUTO_MECHANIC_TABLE);
     }
 
     @Override
-    public boolean canInsertIntoSlot(ItemStack stack, Slot slot) {
-        return slot.inventory != this.outputSlot && super.canInsertIntoSlot(stack, slot);
+    public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
+        return slot.container != this.outputSlot && super.canTakeItemForPickAll(stack, slot);
     }
 
     @Override
-    public ItemStack transferSlot(PlayerEntity player, int fromSlotId) {
+    public ItemStack quickMoveStack(Player player, int fromSlotId) {
         var newStack = ItemStack.EMPTY;
         var fromSlot = this.slots.get(fromSlotId);
 
-        if (fromSlot.hasStack()) {
-            var fromStack = fromSlot.getStack();
+        if (fromSlot.hasItem()) {
+            var fromStack = fromSlot.getItem();
             var fromItem = fromStack.getItem();
             newStack = fromStack.copy();
 
             // Items transferred out of output slot
-            if (fromSlotId == this.outputSlot.id) {
-                fromItem.onCraft(fromStack, player.world, player);
-                if (!this.insertItem(fromStack, this.playerInvSlot, this.playerInvSlot + 36, true)) {
+            if (fromSlotId == this.outputSlot.index) {
+                fromItem.onCraftedBy(fromStack, player.level, player);
+                if (!this.moveItemStackTo(fromStack, this.playerInvSlot, this.playerInvSlot + 36, true)) {
                     return ItemStack.EMPTY;
                 }
 
-                fromSlot.onQuickTransfer(fromStack, newStack);
+                fromSlot.onQuickCraft(fromStack, newStack);
             // Items transferred out of input row
-            } else if (this.slots.stream().anyMatch(s -> s.inventory == this.inputInv && s.id == fromSlotId)) {
-                if (!this.insertItem(fromStack, this.playerInvSlot, this.playerInvSlot + 36, false)) {
+            } else if (this.slots.stream().anyMatch(s -> s.container == this.inputInv && s.index == fromSlotId)) {
+                if (!this.moveItemStackTo(fromStack, this.playerInvSlot, this.playerInvSlot + 36, false)) {
                     return ItemStack.EMPTY;
                 }
             // Items being transferred into the input row, which match the missing ingredients
             } else if (this.missingIngredients.stream().anyMatch(ing -> ing.test(fromStack))) {
-                if (!this.insertItem(fromStack, 0, 8, false)) {
+                if (!this.moveItemStackTo(fromStack, 0, 8, false)) {
                     return ItemStack.EMPTY;
                 }
             // Items transferred from inventory to hotbar
             } else if (fromSlotId >= this.playerInvSlot && fromSlotId < this.playerInvSlot + 27) {
-                if (!this.insertItem(fromStack, this.playerInvSlot + 27, this.playerInvSlot + 36, false)) {
+                if (!this.moveItemStackTo(fromStack, this.playerInvSlot + 27, this.playerInvSlot + 36, false)) {
                     return ItemStack.EMPTY;
                 }
             // Items transferred from hotbar to inventory
             } else if (fromSlotId >= this.playerInvSlot + 27 && fromSlotId < this.playerInvSlot + 36 &&
-                    !this.insertItem(fromStack, this.playerInvSlot, this.playerInvSlot + 27, false)) {
+                    !this.moveItemStackTo(fromStack, this.playerInvSlot, this.playerInvSlot + 27, false)) {
                 return ItemStack.EMPTY;
             }
 
             if (fromStack.isEmpty()) {
-                fromSlot.setStack(ItemStack.EMPTY);
+                fromSlot.set(ItemStack.EMPTY);
             }
-            fromSlot.markDirty();
+            fromSlot.setChanged();
 
             if (fromStack.getCount() == newStack.getCount()) {
                 return ItemStack.EMPTY;
             }
-            fromSlot.onTakeItem(player, fromStack);
-            this.sendContentUpdates();
+            fromSlot.onTake(player, fromStack);
+            this.broadcastChanges();
         }
 
         return newStack;
     }
 
     public static class InputSlot extends Slot {
-        public InputSlot(Inventory inventory, int index, int x, int y) {
+        public InputSlot(Container inventory, int index, int x, int y) {
             super(inventory, index, x, y);
         }
     }
 
     public class OutputSlot extends Slot {
-        public OutputSlot(Inventory inventory, int index, int x, int y) {
+        public OutputSlot(Container inventory, int index, int x, int y) {
             super(inventory, index, x, y);
         }
 
         @Override
-        public boolean canInsert(ItemStack stack) {
+        public boolean mayPlace(ItemStack stack) {
             return false;
         }
 
         @Override
-        public void onTakeItem(PlayerEntity player, ItemStack stack) {
-            super.onTakeItem(player, stack);
+        public void onTake(Player player, ItemStack stack) {
+            super.onTake(player, stack);
 
             AutoMechanicTableScreenHandler.this.getSelectedRecipe()
                     .ifPresent(recipe -> {
-                        recipe.craft(AutoMechanicTableScreenHandler.this.inputInv);
-                        stack.getItem().onCraft(stack, player.getWorld(), player);
+                        recipe.assemble(AutoMechanicTableScreenHandler.this.inputInv);
+                        stack.getItem().onCraftedBy(stack, player.getLevel(), player);
                         AutoMechanicTableScreenHandler.this.updateRecipeState();
                     });
         }

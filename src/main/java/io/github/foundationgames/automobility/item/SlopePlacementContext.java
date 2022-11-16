@@ -1,30 +1,30 @@
 package io.github.foundationgames.automobility.item;
 
-import net.minecraft.block.enums.BlockHalf;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.state.properties.Half;
 import org.jetbrains.annotations.Nullable;
 
-public class SlopePlacementContext extends ItemPlacementContext {
+public class SlopePlacementContext extends BlockPlaceContext {
     private final Direction slopeFacing;
-    private final BlockHalf slopeHalf;
+    private final Half slopeHalf;
 
-    public SlopePlacementContext(ItemUsageContext context, Direction slopeFacing, BlockHalf slopeHalf) {
+    public SlopePlacementContext(UseOnContext context, Direction slopeFacing, Half slopeHalf) {
         super(context);
         this.slopeFacing = slopeFacing;
         this.slopeHalf = slopeHalf;
     }
 
-    public SlopePlacementContext(ItemUsageContext context, Direction slopeFacing) {
-        this(context, slopeFacing, BlockHalf.BOTTOM);
+    public SlopePlacementContext(UseOnContext context, Direction slopeFacing) {
+        this(context, slopeFacing, Half.BOTTOM);
     }
 
     public Direction getSlopeFacing() {
         return slopeFacing;
     }
 
-    public BlockHalf getSlopeHalf() {
+    public Half getSlopeHalf() {
         return slopeHalf;
     }
 }

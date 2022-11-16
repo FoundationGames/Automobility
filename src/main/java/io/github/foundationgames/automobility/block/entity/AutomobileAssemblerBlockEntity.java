@@ -1,5 +1,6 @@
 package io.github.foundationgames.automobility.block.entity;
 
+import com.mojang.math.Vector3f;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileStats;
@@ -18,31 +19,30 @@ import io.github.foundationgames.automobility.item.AutomobileWheelItem;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.Packet;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     protected AutomobileWheel wheel = AutomobileWheel.EMPTY;
     protected int wheelCount = 0;
 
-    public final List<Text> label = new ArrayList<>();
+    public final List<Component> label = new ArrayList<>();
     protected final AutomobileStats stats = new AutomobileStats();
 
     public AutomobileAssemblerBlockEntity(BlockPos pos, BlockState state) {
@@ -94,78 +94,78 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     }
 
     @Override
-    public Model getFrameModel(EntityRendererFactory.Context ctx) {
+    public Model getFrameModel(EntityRendererProvider.Context ctx) {
         if (this.componentsUpdated) this.frameModel = this.frame.model().model().apply(ctx);
         return this.frameModel;
     }
 
     @Override
-    public Model getWheelModel(EntityRendererFactory.Context ctx) {
+    public Model getWheelModel(EntityRendererProvider.Context ctx) {
         if (this.componentsUpdated) this.wheelModel = this.wheel.model().model().apply(ctx);
         return this.wheelModel;
     }
 
     @Override
-    public Model getEngineModel(EntityRendererFactory.Context ctx) {
+    public Model getEngineModel(EntityRendererProvider.Context ctx) {
         if (this.componentsUpdated) this.engineModel = this.engine.model().model().apply(ctx);
         return this.engineModel;
     }
 
     @Override
-    public Model getRearAttachmentModel(EntityRendererFactory.Context ctx) {
+    public Model getRearAttachmentModel(EntityRendererProvider.Context ctx) {
         if (this.componentsUpdated) this.emptyRearAttModel = RearAttachmentType.EMPTY.model().model().apply(ctx);
         return this.emptyRearAttModel;
     }
 
     @Override
-    public Model getFrontAttachmentModel(EntityRendererFactory.Context ctx) {
+    public Model getFrontAttachmentModel(EntityRendererProvider.Context ctx) {
         if (this.componentsUpdated) this.emptyFrontAttModel = FrontAttachmentType.EMPTY.model().model().apply(ctx);
         return this.emptyFrontAttModel;
     }
 
     private void partChanged() {
         this.sync();
-        this.markDirty();
-        this.world.emitGameEvent(GameEvent.BLOCK_CHANGE, this.getPos(), new GameEvent.Emitter(null, this.getCachedState()));
+        this.setChanged();
+        this.level.gameEvent(GameEvent.BLOCK_CHANGE, this.getBlockPos(), new GameEvent.Context(null, this.getBlockState()));
     }
 
-    protected ActionResult handleItemInteract(PlayerEntity player, ItemStack stack) {
+    protected InteractionResult handleItemInteract(Player player, ItemStack stack) {
         // Returns success on the server since the client is never 100% confident that the action was valid
         // Subsequent handling is performed with the action result
 
-        if (stack.isOf(AutomobilityItems.CROWBAR)) {
-            if (!world.isClient()) {
+        if (stack.is(AutomobilityItems.CROWBAR)) {
+            if (!level.isClientSide()) {
                 this.dropParts();
                 this.partChanged();
-                return ActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
         if (this.frame.isEmpty() && stack.getItem() instanceof AutomobileFrameItem frameItem) {
-            if (!world.isClient()) {
+            if (!level.isClientSide()) {
                 this.frame = frameItem.getComponent(stack);
                 if (!player.isCreative()) {
-                    stack.decrement(1);
+                    stack.shrink(1);
                 }
                 this.partChanged();
-                return ActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
         if (!this.frame.isEmpty()) {
             if (this.engine.isEmpty() && stack.getItem() instanceof AutomobileEngineItem engineItem) {
-                if (!world.isClient()) {
+                if (!level.isClientSide()) {
                     this.engine = engineItem.getComponent(stack);
                     if (!player.isCreative()) {
-                        stack.decrement(1);
+                        stack.shrink(1);
                     }
                     this.partChanged();
-                    return ActionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 }
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             }
             if (stack.getItem() instanceof AutomobileWheelItem wheelItem) {
-                if (!world.isClient()) {
+                if (!level.isClientSide()) {
                     var wheelType = wheelItem.getComponent(stack);
                     if (this.wheel.isEmpty()) {
                         this.wheel = wheelType;
@@ -174,40 +174,40 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
                     if (this.wheel == wheelType && this.wheelCount < this.frame.model().wheelBase().wheelCount) {
                         this.wheelCount++;
                         if (!player.isCreative()) {
-                            stack.decrement(1);
+                            stack.shrink(1);
                         }
                         this.partChanged();
-                        return ActionResult.SUCCESS;
+                        return InteractionResult.SUCCESS;
                     }
                 } else {
-                    return ActionResult.PASS;
+                    return InteractionResult.PASS;
                 }
             }
         }
-        if (!this.world.isClient() && stack.isOf(AutomobilityItems.FRONT_ATTACHMENT) || stack.isOf(AutomobilityItems.REAR_ATTACHMENT)) {
-            player.sendMessage(AutomobileAssemblerBlock.INCOMPLETE_AUTOMOBILE_DIALOG, true);
+        if (!this.level.isClientSide() && stack.is(AutomobilityItems.FRONT_ATTACHMENT) || stack.is(AutomobilityItems.REAR_ATTACHMENT)) {
+            player.displayClientMessage(AutomobileAssemblerBlock.INCOMPLETE_AUTOMOBILE_DIALOG, true);
         }
 
-        return ActionResult.FAIL;
+        return InteractionResult.FAIL;
     }
 
-    public ActionResult interact(PlayerEntity player, Hand hand) {
-        var stack = player.getStackInHand(hand);
+    public InteractionResult interact(Player player, InteractionHand hand) {
+        var stack = player.getItemInHand(hand);
         var result = this.handleItemInteract(player, stack);
 
-        if (!this.world.isClient() && result == ActionResult.SUCCESS) {
+        if (!this.level.isClientSide() && result == InteractionResult.SUCCESS) {
             if (!isComplete()) {
-                world.playSound(null, this.pos, SoundEvents.BLOCK_COPPER_PLACE, SoundCategory.BLOCKS, 0.7f, 0.6f + (this.world.random.nextFloat() * 0.15f));
+                level.playSound(null, this.worldPosition, SoundEvents.COPPER_PLACE, SoundSource.BLOCKS, 0.7f, 0.6f + (this.level.random.nextFloat() * 0.15f));
             }
 
             tryConstructAutomobile();
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         return result;
     }
 
-    protected Vec3d centerPos() {
-        return new Vec3d(this.pos.getX() + 0.5, this.pos.getY() + 0.75, this.pos.getZ() + 0.5);
+    protected Vec3 centerPos() {
+        return new Vec3(this.worldPosition.getX() + 0.5, this.worldPosition.getY() + 0.75, this.worldPosition.getZ() + 0.5);
     }
 
     public boolean isComplete() {
@@ -219,17 +219,17 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     public void tryConstructAutomobile() {
         if (this.isComplete()) {
             var pos = this.centerPos();
-            var auto = new AutomobileEntity(this.world);
-            auto.refreshPositionAndAngles(pos.x, pos.y, pos.z, this.getAutomobileYaw(0), 0);
+            var auto = new AutomobileEntity(this.level);
+            auto.moveTo(pos.x, pos.y, pos.z, this.getAutomobileYaw(0), 0);
             auto.setComponents(this.frame, this.wheel, this.engine);
-            world.spawnEntity(auto);
+            level.addFreshEntity(auto);
 
-            world.getPlayers().forEach(p -> {
-                if (p instanceof ServerPlayerEntity player && p.getBlockPos().getSquaredDistance(this.pos) < 80000) {
-                    player.networkHandler.sendPacket(new ParticleS2CPacket(ParticleTypes.EXPLOSION, false, pos.x, pos.y + 0.47, pos.z, 0, 0, 0, 0, 1));
+            level.players().forEach(p -> {
+                if (p instanceof ServerPlayer player && p.blockPosition().distSqr(this.worldPosition) < 80000) {
+                    player.connection.send(new ClientboundLevelParticlesPacket(ParticleTypes.EXPLOSION, false, pos.x, pos.y + 0.47, pos.z, 0, 0, 0, 0, 1));
                 }
             });
-            world.playSound(null, this.pos, SoundEvents.BLOCK_ANVIL_PLACE, SoundCategory.BLOCKS, 0.23f, 0.5f);
+            level.playSound(null, this.worldPosition, SoundEvents.ANVIL_PLACE, SoundSource.BLOCKS, 0.23f, 0.5f);
 
             this.clear();
         }
@@ -238,12 +238,12 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     public void dropParts() {
         var pos = this.centerPos();
 
-        this.world.spawnEntity(new ItemEntity(world, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_FRAME.createStack(this.getFrame())));
-        this.world.spawnEntity(new ItemEntity(world, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_ENGINE.createStack(this.getEngine())));
+        this.level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_FRAME.createStack(this.getFrame())));
+        this.level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_ENGINE.createStack(this.getEngine())));
 
         var wheelStack = AutomobilityItems.AUTOMOBILE_WHEEL.createStack(this.getWheels());
         wheelStack.setCount(this.wheelCount);
-        this.world.spawnEntity(new ItemEntity(world, pos.x, pos.y, pos.z, wheelStack));
+        this.level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, wheelStack));
 
         this.clear();
     }
@@ -262,7 +262,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     private void onComponentsUpdated() {
         this.componentsUpdated = true;
 
-        if (world == null || world.isClient()) {
+        if (level == null || level.isClientSide()) {
             this.label.clear();
             if (this.hasAllParts()) {
                 this.stats.from(this.frame, this.wheel, this.engine);
@@ -272,33 +272,33 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     }
 
     private void sync() {
-        if (this.world instanceof ServerWorld sWorld) {
-            sWorld.getChunkManager().markForUpdate(this.pos);
+        if (this.level instanceof ServerLevel sWorld) {
+            sWorld.getChunkSource().blockChanged(this.worldPosition);
         }
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
 
-        this.frame = AutomobileFrame.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("frame")));
-        this.engine = AutomobileEngine.REGISTRY.getOrDefault(Identifier.tryParse(nbt.getString("engine")));
+        this.frame = AutomobileFrame.REGISTRY.getOrDefault(ResourceLocation.tryParse(nbt.getString("frame")));
+        this.engine = AutomobileEngine.REGISTRY.getOrDefault(ResourceLocation.tryParse(nbt.getString("engine")));
 
         var wheelNbt = nbt.getCompound("wheels");
-        this.wheel = AutomobileWheel.REGISTRY.getOrDefault(Identifier.tryParse(wheelNbt.getString("type")));
+        this.wheel = AutomobileWheel.REGISTRY.getOrDefault(ResourceLocation.tryParse(wheelNbt.getString("type")));
         this.wheelCount = wheelNbt.getInt("count");
 
         onComponentsUpdated();
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
+    protected void saveAdditional(CompoundTag nbt) {
+        super.saveAdditional(nbt);
 
         nbt.putString("frame", this.frame.getId().toString());
         nbt.putString("engine", this.engine.getId().toString());
 
-        var wheelNbt = new NbtCompound();
+        var wheelNbt = new CompoundTag();
         wheelNbt.putString("type", this.wheel.getId().toString());
         wheelNbt.putInt("count", this.wheelCount);
         nbt.put("wheels", wheelNbt);
@@ -306,26 +306,26 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
 
     @Nullable
     @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt() {
-        var nbt = new NbtCompound();
-        this.writeNbt(nbt);
+    public CompoundTag getUpdateTag() {
+        var nbt = new CompoundTag();
+        this.saveAdditional(nbt);
         return nbt;
     }
 
     protected boolean powered() {
-        var state = this.world.getBlockState(this.pos);
-        return state.contains(AutomobileAssemblerBlock.POWERED) && state.get(AutomobileAssemblerBlock.POWERED);
+        var state = this.level.getBlockState(this.worldPosition);
+        return state.hasProperty(AutomobileAssemblerBlock.POWERED) && state.getValue(AutomobileAssemblerBlock.POWERED);
     }
 
     @Override
     public float getAutomobileYaw(float tickDelta) {
-        var state = this.world.getBlockState(this.pos);
-        return state.contains(AutomobileAssemblerBlock.FACING) ? (state.get(AutomobileAssemblerBlock.FACING).asRotation() - 90) : 0;
+        var state = this.level.getBlockState(this.worldPosition);
+        return state.hasProperty(AutomobileAssemblerBlock.FACING) ? (state.getValue(AutomobileAssemblerBlock.FACING).toYRot() - 90) : 0;
     }
 
     @Override
@@ -370,7 +370,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
 
     @Override
     public long getTime() {
-        return this.world.getTime();
+        return this.level.getGameTime();
     }
 
     @Override
@@ -384,7 +384,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     }
 
     @Override
-    public Vec3f debrisColor() {
+    public Vector3f debrisColor() {
         return null;
     }
 }

@@ -1,33 +1,33 @@
 package io.github.foundationgames.automobility.recipe;
 
 import io.github.foundationgames.automobility.Automobility;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 
-public class AutoMechanicTableRecipe implements Recipe<SimpleInventory>, Comparable<AutoMechanicTableRecipe> {
-    public static final Identifier ID = Automobility.id("auto_mechanic_table");
+public class AutoMechanicTableRecipe implements Recipe<SimpleContainer>, Comparable<AutoMechanicTableRecipe> {
+    public static final ResourceLocation ID = Automobility.rl("auto_mechanic_table");
     public static final RecipeType<AutoMechanicTableRecipe> TYPE = new RecipeType<>() {};
-    private final Identifier id;
+    private final ResourceLocation id;
 
-    protected final Identifier category;
+    protected final ResourceLocation category;
     protected final Set<Ingredient> ingredients;
     protected final ItemStack result;
     protected final int sortNum;
 
-    public AutoMechanicTableRecipe(Identifier id, Identifier category, Set<Ingredient> ingredients, ItemStack result, int sortNum) {
+    public AutoMechanicTableRecipe(ResourceLocation id, ResourceLocation category, Set<Ingredient> ingredients, ItemStack result, int sortNum) {
         this.id = id;
         this.category = category;
         this.ingredients = ingredients;
@@ -35,25 +35,25 @@ public class AutoMechanicTableRecipe implements Recipe<SimpleInventory>, Compara
         this.sortNum = sortNum;
     }
 
-    public Identifier getCategory() {
+    public ResourceLocation getCategory() {
         return this.category;
     }
 
     @Override
-    public boolean matches(SimpleInventory inventory, World world) {
+    public boolean matches(SimpleContainer inv, Level lvl) {
         boolean[] result = {true};
-        this.forMissingIngredients(inventory, ing -> result[0] = false);
+        this.forMissingIngredients(inv, ing -> result[0] = false);
 
         return result[0];
     }
 
     @Override
-    public ItemStack craft(SimpleInventory inv) {
+    public ItemStack assemble(SimpleContainer inv) {
         for (var ing : this.ingredients) {
-            for (int i = 0; i < inv.size(); i++) {
-                var stack = inv.getStack(i);
+            for (int i = 0; i < inv.getContainerSize(); i++) {
+                var stack = inv.getItem(i);
                 if (ing.test(stack)) {
-                    stack.decrement(1);
+                    stack.shrink(1);
                     break;
                 }
             }
@@ -63,17 +63,17 @@ public class AutoMechanicTableRecipe implements Recipe<SimpleInventory>, Compara
     }
 
     @Override
-    public boolean fits(int width, int height) {
+    public boolean canCraftInDimensions(int width, int height) {
         return true;
     }
 
     @Override
-    public ItemStack getOutput() {
+    public ItemStack getResultItem() {
         return this.result;
     }
 
     @Override
-    public Identifier getId() {
+    public ResourceLocation getId() {
         return this.id;
     }
 
@@ -87,10 +87,10 @@ public class AutoMechanicTableRecipe implements Recipe<SimpleInventory>, Compara
         return TYPE;
     }
 
-    public void forMissingIngredients(Inventory inv, Consumer<Ingredient> action) {
+    public void forMissingIngredients(Container inv, Consumer<Ingredient> action) {
         var invCopy = new ArrayList<ItemStack>();
-        for (int i = 0; i < inv.size(); i++) {
-            invCopy.add(inv.getStack(i));
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            invCopy.add(inv.getItem(i));
         }
 
         for (var ing : this.ingredients) {

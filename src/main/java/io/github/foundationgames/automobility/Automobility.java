@@ -15,29 +15,29 @@ import io.github.foundationgames.automobility.util.midnightcontrols.ControllerUt
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.tag.TagKey;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.level.block.Block;
 
 public class Automobility implements ModInitializer {
     public static final String MOD_ID = "automobility";
 
-    public static final ItemGroup GROUP = FabricItemGroupBuilder.build(id("automobility"), AUtils::createGroupIcon);
-    public static final ItemGroup COURSE_ELEMENTS = FabricItemGroupBuilder.build(id("automobility_course_elements"), AUtils::createCourseElementsIcon);
-    public static final ItemGroup PREFABS = FabricItemGroupBuilder.build(id("automobility_prefabs"), AUtils::createPrefabsIcon);
+    public static final CreativeModeTab GROUP = FabricItemGroupBuilder.build(rl("automobility"), AUtils::createGroupIcon);
+    public static final CreativeModeTab COURSE_ELEMENTS = FabricItemGroupBuilder.build(rl("automobility_course_elements"), AUtils::createCourseElementsIcon);
+    public static final CreativeModeTab PREFABS = FabricItemGroupBuilder.build(rl("automobility_prefabs"), AUtils::createPrefabsIcon);
 
-    public static final TagKey<Block> SLOPES = TagKey.of(Registry.BLOCK_KEY, id("slopes"));
-    public static final TagKey<Block> STEEP_SLOPES = TagKey.of(Registry.BLOCK_KEY, id("steep_slopes"));
-    public static final TagKey<Block> NON_STEEP_SLOPES = TagKey.of(Registry.BLOCK_KEY, id("non_steep_slopes"));
-    public static final TagKey<Block> STICKY_SLOPES = TagKey.of(Registry.BLOCK_KEY, id("sticky_slopes"));
+    public static final TagKey<Block> SLOPES = TagKey.create(Registry.BLOCK_REGISTRY, rl("slopes"));
+    public static final TagKey<Block> STEEP_SLOPES = TagKey.create(Registry.BLOCK_REGISTRY, rl("steep_slopes"));
+    public static final TagKey<Block> NON_STEEP_SLOPES = TagKey.create(Registry.BLOCK_REGISTRY, rl("non_steep_slopes"));
+    public static final TagKey<Block> STICKY_SLOPES = TagKey.create(Registry.BLOCK_REGISTRY, rl("sticky_slopes"));
 
-    public static final ScreenHandlerType<AutoMechanicTableScreenHandler> AUTO_MECHANIC_SCREEN =
-            Registry.register(Registry.SCREEN_HANDLER, Automobility.id("auto_mechanic_table"), new ScreenHandlerType<>(AutoMechanicTableScreenHandler::new));
-    public static final ScreenHandlerType<SingleSlotScreenHandler> SINGLE_SLOT_SCREEN =
-            Registry.register(Registry.SCREEN_HANDLER, Automobility.id("single_slot"), new ScreenHandlerType<>(SingleSlotScreenHandler::new));
+    public static final MenuType<AutoMechanicTableScreenHandler> AUTO_MECHANIC_SCREEN =
+            Registry.register(Registry.MENU, Automobility.rl("auto_mechanic_table"), new MenuType<>(AutoMechanicTableScreenHandler::new));
+    public static final MenuType<SingleSlotScreenHandler> SINGLE_SLOT_SCREEN =
+            Registry.register(Registry.MENU, Automobility.rl("single_slot"), new MenuType<>(SingleSlotScreenHandler::new));
 
     @Override
     public void onInitialize() {
@@ -58,7 +58,7 @@ public class Automobility implements ModInitializer {
         Registry.register(Registry.RECIPE_SERIALIZER, AutoMechanicTableRecipe.ID, AutoMechanicTableRecipeSerializer.INSTANCE);
     }
 
-    public static Identifier id(String path) {
-        return new Identifier(MOD_ID, path);
+    public static ResourceLocation rl(String path) {
+        return new ResourceLocation(MOD_ID, path);
     }
 }

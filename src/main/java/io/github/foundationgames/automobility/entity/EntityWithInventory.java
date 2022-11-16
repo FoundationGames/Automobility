@@ -1,9 +1,9 @@
 package io.github.foundationgames.automobility.entity;
 
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 
 public interface EntityWithInventory {
     boolean hasInventory();
 
-    void openInventory(PlayerEntity player);
+    void openInventory(Player player);
 }

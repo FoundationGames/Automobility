@@ -2,8 +2,8 @@ package io.github.foundationgames.automobility.automobile.attachment.front;
 
 import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 
 public class MobControllerFrontAttachment extends FrontAttachment {
     public MobControllerFrontAttachment(FrontAttachmentType<?> type, AutomobileEntity automobile) {
@@ -12,6 +12,6 @@ public class MobControllerFrontAttachment extends FrontAttachment {
 
     @Override
     public boolean canDrive(Entity entity) {
-        return super.canDrive(entity) || (entity instanceof MobEntity);
+        return super.canDrive(entity) || (entity instanceof Mob);
     }
 }

@@ -2,13 +2,14 @@ package io.github.foundationgames.automobility.automobile.attachment.front;
 
 import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CropBlock;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-
 import java.util.List;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class CropHarvesterFrontAttachment extends BaseHarvesterFrontAttachment {
     public CropHarvesterFrontAttachment(FrontAttachmentType<?> type, AutomobileEntity automobile) {
@@ -17,7 +18,7 @@ public class CropHarvesterFrontAttachment extends BaseHarvesterFrontAttachment {
 
     @Override
     public boolean canHarvest(BlockState state) {
-        return state.getBlock() instanceof CropBlock crop && crop.isMature(state);
+        return state.getBlock() instanceof CropBlock crop && crop.isMaxAge(state);
     }
 
     @Override
@@ -27,10 +28,10 @@ public class CropHarvesterFrontAttachment extends BaseHarvesterFrontAttachment {
         var world = world();
         for (var drop : drops) {
             if (!replanted && drop.getItem() instanceof BlockItem item) {
-                var newState = item.getBlock().getDefaultState();
-                if (newState.canPlaceAt(world, pos)) {
-                    world.setBlockState(pos, newState);
-                    drop.decrement(1);
+                var newState = item.getBlock().defaultBlockState();
+                if (newState.canSurvive(world, pos)) {
+                    world.setBlockAndUpdate(pos, newState);
+                    drop.shrink(1);
                     replanted = true;
                 }
             }

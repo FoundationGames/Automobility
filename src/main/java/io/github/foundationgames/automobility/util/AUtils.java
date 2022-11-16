@@ -1,5 +1,8 @@
 package io.github.foundationgames.automobility.util;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
@@ -7,19 +10,15 @@ import io.github.foundationgames.automobility.automobile.AutomobilePrefab;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.math.random.Random;
-
 import java.text.DecimalFormat;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 public enum AUtils {;
     /**
@@ -42,7 +41,7 @@ public enum AUtils {;
      */
     public static boolean IGNORE_ENTITY_GROUND_CHECK_STEPPING = false;
 
-    private static final Random RANDOM = Random.create();
+    private static final RandomSource RANDOM = RandomSource.create();
 
     /**
      * Shifts the number 'in' towards zero by the amount 'by'
@@ -120,11 +119,11 @@ public enum AUtils {;
      * @param vec The vector to be written
      * @return An NbtCompound containing the values of the passed vector
      */
-    public static NbtCompound v3dToNbt(Vec3d vec) {
-        var r = new NbtCompound();
-        r.putDouble("x", vec.getX());
-        r.putDouble("y", vec.getY());
-        r.putDouble("z", vec.getZ());
+    public static CompoundTag v3dToNbt(Vec3 vec) {
+        var r = new CompoundTag();
+        r.putDouble("x", vec.x());
+        r.putDouble("y", vec.y());
+        r.putDouble("z", vec.z());
         return r;
     }
 
@@ -133,8 +132,8 @@ public enum AUtils {;
      * @param nbt The NbtCompound to read from
      * @return A Vec3d containing the values in the passed NbtCompound
      */
-    public static Vec3d v3dFromNbt(NbtCompound nbt) {
-        return new Vec3d(nbt.getDouble("x"), nbt.getDouble("y"), nbt.getDouble("z"));
+    public static Vec3 v3dFromNbt(CompoundTag nbt) {
+        return new Vec3(nbt.getDouble("x"), nbt.getDouble("y"), nbt.getDouble("z"));
     }
 
     /**
@@ -145,11 +144,11 @@ public enum AUtils {;
      * @param light The lightmap coordinates to render with
      * @param overlay The overlay coordinates to render with
      */
-    public static void renderMyronObj(BakedModel model, VertexConsumer vertices, MatrixStack matrices, int light, int overlay) {
+    public static void renderMyronObj(BakedModel model, VertexConsumer vertices, PoseStack matrices, int light, int overlay) {
         // For some reason with Iris, model.getQuads() throws a NPE
         try {
             for (BakedQuad quad : model.getQuads(null, null, RANDOM)) {
-                vertices.quad(matrices.peek(), quad, 1, 1, 1, light, overlay);
+                vertices.putBulkData(matrices.last(), quad, 1, 1, 1, light, overlay);
             }
         } catch (NullPointerException ignored) {}
     }
@@ -159,15 +158,15 @@ public enum AUtils {;
      * @param color An RGB color integer
      * @return A Vec3f containing the color integer's RGB, with x being r, y being g, and z being b. All values are from 0 to 1.
      */
-    public static Vec3f colorFromInt(int color) {
+    public static Vector3f colorFromInt(int color) {
         int r = (color >> 16) & 0xFF;
         int g = (color >> 8) & 0xFF;
         int b = color & 0xFF;
-        return new Vec3f((float)r / 255, (float)g / 255, (float)b / 255);
+        return new Vector3f((float)r / 255, (float)g / 255, (float)b / 255);
     }
 
     public static boolean canMerge(ItemStack a, ItemStack b) {
-        return (a.isItemEqual(b)) && (a.getCount() + b.getCount() <= a.getMaxCount());
+        return (a.sameItemStackIgnoreDurability(b)) && (a.getCount() + b.getCount() <= a.getMaxStackSize());
     }
 
     /**
@@ -177,18 +176,18 @@ public enum AUtils {;
      * @param inv   The inventory to insert into
      * @return {@code true} if the entire stack was consumed, or {@code false} if some or all of the stack is remaining
      */
-    public static boolean transferInto(ItemStack stack, Inventory inv) {
-        for (int slot = 0; slot < inv.size(); slot++) {
-            if (inv.isValid(slot, stack)) {
-                var slotStack = inv.getStack(slot);
+    public static boolean transferInto(ItemStack stack, Container inv) {
+        for (int slot = 0; slot < inv.getContainerSize(); slot++) {
+            if (inv.canPlaceItem(slot, stack)) {
+                var slotStack = inv.getItem(slot);
                 if (slotStack.isEmpty()) {
-                    inv.setStack(slot, stack);
+                    inv.setItem(slot, stack);
                     return true;
                 }
                 if (canMerge(slotStack, stack)) {
-                    int amount = Math.min(stack.getCount(), stack.getMaxCount() - slotStack.getCount());
-                    stack.decrement(amount);
-                    slotStack.increment(amount);
+                    int amount = Math.min(stack.getCount(), stack.getMaxStackSize() - slotStack.getCount());
+                    stack.shrink(amount);
+                    slotStack.grow(amount);
                     return stack.isEmpty();
                 }
             }
@@ -205,6 +204,6 @@ public enum AUtils {;
     }
 
     public static ItemStack createPrefabsIcon() {
-        return new AutomobilePrefab(Automobility.id("standard_light_blue"), AutomobileFrame.STANDARD_LIGHT_BLUE, AutomobileWheel.STANDARD, AutomobileEngine.IRON).toStack();
+        return new AutomobilePrefab(Automobility.rl("standard_light_blue"), AutomobileFrame.STANDARD_LIGHT_BLUE, AutomobileWheel.STANDARD, AutomobileEngine.IRON).toStack();
     }
 }

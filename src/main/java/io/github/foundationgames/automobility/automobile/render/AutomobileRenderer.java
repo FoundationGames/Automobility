@@ -1,5 +1,8 @@
 package io.github.foundationgames.automobility.automobile.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.WheelBase;
 import io.github.foundationgames.automobility.automobile.render.attachment.front.FrontAttachmentRenderModel;
@@ -7,21 +10,18 @@ import io.github.foundationgames.automobility.automobile.render.attachment.rear.
 import io.github.foundationgames.automobility.automobile.render.wheel.WheelContextReceiver;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 
 public enum AutomobileRenderer {;
     private static Model skidEffectModel;
     private static Model exhaustFumesModel;
 
     public static void render(
-            MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, float tickDelta,
-            EntityRendererFactory.Context ctx, RenderableAutomobile automobile
+            PoseStack pose, MultiBufferSource vertexConsumers, int light, int overlay, float tickDelta,
+            EntityRendererProvider.Context ctx, RenderableAutomobile automobile
     ) {
         var frame = automobile.getFrame();
         var wheels = automobile.getWheels();
@@ -32,10 +32,10 @@ public enum AutomobileRenderer {;
             exhaustFumesModel = new ExhaustFumesModel(ctx);
         }
 
-        matrices.push();
+        pose.pushPose();
 
-        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
-        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(automobile.getAutomobileYaw(tickDelta) + 180));
+        pose.mulPose(Vector3f.ZP.rotationDegrees(180));
+        pose.mulPose(Vector3f.YP.rotationDegrees(automobile.getAutomobileYaw(tickDelta) + 180));
 
         float chassisRaise = wheels.model().radius() / 16;
         float bounce = automobile.getSuspensionBounce(tickDelta) * 0.048f;
@@ -46,96 +46,96 @@ public enum AutomobileRenderer {;
         var rearAttachmentModel = automobile.getRearAttachmentModel(ctx);
         var frontAttachmentModel = automobile.getFrontAttachmentModel(ctx);
 
-        matrices.translate(0, -chassisRaise, 0);
+        pose.translate(0, -chassisRaise, 0);
 
         // Frame, engine, exhaust
-        matrices.push();
+        pose.pushPose();
 
-        matrices.translate(0, bounce + (automobile.engineRunning() ? (Math.cos((automobile.getTime() + tickDelta) * 2.7) / 156) : 0), 0);
+        pose.translate(0, bounce + (automobile.engineRunning() ? (Math.cos((automobile.getTime() + tickDelta) * 2.7) / 156) : 0), 0);
         var frameTexture = frame.model().texture();
         var engineTexture = engine.model().texture();
         if (!frame.isEmpty() && frameModel != null) {
-            frameModel.render(matrices, vertexConsumers.getBuffer(frameModel.getLayer(frameTexture)), light, overlay, 1, 1, 1, 1);
+            frameModel.renderToBuffer(pose, vertexConsumers.getBuffer(frameModel.renderType(frameTexture)), light, overlay, 1, 1, 1, 1);
             if (frameModel instanceof BaseModel base) {
-                base.doOtherLayerRender(matrices, vertexConsumers, light, overlay);
+                base.doOtherLayerRender(pose, vertexConsumers, light, overlay);
             }
         }
 
         float eBack = frame.model().enginePosBack() / 16;
         float eUp = frame.model().enginePosUp() / 16;
-        matrices.translate(0, -eUp, eBack);
-        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
+        pose.translate(0, -eUp, eBack);
+        pose.mulPose(Vector3f.YP.rotationDegrees(180));
         if (!engine.isEmpty() && engineModel != null) {
-            engineModel.render(matrices, vertexConsumers.getBuffer(engineModel.getLayer(engineTexture)), light, overlay, 1, 1, 1, 1);
+            engineModel.renderToBuffer(pose, vertexConsumers.getBuffer(engineModel.renderType(engineTexture)), light, overlay, 1, 1, 1, 1);
             if (engineModel instanceof BaseModel base) {
-                base.doOtherLayerRender(matrices, vertexConsumers, light, overlay);
+                base.doOtherLayerRender(pose, vertexConsumers, light, overlay);
             }
         }
 
         VertexConsumer exhaustBuffer = null;
-        Identifier[] exhaustTexes;
+        ResourceLocation[] exhaustTexes;
         if (automobile.getBoostTimer() > 0) {
             exhaustTexes = ExhaustFumesModel.FLAME_TEXTURES;
             int index = (int)(automobile.getTime() % exhaustTexes.length);
-            exhaustBuffer = vertexConsumers.getBuffer(RenderLayer.getEyes(exhaustTexes[index]));
+            exhaustBuffer = vertexConsumers.getBuffer(RenderType.eyes(exhaustTexes[index]));
         } else if (automobile.engineRunning()) {
             exhaustTexes = ExhaustFumesModel.SMOKE_TEXTURES;
             int index = (int)Math.floor(((automobile.getTime() + tickDelta) / 1.5f) % exhaustTexes.length);
-            exhaustBuffer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(exhaustTexes[index]));
+            exhaustBuffer = vertexConsumers.getBuffer(RenderType.entityTranslucent(exhaustTexes[index]));
         }
         if (exhaustBuffer != null) {
             for (AutomobileEngine.ExhaustPos exhaust : engine.model().exhausts()) {
-                matrices.push();
+                pose.pushPose();
 
-                matrices.translate(exhaust.x() / 16, -exhaust.y() / 16, exhaust.z() / 16);
-                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(exhaust.yaw()));
-                matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(exhaust.pitch()));
-                exhaustFumesModel.render(matrices, exhaustBuffer, light, overlay, 1, 1, 1, 1);
+                pose.translate(exhaust.x() / 16, -exhaust.y() / 16, exhaust.z() / 16);
+                pose.mulPose(Vector3f.YP.rotationDegrees(exhaust.yaw()));
+                pose.mulPose(Vector3f.XP.rotationDegrees(exhaust.pitch()));
+                exhaustFumesModel.renderToBuffer(pose, exhaustBuffer, light, overlay, 1, 1, 1, 1);
 
-                matrices.pop();
+                pose.popPose();
             }
         }
-        matrices.pop();
+        pose.popPose();
 
         // Rear Attachment
         var rearAtt = automobile.getRearAttachmentType();
         if (!rearAtt.isEmpty()) {
-            matrices.push();
-            matrices.translate(0, chassisRaise, frame.model().rearAttachmentPos() / 16);
-            matrices.multiply(Vec3f.NEGATIVE_Y.getDegreesQuaternion(automobile.getAutomobileYaw(tickDelta) - automobile.getRearAttachmentYaw(tickDelta)));
+            pose.pushPose();
+            pose.translate(0, chassisRaise, frame.model().rearAttachmentPos() / 16);
+            pose.mulPose(Vector3f.YN.rotationDegrees(automobile.getAutomobileYaw(tickDelta) - automobile.getRearAttachmentYaw(tickDelta)));
 
-            matrices.translate(0, 0, rearAtt.model().pivotDistPx() / 16);
+            pose.translate(0, 0, rearAtt.model().pivotDistPx() / 16);
             if (rearAttachmentModel instanceof RearAttachmentRenderModel rm) {
                 rm.setRenderState(automobile.getRearAttachment(), (float) Math.toRadians(automobile.getWheelAngle(tickDelta)), tickDelta);
             }
-            rearAttachmentModel.render(matrices, vertexConsumers.getBuffer(rearAttachmentModel.getLayer(rearAtt.model().texture())), light, overlay, 1, 1, 1, 1);
+            rearAttachmentModel.renderToBuffer(pose, vertexConsumers.getBuffer(rearAttachmentModel.renderType(rearAtt.model().texture())), light, overlay, 1, 1, 1, 1);
             if (rearAttachmentModel instanceof BaseModel base) {
-                base.doOtherLayerRender(matrices, vertexConsumers, light, overlay);
+                base.doOtherLayerRender(pose, vertexConsumers, light, overlay);
             }
-            matrices.pop();
+            pose.popPose();
         }
 
         // Front Attachment
         var frontAtt = automobile.getFrontAttachmentType();
         if (!frontAtt.isEmpty()) {
-            matrices.push();
-            matrices.translate(0, 0, frame.model().frontAttachmentPos() / -16);
+            pose.pushPose();
+            pose.translate(0, 0, frame.model().frontAttachmentPos() / -16);
 
             if (frontAttachmentModel instanceof FrontAttachmentRenderModel fm) {
                 fm.setRenderState(automobile.getFrontAttachment(), chassisRaise, tickDelta);
             }
-            frontAttachmentModel.render(matrices, vertexConsumers.getBuffer(frontAttachmentModel.getLayer(frontAtt.model().texture())), light, overlay, 1, 1, 1, 1);
+            frontAttachmentModel.renderToBuffer(pose, vertexConsumers.getBuffer(frontAttachmentModel.renderType(frontAtt.model().texture())), light, overlay, 1, 1, 1, 1);
             if (frontAttachmentModel instanceof BaseModel base) {
-                base.doOtherLayerRender(matrices, vertexConsumers, light, overlay);
+                base.doOtherLayerRender(pose, vertexConsumers, light, overlay);
             }
-            matrices.pop();
+            pose.popPose();
         }
 
         // WHEELS ----------------------------------------
         var wPoses = frame.model().wheelBase().wheels;
 
         if (!wheels.isEmpty()) {
-            var wheelBuffer = vertexConsumers.getBuffer(wheelModel.getLayer(wheels.model().texture()));
+            var wheelBuffer = vertexConsumers.getBuffer(wheelModel.renderType(wheels.model().texture()));
             float wheelAngle = automobile.getWheelAngle(tickDelta);
             int wheelCount = automobile.getWheelCount();
 
@@ -149,23 +149,23 @@ public enum AutomobileRenderer {;
                 }
                 float scale = pos.scale();
                 float wheelRadius = wheels.model().radius() - (wheels.model().radius() * (scale - 1));
-                matrices.push();
+                pose.pushPose();
 
-                matrices.translate(pos.right() / 16, wheelRadius / 16, -pos.forward() / 16);
+                pose.translate(pos.right() / 16, wheelRadius / 16, -pos.forward() / 16);
 
-                if (pos.end() == WheelBase.WheelEnd.FRONT) matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(automobile.getSteering(tickDelta) * 27));
-                matrices.translate(0, -chassisRaise, 0);
-                matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(wheelAngle));
-                matrices.scale(scale, scale, scale);
+                if (pos.end() == WheelBase.WheelEnd.FRONT) pose.mulPose(Vector3f.YP.rotationDegrees(automobile.getSteering(tickDelta) * 27));
+                pose.translate(0, -chassisRaise, 0);
+                pose.mulPose(Vector3f.XP.rotationDegrees(wheelAngle));
+                pose.scale(scale, scale, scale);
 
-                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180 + pos.yaw()));
+                pose.mulPose(Vector3f.YP.rotationDegrees(180 + pos.yaw()));
 
-                wheelModel.render(matrices, wheelBuffer, light, overlay, 1, 1, 1, 1);
+                wheelModel.renderToBuffer(pose, wheelBuffer, light, overlay, 1, 1, 1, 1);
                 if (wheelModel instanceof BaseModel base) {
-                    base.doOtherLayerRender(matrices, vertexConsumers, light, overlay);
+                    base.doOtherLayerRender(pose, vertexConsumers, light, overlay);
                 }
 
-                matrices.pop();
+                pose.popPose();
 
                 wheelCount--;
             }
@@ -185,13 +185,13 @@ public enum AutomobileRenderer {;
             } else if (automobile.debris()) {
                 skidTexes = SkidEffectModel.DEBRIS_TEXTURES;
                 var c = automobile.debrisColor();
-                r = c.getX() * 0.85f;
-                g = c.getY() * 0.85f;
-                b = c.getZ() * 0.85f;
+                r = c.x() * 0.85f;
+                g = c.y() * 0.85f;
+                b = c.z() * 0.85f;
                 bright = false;
             }
             int index = (int)Math.floor(((automobile.getTime() + tickDelta) / 1.5f) % skidTexes.length);
-            var skidEffectBuffer = vertexConsumers.getBuffer(bright ? RenderLayer.getEyes(skidTexes[index]) : RenderLayer.getEntitySmoothCutout(skidTexes[index]));
+            var skidEffectBuffer = vertexConsumers.getBuffer(bright ? RenderType.eyes(skidTexes[index]) : RenderType.entitySmoothCutout(skidTexes[index]));
 
             for (var pos : wPoses) {
                 if (pos.end() == WheelBase.WheelEnd.BACK) {
@@ -200,16 +200,16 @@ public enum AutomobileRenderer {;
                     float wheelRadius = wheels.model().radius() * scale;
                     float wheelWidth =  (wheels.model().width() / 16) * scale;
                     float back = (wheelRadius > 2) ? (float) (Math.sqrt((wheelRadius * wheelRadius) - Math.pow(wheelRadius - 2, 2)) - 0.85) / 16 : 0.08f;
-                    matrices.push();
-                    matrices.translate((pos.right() / 16) + (wheelWidth * (pos.side() == WheelBase.WheelSide.RIGHT ? 1 : -1)), heightOffset / 16, (-pos.forward() / 16) + back);
-                    matrices.scale(pos.side() == WheelBase.WheelSide.LEFT ? -1 : 1, 1, -1);
-                    skidEffectModel.render(matrices, skidEffectBuffer, light, overlay, r, g, b, 0.6f);
-                    matrices.pop();
+                    pose.pushPose();
+                    pose.translate((pos.right() / 16) + (wheelWidth * (pos.side() == WheelBase.WheelSide.RIGHT ? 1 : -1)), heightOffset / 16, (-pos.forward() / 16) + back);
+                    pose.scale(pos.side() == WheelBase.WheelSide.LEFT ? -1 : 1, 1, -1);
+                    skidEffectModel.renderToBuffer(pose, skidEffectBuffer, light, overlay, r, g, b, 0.6f);
+                    pose.popPose();
                 }
             }
         }
         // -----------------------------------------------
 
-        matrices.pop();
+        pose.popPose();
     }
 }

@@ -2,16 +2,17 @@ package io.github.foundationgames.automobility.automobile.attachment.front;
 
 import io.github.foundationgames.automobility.automobile.attachment.BaseAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
+import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.util.AUtils;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class FrontAttachment extends BaseAttachment<FrontAttachmentType<?>> {
     public FrontAttachment(FrontAttachmentType<?> type, AutomobileEntity automobile) {
@@ -19,7 +20,7 @@ public abstract class FrontAttachment extends BaseAttachment<FrontAttachmentType
     }
 
     @Override
-    public Vec3d pos() {
+    public Vec3 pos() {
         return this.automobile.getHeadPos();
     }
 
@@ -29,31 +30,31 @@ public abstract class FrontAttachment extends BaseAttachment<FrontAttachmentType
     }
 
     public boolean canDrive(Entity entity) {
-        return entity instanceof PlayerEntity;
+        return entity instanceof Player;
     }
 
     @Override
-    public void writeNbt(NbtCompound nbt) {
+    public void writeNbt(CompoundTag nbt) {
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
+    public void readNbt(CompoundTag nbt) {
     }
 
-    public void dropOrTransfer(ItemStack stack, Vec3d dropPos) {
+    public void dropOrTransfer(ItemStack stack, Vec3 dropPos) {
         var rearAtt = this.automobile.getRearAttachment();
         boolean drop = true;
-        if (rearAtt instanceof Inventory inv) {
+        if (rearAtt instanceof Container inv) {
             if (AUtils.transferInto(stack, inv)) {
                 drop = false;
             }
         }
         if (drop) {
-            world().spawnEntity(new ItemEntity(world(), dropPos.x, dropPos.y, dropPos.z, stack));
+            world().addFreshEntity(new ItemEntity(world(), dropPos.x, dropPos.y, dropPos.z, stack));
         }
     }
 
-    public static FrontAttachmentType<?> fromNbt(NbtCompound nbt) {
-        return FrontAttachmentType.REGISTRY.get(Identifier.tryParse(nbt.getString("type")));
+    public static FrontAttachmentType<?> fromNbt(CompoundTag nbt) {
+        return FrontAttachmentType.REGISTRY.get(ResourceLocation.tryParse(nbt.getString("type")));
     }
 }

@@ -2,33 +2,33 @@ package io.github.foundationgames.automobility.automobile.attachment.rear;
 
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class SaddledBarrelRearAttachment extends ChestRearAttachment {
-    public SaddledBarrelRearAttachment(RearAttachmentType<?> type, AutomobileEntity entity, BlockState block, @Nullable BiFunction<ScreenHandlerContext, BlockRearAttachment, NamedScreenHandlerFactory> screenProvider) {
+    public SaddledBarrelRearAttachment(RearAttachmentType<?> type, AutomobileEntity entity, BlockState block, @Nullable BiFunction<ContainerLevelAccess, BlockRearAttachment, MenuProvider> screenProvider) {
         super(type, entity, block, screenProvider);
     }
 
     @Override
     protected SoundEvent getOpenSound() {
-        return SoundEvents.BLOCK_BARREL_OPEN;
+        return SoundEvents.BARREL_OPEN;
     }
 
     @Override
     protected SoundEvent getCloseSound() {
-        return SoundEvents.BLOCK_BARREL_CLOSE;
+        return SoundEvents.BARREL_CLOSE;
     }
 
     @Override
-    public Text getDisplayName() {
+    public Component getDisplayName() {
         return BaseChestRearAttachment.TITLE_BARREL;
     }
 

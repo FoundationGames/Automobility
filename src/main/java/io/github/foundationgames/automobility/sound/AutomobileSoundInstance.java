@@ -1,13 +1,14 @@
 package io.github.foundationgames.automobility.sound;
 
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.MovingSoundInstance;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 
-public abstract class AutomobileSoundInstance extends MovingSoundInstance {
-    private final MinecraftClient client;
+public abstract class AutomobileSoundInstance extends AbstractTickableSoundInstance {
+    private final Minecraft client;
     private final AutomobileEntity automobile;
 
     private double lastDistance;
@@ -15,12 +16,12 @@ public abstract class AutomobileSoundInstance extends MovingSoundInstance {
     private int fade = 0;
     private boolean die = false;
 
-    public AutomobileSoundInstance(SoundEvent sound, MinecraftClient client, AutomobileEntity automobile) {
-        super(sound, SoundCategory.AMBIENT, automobile.getEntityWorld().getRandom());
+    public AutomobileSoundInstance(SoundEvent sound, Minecraft client, AutomobileEntity automobile) {
+        super(sound, SoundSource.AMBIENT, automobile.getCommandSenderWorld().getRandom());
         this.client = client;
         this.automobile = automobile;
-        this.repeat = true;
-        this.repeatDelay = 0;
+        this.looping = true;
+        this.delay = 0;
     }
 
     protected abstract boolean canPlay(AutomobileEntity automobile);
@@ -33,7 +34,7 @@ public abstract class AutomobileSoundInstance extends MovingSoundInstance {
     public void tick() {
         var player = this.client.player;
         if (automobile.isRemoved() || player == null) {
-            this.setDone();
+            this.stop();
             return;
         } else if (!this.canPlay(automobile)) {
             this.die = true;
@@ -42,7 +43,7 @@ public abstract class AutomobileSoundInstance extends MovingSoundInstance {
         if (this.die) {
             if (this.fade > 0) this.fade--;
             else if (this.fade == 0) {
-                this.setDone();
+                this.stop();
                 return;
             }
         } else if (this.fade < 3) {
@@ -57,7 +58,7 @@ public abstract class AutomobileSoundInstance extends MovingSoundInstance {
         this.pitch = this.getPitch(this.automobile);
 
         if (player.getVehicle() != this.automobile) {
-            double distance = this.automobile.getPos().subtract(player.getPos()).length();
+            double distance = this.automobile.position().subtract(player.position()).length();
             this.pitch += (0.36 * Math.atan(lastDistance - distance));
 
             this.lastDistance = distance;
@@ -67,7 +68,7 @@ public abstract class AutomobileSoundInstance extends MovingSoundInstance {
     }
 
     public static class EngineSound extends AutomobileSoundInstance {
-        public EngineSound(MinecraftClient client, AutomobileEntity automobile) {
+        public EngineSound(Minecraft client, AutomobileEntity automobile) {
             super(automobile.getEngine().sound(), client, automobile);
         }
 
@@ -88,7 +89,7 @@ public abstract class AutomobileSoundInstance extends MovingSoundInstance {
     }
 
     public static class SkiddingSound extends AutomobileSoundInstance {
-        public SkiddingSound(MinecraftClient client, AutomobileEntity automobile) {
+        public SkiddingSound(Minecraft client, AutomobileEntity automobile) {
             super(AutomobilitySounds.SKID, client, automobile);
         }
 

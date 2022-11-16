@@ -1,12 +1,12 @@
 package io.github.foundationgames.automobility.util.duck;
 
 import io.github.foundationgames.automobility.automobile.attachment.rear.BaseChestRearAttachment;
-import net.minecraft.inventory.EnderChestInventory;
+import net.minecraft.world.inventory.PlayerEnderChestContainer;
 
-public interface EnderChestInventoryDuck {
+public interface EnderChestContainerDuck {
     void automobility$setActiveAttachment(BaseChestRearAttachment attachment);
 
-    static EnderChestInventoryDuck of(EnderChestInventory inv) {
-        return (EnderChestInventoryDuck) inv;
+    static EnderChestContainerDuck of(PlayerEnderChestContainer inv) {
+        return (EnderChestContainerDuck) inv;
     }
 }

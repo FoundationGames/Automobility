@@ -6,17 +6,16 @@ import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.Model;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.function.ToFloatFunction;
-import net.minecraft.world.World;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -27,7 +26,7 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
     protected final String translationKey;
     protected final SimpleMapContentRegistry<T> registry;
 
-    public AutomobileComponentItem(Settings settings, String nbtKey, String translationKey, SimpleMapContentRegistry<T> registry) {
+    public AutomobileComponentItem(Properties settings, String nbtKey, String translationKey, SimpleMapContentRegistry<T> registry) {
         super(settings);
         this.nbtKey = nbtKey;
         this.translationKey = translationKey;
@@ -44,31 +43,31 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
         return stack;
     }
 
-    public void setComponent(ItemStack stack, Identifier component) {
-        stack.getOrCreateNbt().putString(this.nbtKey, component.toString());
+    public void setComponent(ItemStack stack, ResourceLocation component) {
+        stack.getOrCreateTag().putString(this.nbtKey, component.toString());
     }
 
     public T getComponent(ItemStack stack) {
-        if (stack.hasNbt() && stack.getNbt().contains(this.nbtKey)) {
-            return this.registry.getOrDefault(Identifier.tryParse(stack.getNbt().getString(this.nbtKey)));
+        if (stack.hasTag() && stack.getTag().contains(this.nbtKey)) {
+            return this.registry.getOrDefault(ResourceLocation.tryParse(stack.getTag().getString(this.nbtKey)));
         }
         return this.registry.getOrDefault(null);
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        super.appendTooltip(stack, world, tooltip, context);
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag context) {
+        super.appendHoverText(stack, world, tooltip, context);
         var component = this.getComponent(stack);
         var id = component.getId();
         var compKey = id.getNamespace()+"."+id.getPath();
-        tooltip.add(Text.translatable(this.translationKey+"."+compKey).formatted(Formatting.BLUE));
+        tooltip.add(Component.translatable(this.translationKey+"."+compKey).withStyle(ChatFormatting.BLUE));
 
         component.appendTexts(tooltip, component);
     }
 
     @Override
-    public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
-        if (this.isIn(group)) {
+    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
+        if (this.allowedIn(group)) {
             this.registry.forEach(component -> {
                 if (addToCreative(component)) stacks.add(this.createStack(component));
             });
@@ -85,7 +84,7 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
     }
 
     @Environment(EnvType.CLIENT)
-    public void registerItemRenderer(Function<T, Model> modelProvider, Function<T, Identifier> textureProvider, FloatFunc<T> scaleProvider) {
+    public void registerItemRenderer(Function<T, Model> modelProvider, Function<T, ResourceLocation> textureProvider, FloatFunc<T> scaleProvider) {
         BuiltinItemRendererRegistry.INSTANCE.register(this, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
             var component = this.getComponent(stack);
             if (this.renders(component)) {
@@ -93,7 +92,7 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
                 float scale = scaleProvider.apply(component);
                 matrices.translate(0.5, 0, 0.5);
                 matrices.scale(scale, -scale, -scale);
-                model.render(matrices, vertexConsumers.getBuffer(model.getLayer(textureProvider.apply(component))), light, overlay, 1, 1, 1, 1);
+                model.renderToBuffer(matrices, vertexConsumers.getBuffer(model.renderType(textureProvider.apply(component))), light, overlay, 1, 1, 1, 1);
             }
         });
     }

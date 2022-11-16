@@ -1,5 +1,6 @@
 package io.github.foundationgames.automobility.automobile.render;
 
+import com.mojang.math.Vector3f;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
@@ -8,8 +9,7 @@ import io.github.foundationgames.automobility.automobile.attachment.RearAttachme
 import io.github.foundationgames.automobility.automobile.attachment.front.FrontAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import org.jetbrains.annotations.Nullable;
 
 public interface RenderableAutomobile {
@@ -37,15 +37,15 @@ public interface RenderableAutomobile {
         return this.getFrontAttachment().type;
     }
 
-    Model getFrameModel(EntityRendererFactory.Context ctx);
+    Model getFrameModel(EntityRendererProvider.Context ctx);
 
-    Model getWheelModel(EntityRendererFactory.Context ctx);
+    Model getWheelModel(EntityRendererProvider.Context ctx);
 
-    Model getEngineModel(EntityRendererFactory.Context ctx);
+    Model getEngineModel(EntityRendererProvider.Context ctx);
 
-    Model getRearAttachmentModel(EntityRendererFactory.Context ctx);
+    Model getRearAttachmentModel(EntityRendererProvider.Context ctx);
 
-    Model getFrontAttachmentModel(EntityRendererFactory.Context ctx);
+    Model getFrontAttachmentModel(EntityRendererProvider.Context ctx);
 
     float getAutomobileYaw(float tickDelta);
 
@@ -73,5 +73,5 @@ public interface RenderableAutomobile {
 
     boolean debris();
 
-    Vec3f debrisColor();
+    Vector3f debrisColor();
 }

@@ -1,40 +1,40 @@
 package io.github.foundationgames.automobility.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 public class SteepSlopedDashPanelBlock extends SteepSlopeBlock {
-    public static final BooleanProperty LEFT = BooleanProperty.of("left");
-    public static final BooleanProperty RIGHT = BooleanProperty.of("right");
+    public static final BooleanProperty LEFT = BooleanProperty.create("left");
+    public static final BooleanProperty RIGHT = BooleanProperty.create("right");
 
-    public SteepSlopedDashPanelBlock(Settings settings) {
+    public SteepSlopedDashPanelBlock(Properties settings) {
         super(settings);
-        setDefaultState(getDefaultState().with(LEFT, false).with(RIGHT, false));
+        registerDefaultState(defaultBlockState().setValue(LEFT, false).setValue(RIGHT, false));
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        super.appendProperties(builder);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(LEFT, RIGHT);
     }
 
     @Override
-    public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
-        super.onEntityCollision(state, world, pos, entity);
+    public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
+        super.entityInside(state, world, pos, entity);
         DashPanelBlock.onCollideWithDashPanel(entity);
     }
 
     @Override
-    public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-        boolean left = world.getBlockState(pos.offset(state.get(FACING).rotateCounterclockwise(Direction.Axis.Y))).isOf(this);
-        boolean right = world.getBlockState(pos.offset(state.get(FACING).rotateClockwise(Direction.Axis.Y))).isOf(this);
-        return state.with(LEFT, left).with(RIGHT, right);
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+        boolean left = world.getBlockState(pos.relative(state.getValue(FACING).getCounterClockWise(Direction.Axis.Y))).is(this);
+        boolean right = world.getBlockState(pos.relative(state.getValue(FACING).getClockWise(Direction.Axis.Y))).is(this);
+        return state.setValue(LEFT, left).setValue(RIGHT, right);
     }
 }

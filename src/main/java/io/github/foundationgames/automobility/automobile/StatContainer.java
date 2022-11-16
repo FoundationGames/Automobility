@@ -1,13 +1,12 @@
 package io.github.foundationgames.automobility.automobile;
 
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 public interface StatContainer<C extends StatContainer<C>> {
-    Identifier containerId();
+    ResourceLocation containerId();
 
     default String getContainerTextKey() {
         var id = this.containerId();
@@ -16,7 +15,7 @@ public interface StatContainer<C extends StatContainer<C>> {
 
     void forEachStat(Consumer<DisplayStat<C>> action);
 
-    default void appendTexts(List<Text> texts, C container) {
+    default void appendTexts(List<Component> texts, C container) {
         this.forEachStat(stat -> stat.appendTooltip(texts, container));
     }
 }

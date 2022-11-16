@@ -1,10 +1,5 @@
 package io.github.foundationgames.automobility.mixin.myron;
 
-// import dev.monarkhes.myron.impl.client.obj.AbstractObjLoader;
-import net.minecraft.client.render.model.UnbakedModel;
-import net.minecraft.client.render.model.json.ModelTransformation;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;

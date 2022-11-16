@@ -6,27 +6,27 @@ import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public record AutomobileFrame(
-        Identifier id,
+        ResourceLocation id,
         float weight,
         FrameModel model
 ) implements AutomobileComponent<AutomobileFrame> {
-    public static final Identifier ID = Automobility.id("frame");
+    public static final ResourceLocation ID = Automobility.rl("frame");
     public static final SimpleMapContentRegistry<AutomobileFrame> REGISTRY = new SimpleMapContentRegistry<>();
 
     public static final AutomobileFrame EMPTY = REGISTRY.register(
             new AutomobileFrame(
-                    Automobility.id("empty"),
+                    Automobility.rl("empty"),
                     0.25f,
                     new FrameModel(
-                            new Identifier("empty"),
-                            Automobility.id("empty"),
+                            new ResourceLocation("empty"),
+                            Automobility.rl("empty"),
                             WheelBase.basic(16, 16),
                             16, 8, 8, 4, 8, 8
                     )
@@ -68,11 +68,11 @@ public record AutomobileFrame(
 
     public static final AutomobileFrame SHOPPING_CART = REGISTRY.register(
             new AutomobileFrame(
-                    Automobility.id("shopping_cart"),
+                    Automobility.rl("shopping_cart"),
                     0.25f,
                     new FrameModel(
-                            Automobility.id("textures/entity/automobile/frame/shopping_cart.png"),
-                            Automobility.id("frame_shopping_cart"),
+                            Automobility.rl("textures/entity/automobile/frame/shopping_cart.png"),
+                            Automobility.rl("frame_shopping_cart"),
                             WheelBase.basic(17, 12.05f),
                             25,
                             11,
@@ -86,11 +86,11 @@ public record AutomobileFrame(
 
     public static final AutomobileFrame C_ARR = REGISTRY.register(
             new AutomobileFrame(
-                    Automobility.id("c_arr"),
+                    Automobility.rl("c_arr"),
                     0.85f,
                     new FrameModel(
-                            Automobility.id("textures/entity/automobile/frame/c_arr.png"),
-                            Automobility.id("frame_c_arr"),
+                            Automobility.rl("textures/entity/automobile/frame/c_arr.png"),
+                            Automobility.rl("frame_c_arr"),
                             WheelBase.basic(44.5f, 16),
                             44f,
                             6f,
@@ -104,11 +104,11 @@ public record AutomobileFrame(
 
     public static final AutomobileFrame PINEAPPLE = REGISTRY.register(
             new AutomobileFrame(
-                    Automobility.id("pineapple"),
+                    Automobility.rl("pineapple"),
                     0.75f,
                     new FrameModel(
-                            Automobility.id("textures/entity/automobile/frame/pineapple.png"),
-                            Automobility.id("frame_pineapple"),
+                            Automobility.rl("textures/entity/automobile/frame/pineapple.png"),
+                            Automobility.rl("frame_pineapple"),
                             WheelBase.basic(10, 18),
                             20,
                             16,
@@ -122,11 +122,11 @@ public record AutomobileFrame(
 
     public static final AutomobileFrame DABABY = REGISTRY.register(
             new AutomobileFrame(
-                    Automobility.id("dababy"),
+                    Automobility.rl("dababy"),
                     0.93f,
                     new FrameModel(
-                            Automobility.id("textures/entity/automobile/frame/c_arr.png"),
-                            Automobility.id("frame_dababy"),
+                            Automobility.rl("textures/entity/automobile/frame/c_arr.png"),
+                            Automobility.rl("frame_dababy"),
                             WheelBase.basic(40, 8),
                             40,
                             22,
@@ -140,11 +140,11 @@ public record AutomobileFrame(
 
     private static AutomobileFrame standard(String color) {
         return new AutomobileFrame(
-                Automobility.id("standard_"+color),
+                Automobility.rl("standard_"+color),
                 0.6f,
                 new FrameModel(
-                        Automobility.id("textures/entity/automobile/frame/standard_"+color+".png"),
-                        Automobility.id("frame_standard"),
+                        Automobility.rl("textures/entity/automobile/frame/standard_"+color+".png"),
+                        Automobility.rl("frame_standard"),
                         WheelBase.basic(26, 10),
                         26,
                         5,
@@ -158,11 +158,11 @@ public record AutomobileFrame(
 
     private static AutomobileFrame motorcar(String variant, float weight) {
         return new AutomobileFrame(
-                Automobility.id(variant+"_motorcar"),
+                Automobility.rl(variant+"_motorcar"),
                 weight,
                 new FrameModel(
-                        Automobility.id("textures/entity/automobile/frame/"+variant+"_motorcar.png"),
-                        Automobility.id("frame_motorcar"),
+                        Automobility.rl("textures/entity/automobile/frame/"+variant+"_motorcar.png"),
+                        Automobility.rl("frame_motorcar"),
                         WheelBase.basic(32, 12),
                         28,
                         3,
@@ -176,11 +176,11 @@ public record AutomobileFrame(
 
     private static AutomobileFrame tractor(String color) {
         return new AutomobileFrame(
-                Automobility.id(color+"_tractor"),
+                Automobility.rl(color+"_tractor"),
                 0.9f,
                 new FrameModel(
-                        Automobility.id("textures/entity/automobile/frame/"+color+"_tractor.png"),
-                        Automobility.id("frame_tractor"),
+                        Automobility.rl("textures/entity/automobile/frame/"+color+"_tractor.png"),
+                        Automobility.rl("frame_tractor"),
                         new WheelBase(
                                 new WheelBase.WheelPos(-2, -7, 1.8f, 0, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.LEFT),
                                 new WheelBase.WheelPos(-2, 7, 1.8f, 180, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.RIGHT),
@@ -199,11 +199,11 @@ public record AutomobileFrame(
 
     private static AutomobileFrame rickshaw(String prefix, float weight) {
         return new AutomobileFrame(
-                Automobility.id(prefix+"_rickshaw"),
+                Automobility.rl(prefix+"_rickshaw"),
                 weight,
                 new FrameModel(
-                        Automobility.id("textures/entity/automobile/frame/"+prefix+"_rickshaw.png"),
-                        Automobility.id("frame_rickshaw"),
+                        Automobility.rl("textures/entity/automobile/frame/"+prefix+"_rickshaw.png"),
+                        Automobility.rl("frame_rickshaw"),
                         new WheelBase(
                                 new WheelBase.WheelPos(-11, -7.5f, 1, 0, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.LEFT),
                                 new WheelBase.WheelPos(-11, 7.5f, 1, 180, WheelBase.WheelEnd.BACK, WheelBase.WheelSide.RIGHT),
@@ -228,7 +228,7 @@ public record AutomobileFrame(
     }
 
     @Override
-    public Identifier containerId() {
+    public ResourceLocation containerId() {
         return ID;
     }
 
@@ -238,7 +238,7 @@ public record AutomobileFrame(
     }
 
     @Override
-    public Identifier getId() {
+    public ResourceLocation getId() {
         return this.id;
     }
 
@@ -247,8 +247,8 @@ public record AutomobileFrame(
     }
 
     public static record FrameModel(
-            Identifier texture,
-            Identifier modelId,
+            ResourceLocation texture,
+            ResourceLocation modelId,
             WheelBase wheelBase,
             float lengthPx,
             float seatHeight,
@@ -258,7 +258,7 @@ public record AutomobileFrame(
             float frontAttachmentPos
     ) {
         @Environment(EnvType.CLIENT)
-        public Function<EntityRendererFactory.Context, Model> model() {
+        public Function<EntityRendererProvider.Context, Model> model() {
             return AutomobilityModels.MODELS.get(modelId);
         }
     }

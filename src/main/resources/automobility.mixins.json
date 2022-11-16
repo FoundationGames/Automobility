@@ -4,20 +4,20 @@
   "package": "io.github.foundationgames.automobility.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "BoxMixin",
-    "EnderChestInventoryMixin",
+    "AABBMixin",
+    "PlayerEnderChestContainerMixin",
     "EntityMixin",
-    "ForgingScreenHandlerMixin",
-    "ScreenHandlerMixin",
-    "ServerPlayNetworkHandlerMixin",
+    "ItemCombinerMenuMixin",
+    "AbstractContainerMenuMixin",
+    "ServerGamePacketListenerImplMixin",
     "ShovelItemAccess"
   ],
   "client": [
-    "ClientPlayerEntityMixin",
-    "ClientPlayerInteractionManagerMixin",
+    "LocalPlayerMixin",
+    "MultiPlayerGameModeMixin",
     "EntityRenderersMixin",
     "GameRendererMixin",
-    "ModelElementDeserializerMixin",
+    "BlockElementDeserializerMixin",
     "midnightcontrols.InputHandlersMixin"
   ],
   "injectors": {

@@ -2,14 +2,14 @@ package io.github.foundationgames.automobility.automobile.render.wheel;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.BaseModel;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
 public class TractorWheelModel extends BaseModel {
-    public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile/wheel/tractor"), "main");
+    public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(Automobility.rl("automobile/wheel/tractor"), "main");
 
-    public TractorWheelModel(EntityRendererFactory.Context ctx) {
-        super(RenderLayer::getEntityCutout, ctx, MODEL_LAYER);
+    public TractorWheelModel(EntityRendererProvider.Context ctx) {
+        super(RenderType::entityCutout, ctx, MODEL_LAYER);
     }
 }

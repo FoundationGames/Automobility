@@ -1,72 +1,72 @@
 package io.github.foundationgames.automobility.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import com.mojang.math.Vector3f;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class OffRoadBlock extends Block {
-    public static final VoxelShape ONE_LAYER_SHAPE = createCuboidShape(0, 0, 0, 16, 2, 16);
-    public static final VoxelShape TWO_LAYER_SHAPE = createCuboidShape(0, 0, 0, 16, 4, 16);
-    public static final VoxelShape THREE_LAYER_SHAPE = createCuboidShape(0, 0, 0, 16, 6, 16);
+    public static final VoxelShape ONE_LAYER_SHAPE = box(0, 0, 0, 16, 2, 16);
+    public static final VoxelShape TWO_LAYER_SHAPE = box(0, 0, 0, 16, 4, 16);
+    public static final VoxelShape THREE_LAYER_SHAPE = box(0, 0, 0, 16, 6, 16);
 
-    public static final IntProperty LAYERS = IntProperty.of("layers", 1, 3);
+    public static final IntegerProperty LAYERS = IntegerProperty.create("layers", 1, 3);
 
-    public final Vec3f color;
+    public final Vector3f color;
 
-    public OffRoadBlock(Settings settings, Vec3f color) {
+    public OffRoadBlock(Properties settings, Vector3f color) {
         super(settings);
-        setDefaultState(getDefaultState().with(LAYERS, 1));
+        registerDefaultState(defaultBlockState().setValue(LAYERS, 1));
         this.color = color;
     }
 
     @Nullable
     @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        var state = ctx.getWorld().getBlockState(ctx.getBlockPos());
-        if (state.isOf(this) && state.get(LAYERS) < 3) {
-            return state.with(LAYERS, state.get(LAYERS) + 1);
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        var state = ctx.getLevel().getBlockState(ctx.getClickedPos());
+        if (state.is(this) && state.getValue(LAYERS) < 3) {
+            return state.setValue(LAYERS, state.getValue(LAYERS) + 1);
         }
-        return super.getPlacementState(ctx);
+        return super.getStateForPlacement(ctx);
     }
 
     @Override
-    public boolean canReplace(BlockState state, ItemPlacementContext context) {
-        return state.get(LAYERS) < 3;
+    public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
+        return state.getValue(LAYERS) < 3;
     }
 
     @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
-        super.neighborUpdate(state, world, pos, block, fromPos, notify);
-        if (!canPlaceAt(state, world, pos)) {
-            world.breakBlock(pos, true);
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
+        super.neighborChanged(state, world, pos, block, fromPos, notify);
+        if (!canSurvive(state, world, pos)) {
+            world.destroyBlock(pos, true);
         }
     }
 
     @Override
-    public PistonBehavior getPistonBehavior(BlockState state) {
-        return PistonBehavior.DESTROY;
+    public PushReaction getPistonPushReaction(BlockState state) {
+        return PushReaction.DESTROY;
     }
 
     @Override
-    public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-        return world.getBlockState(pos.down()).isSideSolidFullSquare(world, pos.down(), Direction.UP);
+    public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+        return world.getBlockState(pos.below()).isFaceSturdy(world, pos.below(), Direction.UP);
     }
 
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return switch (state.get(LAYERS)) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return switch (state.getValue(LAYERS)) {
             case 2 -> TWO_LAYER_SHAPE;
             case 3 -> THREE_LAYER_SHAPE;
             default -> ONE_LAYER_SHAPE;
@@ -74,8 +74,8 @@ public class OffRoadBlock extends Block {
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        super.appendProperties(builder);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(LAYERS);
     }
 }

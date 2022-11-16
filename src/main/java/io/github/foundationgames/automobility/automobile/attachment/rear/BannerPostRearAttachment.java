@@ -5,39 +5,40 @@ import io.github.foundationgames.automobility.automobile.attachment.RearAttachme
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.screen.SingleSlotScreenHandler;
 import io.github.foundationgames.automobility.util.network.PayloadPackets;
-import net.minecraft.block.entity.BannerBlockEntity;
-import net.minecraft.block.entity.BannerPattern;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.BannerItem;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.registry.RegistryEntry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BannerBlockEntity;
+import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraft.world.phys.Vec3;
 
 public class BannerPostRearAttachment extends RearAttachment {
-    private static final Text UI_TITLE = Text.translatable("container.automobility.banner_post");
+    private static final Component UI_TITLE = Component.translatable("container.automobility.banner_post");
 
     private @Nullable DyeColor baseColor = null;
 
-    private NbtList patternNbt = new NbtList();
-    private List<Pair<RegistryEntry<BannerPattern>, DyeColor>> patterns;
+    private ListTag patternNbt = new ListTag();
+    private List<Pair<Holder<BannerPattern>, DyeColor>> patterns;
 
-    public final Inventory inventory = new SimpleInventory(1) {
+    public final Container inventory = new SimpleContainer(1) {
         @Override
-        public void setStack(int slot, ItemStack stack) {
-            super.setStack(slot, stack);
+        public void setItem(int slot, ItemStack stack) {
+            super.setItem(slot, stack);
 
             BannerPostRearAttachment.this.setFromItem(stack);
         }
@@ -48,25 +49,25 @@ public class BannerPostRearAttachment extends RearAttachment {
     }
 
     public void sendPacket() {
-        var nbt = new NbtCompound();
+        var nbt = new CompoundTag();
         this.putToNbt(nbt);
 
-        if (!this.world().isClient()) {
+        if (!this.world().isClientSide()) {
             this.automobile().forNearbyPlayers(200, false, p ->
                     PayloadPackets.sendBannerPostAttachmentUpdatePacket(this.automobile(), nbt, p));
         }
     }
 
     @Override
-    public void updatePacketRequested(ServerPlayerEntity player) {
+    public void updatePacketRequested(ServerPlayer player) {
         super.updatePacketRequested(player);
 
-        var nbt = new NbtCompound();
+        var nbt = new CompoundTag();
         this.putToNbt(nbt);
         PayloadPackets.sendBannerPostAttachmentUpdatePacket(this.automobile(), nbt, player);
     }
 
-    public void putToNbt(NbtCompound nbt) {
+    public void putToNbt(CompoundTag nbt) {
         if (this.baseColor != null) {
             nbt.putInt("Color", this.baseColor.getId());
         }
@@ -76,7 +77,7 @@ public class BannerPostRearAttachment extends RearAttachment {
         }
     }
 
-    public void setFromNbt(NbtCompound nbt) {
+    public void setFromNbt(CompoundTag nbt) {
         if (nbt.contains("Color")) {
             this.baseColor = DyeColor.byId(nbt.getInt("Color"));
         } else {
@@ -86,7 +87,7 @@ public class BannerPostRearAttachment extends RearAttachment {
         if (nbt.contains("Patterns", 9)) {
             this.patternNbt = nbt.getList("Patterns", 10);
         } else {
-            this.patternNbt = new NbtList();
+            this.patternNbt = new ListTag();
         }
         this.patterns = null;
     }
@@ -99,15 +100,15 @@ public class BannerPostRearAttachment extends RearAttachment {
             return;
         }
 
-        var nbt = BlockItem.getBlockEntityNbt(stack);
+        var nbt = BlockItem.getBlockEntityData(stack);
         if (nbt != null && nbt.contains("Patterns", 9)) {
             this.patternNbt = nbt.getList("Patterns", 10);
         } else {
-            this.patternNbt = new NbtList();
+            this.patternNbt = new ListTag();
         }
         this.patterns = null;
 
-        if (!this.world().isClient()) {
+        if (!this.world().isClientSide()) {
             this.sendPacket();
         }
     }
@@ -115,7 +116,7 @@ public class BannerPostRearAttachment extends RearAttachment {
     public void erase() {
         this.baseColor = null;
 
-        if (!this.world().isClient()) {
+        if (!this.world().isClientSide()) {
             this.sendPacket();
         }
     }
@@ -124,9 +125,9 @@ public class BannerPostRearAttachment extends RearAttachment {
         return this.baseColor;
     }
 
-    public List<Pair<RegistryEntry<BannerPattern>, DyeColor>> getPatterns() {
+    public List<Pair<Holder<BannerPattern>, DyeColor>> getPatterns() {
         if (this.patterns == null) {
-            this.patterns = BannerBlockEntity.getPatternsFromNbt(this.baseColor, this.patternNbt);
+            this.patterns = BannerBlockEntity.createPatterns(this.baseColor, this.patternNbt);
         }
 
         return this.patterns;
@@ -137,26 +138,26 @@ public class BannerPostRearAttachment extends RearAttachment {
         super.onRemoved();
 
         var pos = this.pos();
-        ItemScatterer.spawn(this.world(), pos.x, pos.y, pos.z, this.inventory.getStack(0));
+        Containers.dropItemStack(this.world(), pos.x, pos.y, pos.z, this.inventory.getItem(0));
     }
 
     @Override
-    public void writeNbt(NbtCompound nbt) {
+    public void writeNbt(CompoundTag nbt) {
         super.writeNbt(nbt);
         this.putToNbt(nbt);
 
-        var item = new NbtCompound();
-        this.inventory.getStack(0).writeNbt(item);
+        var item = new CompoundTag();
+        this.inventory.getItem(0).save(item);
 
         nbt.put("Banner", item);
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
+    public void readNbt(CompoundTag nbt) {
         super.readNbt(nbt);
         this.setFromNbt(nbt);
 
-        this.inventory.setStack(0, ItemStack.fromNbt(nbt.getCompound("Banner")));
+        this.inventory.setItem(0, ItemStack.of(nbt.getCompound("Banner")));
     }
 
     @Override
@@ -165,8 +166,8 @@ public class BannerPostRearAttachment extends RearAttachment {
     }
 
     @Override
-    public @Nullable NamedScreenHandlerFactory createMenu(ScreenHandlerContext ctx) {
-        return new SimpleNamedScreenHandlerFactory((syncId, playerInv, player) ->
+    public @Nullable MenuProvider createMenu(ContainerLevelAccess ctx) {
+        return new SimpleMenuProvider((syncId, playerInv, player) ->
                 new SingleSlotScreenHandler(syncId, playerInv, this.inventory), UI_TITLE);
     }
 }
