@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "automobility",
+  "version": "${version}",
+  "name": "Automobility",
+  "description": "Vehicles and whatnot",
+  "authors": [
+    "FoundationGames"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": ""
+  },
+  "license": "MIT",
+  "icon": "assets/automobility/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "io.github.foundationgames.automobility.fabric.AutomobilityFabric"
+    ],
+    "client": [
+      "io.github.foundationgames.automobility.fabric.AutomobilityClientFabric"
+    ]
+  },
+  "mixins": [
+    "automobility.mixins.json",
+    "automobility_fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.19.x",
+    "java": ">=17"
+  },
+  "suggests": {
+    "lambdacontrols": "*"
+  }
+}

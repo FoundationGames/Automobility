@@ -5,7 +5,7 @@
 ## Available for Fabric/Quilt
 - Requires **[Fabric API](https://modrinth.com/mod/fabric-api)** (Fabric) or **[QSL](https://modrinth.com/mod/qsl)** (Quilt)
 
-**Support for Forge or old versions is NOT PLANNED.**
+**Support for old versions is NOT PLANNED.**
 
 ## Getting Started
 - **Recipes:** Crafting recipes can be viewed using [**EMI**](https://www.curseforge.com/minecraft/mc-mods/emi).

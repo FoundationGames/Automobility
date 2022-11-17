@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.foundationgames.automobility.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "AABBMixin",
+    "PlayerEnderChestContainerMixin",
+    "EntityMixin",
+    "ItemCombinerMenuMixin",
+    "AbstractContainerMenuMixin",
+    "ServerGamePacketListenerImplMixin",
+    "ShovelItemAccess"
+  ],
+  "client": [
+    "LocalPlayerMixin",
+    "MultiPlayerGameModeMixin",
+    "EntityRenderersMixin",
+    "GameRendererMixin",
+    "BlockElementDeserializerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "variants": {
+    "left=true,right=false,facing=west": {
+      "model": "automobility:block/dash_panel_left",
+      "y": 270
+    },
+    "left=true,right=true,facing=west": {
+      "model": "automobility:block/dash_panel_center",
+      "y": 270
+    },
+    "left=false,right=false,facing=east": {
+      "model": "automobility:block/dash_panel_single",
+      "y": 450
+    },
+    "left=false,right=true,facing=south": {
+      "model": "automobility:block/dash_panel_right",
+      "y": 180
+    },
+    "left=true,right=true,facing=north": {
+      "model": "automobility:block/dash_panel_center",
+      "y": 360
+    },
+    "left=false,right=false,facing=north": {
+      "model": "automobility:block/dash_panel_single",
+      "y": 360
+    },
+    "left=false,right=true,facing=west": {
+      "model": "automobility:block/dash_panel_right",
+      "y": 270
+    },
+    "left=false,right=false,facing=west": {
+      "model": "automobility:block/dash_panel_single",
+      "y": 270
+    },
+    "left=false,right=true,facing=east": {
+      "model": "automobility:block/dash_panel_right",
+      "y": 450
+    },
+    "left=true,right=false,facing=east": {
+      "model": "automobility:block/dash_panel_left",
+      "y": 450
+    },
+    "left=true,right=false,facing=south": {
+      "model": "automobility:block/dash_panel_left",
+      "y": 180
+    },
+    "left=false,right=false,facing=south": {
+      "model": "automobility:block/dash_panel_single",
+      "y": 180
+    },
+    "left=true,right=true,facing=east": {
+      "model": "automobility:block/dash_panel_center",
+      "y": 450
+    },
+    "left=false,right=true,facing=north": {
+      "model": "automobility:block/dash_panel_right",
+      "y": 360
+    },
+    "left=true,right=false,facing=north": {
+      "model": "automobility:block/dash_panel_left",
+      "y": 360
+    },
+    "left=true,right=true,facing=south": {
+      "model": "automobility:block/dash_panel_center",
+      "y": 180
+    }
+  }
+}

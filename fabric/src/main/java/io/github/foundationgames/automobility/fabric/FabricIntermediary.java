@@ -1,0 +1,186 @@
+package io.github.foundationgames.automobility.fabric;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.foundationgames.automobility.fabric.util.midnightcontrols.ControllerUtils;
+import io.github.foundationgames.automobility.intermediary.Intermediary;
+import io.github.foundationgames.automobility.util.HexCons;
+import io.github.foundationgames.automobility.util.TriCons;
+import io.github.foundationgames.automobility.util.TriFunc;
+import io.github.foundationgames.jsonem.JsonEM;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.block.BlockColor;
+import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+public class FabricIntermediary implements Intermediary {
+    private static final FabricIntermediary INSTANCE = new FabricIntermediary();
+
+    public static void init() {
+        Intermediary.init(INSTANCE);
+    }
+
+    @Override
+    public CreativeModeTab creativeTab(ResourceLocation rl, Supplier<ItemStack> icon) {
+        return FabricItemGroupBuilder.build(rl, icon);
+    }
+
+    @Override
+    public void builtinItemRenderer(Item item, HexCons<ItemStack, ItemTransforms.TransformType, PoseStack, MultiBufferSource, Integer, Integer> renderer) {
+        BuiltinItemRendererRegistry.INSTANCE.register(item, renderer::accept);
+    }
+
+    @Override
+    public <T extends AbstractContainerMenu> MenuType<T> menuType(BiFunction<Integer, Inventory, T> factory) {
+        return new MenuType<>(factory::apply);
+    }
+
+    @Override
+    public <T extends AbstractContainerMenu, U extends Screen & MenuAccess<T>> void registerMenuScreen(MenuType<T> type, TriFunc<T, Inventory, Component, U> factory) {
+        MenuScreens.register(type, factory::apply);
+    }
+
+    @Override
+    public void blockRenderType(Block block, RenderType type) {
+        BlockRenderLayerMap.INSTANCE.putBlock(block, type);
+    }
+
+    @Override
+    public void blockColorProvider(BlockColor color, Block... blocks) {
+        ColorProviderRegistry.BLOCK.register(color, blocks);
+    }
+
+    @Override
+    public void itemColorProvider(ItemColor color, Item... items) {
+        ColorProviderRegistry.ITEM.register(color, items);
+    }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityType<T> blockEntity(BiFunction<BlockPos, BlockState, T> factory, Block... blocks) {
+        return FabricBlockEntityTypeBuilder.create(factory::apply, blocks).build();
+    }
+
+    @Override
+    public <T extends BlockEntity> void blockEntityRenderer(BlockEntityType<T> type, Function<BlockEntityRendererProvider.Context, BlockEntityRenderer<T>> provider) {
+        BlockEntityRendererRegistry.register(type, provider::apply);
+    }
+
+    @Override
+    public void serverSendPacket(ServerPlayer player, ResourceLocation rl, FriendlyByteBuf buf) {
+        ServerPlayNetworking.send(player, rl, buf);
+    }
+
+    @Override
+    public void clientSendPacket(ResourceLocation rl, FriendlyByteBuf buf) {
+        ClientPlayNetworking.send(rl, buf);
+    }
+
+    @Override
+    public void serverReceivePacket(ResourceLocation rl, TriCons<MinecraftServer, ServerPlayer, FriendlyByteBuf> andThen) {
+        ServerPlayNetworking.registerGlobalReceiver(rl, (server, player, handler, buf, responseSender) ->
+                andThen.accept(server, player, buf));
+    }
+
+    @Override
+    public void clientReceivePacket(ResourceLocation rl, BiConsumer<Minecraft, FriendlyByteBuf> andThen) {
+        ClientPlayNetworking.registerGlobalReceiver(rl, (client, handler, buf, responseSender) ->
+                andThen.accept(client, buf));
+    }
+
+    @Override
+    public <T extends Entity> EntityType<T> entityType(MobCategory category, BiFunction<EntityType<?>, Level, T> factory, EntityDimensions size, int updateRate, int updateRange) {
+        return FabricEntityTypeBuilder.create(category, factory::apply).dimensions(size).trackedUpdateRate(updateRate).trackRangeChunks(updateRange).build();
+    }
+
+    @Override
+    public <T extends Entity> void entityRenderer(EntityType<T> entity, Function<EntityRendererProvider.Context, EntityRenderer<T>> factory) {
+        EntityRendererRegistry.register(entity, factory::apply);
+    }
+
+    @Override
+    public void modelLayer(ModelLayerLocation layer) {
+        JsonEM.registerModelLayer(layer);
+    }
+
+    @Override
+    public SimpleParticleType simpleParticleType(boolean z) {
+        return FabricParticleTypes.simple(z);
+    }
+
+    @Override
+    public <T extends ParticleOptions> void particleFactory(ParticleType<T> type, Function<SpriteSet, ParticleProvider<T>> factory) {
+        ParticleFactoryRegistry.getInstance().register(type, factory::apply);
+    }
+
+    @Override
+    public boolean controllerAccel() {
+        return ControllerUtils.accelerating();
+    }
+
+    @Override
+    public boolean controllerBrake() {
+        return ControllerUtils.braking();
+    }
+
+    @Override
+    public boolean controllerDrift() {
+        return ControllerUtils.drifting();
+    }
+
+    @Override
+    public boolean inControllerMode() {
+        return ControllerUtils.inControllerMode();
+    }
+}

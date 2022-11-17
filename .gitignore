@@ -1,7 +1,11 @@
 # gradle
 
 .gradle/
+common/.gradle/
+fabric/.gradle/
 build/
+common/build/
+fabric/build/
 out/
 classes/
 
@@ -28,6 +32,6 @@ bin/
 
 *.DS_Store
 
-# fabric
-
 run/
+common/run/
+fabric/run/

@@ -1,0 +1,99 @@
+package io.github.foundationgames.automobility.item;
+
+import io.github.foundationgames.automobility.automobile.AutomobileComponent;
+import io.github.foundationgames.automobility.intermediary.Intermediary;
+import io.github.foundationgames.automobility.util.FloatFunc;
+import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.model.Model;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.function.Function;
+
+public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends Item {
+    protected final String nbtKey;
+    protected final String translationKey;
+    protected final SimpleMapContentRegistry<T> registry;
+
+    public AutomobileComponentItem(Properties settings, String nbtKey, String translationKey, SimpleMapContentRegistry<T> registry) {
+        super(settings);
+        this.nbtKey = nbtKey;
+        this.translationKey = translationKey;
+        this.registry = registry;
+    }
+
+    public ItemStack createStack(T component) {
+        if (component.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        var stack = new ItemStack(this);
+        this.setComponent(stack, component.getId());
+        return stack;
+    }
+
+    public void setComponent(ItemStack stack, ResourceLocation component) {
+        stack.getOrCreateTag().putString(this.nbtKey, component.toString());
+    }
+
+    public T getComponent(ItemStack stack) {
+        if (stack.hasTag() && stack.getTag().contains(this.nbtKey)) {
+            return this.registry.getOrDefault(ResourceLocation.tryParse(stack.getTag().getString(this.nbtKey)));
+        }
+        return this.registry.getOrDefault(null);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag context) {
+        super.appendHoverText(stack, world, tooltip, context);
+        var component = this.getComponent(stack);
+        var id = component.getId();
+        var compKey = id.getNamespace()+"."+id.getPath();
+        tooltip.add(Component.translatable(this.translationKey+"."+compKey).withStyle(ChatFormatting.BLUE));
+
+        component.appendTexts(tooltip, component);
+    }
+
+    @Override
+    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
+        if (this.allowedIn(group)) {
+            this.registry.forEach(component -> {
+                if (addToCreative(component)) stacks.add(this.createStack(component));
+            });
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    protected boolean renders(T component) {
+        return !component.isEmpty();
+    }
+
+    protected boolean addToCreative(T component) {
+        return !component.isEmpty();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void registerItemRenderer(Function<T, Model> modelProvider, Function<T, ResourceLocation> textureProvider, FloatFunc<T> scaleProvider) {
+        Intermediary.get().builtinItemRenderer(this, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
+            var component = this.getComponent(stack);
+            if (this.renders(component)) {
+                var model = modelProvider.apply(component);
+                float scale = scaleProvider.apply(component);
+                matrices.translate(0.5, 0, 0.5);
+                matrices.scale(scale, -scale, -scale);
+                model.renderToBuffer(matrices, vertexConsumers.getBuffer(model.renderType(textureProvider.apply(component))), light, overlay, 1, 1, 1, 1);
+            }
+        });
+    }
+}
