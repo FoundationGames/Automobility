@@ -1,4 +1,4 @@
-package io.github.foundationgames.automobility.intermediary;
+package io.github.foundationgames.automobility.platform;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.foundationgames.automobility.util.HexCons;
@@ -49,17 +49,17 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public interface Intermediary {
-    static void init(Intermediary instance) {
-        GlobalIntermediaryHolder.INSTANCE = instance;
+public interface Platform {
+    static void init(Platform instance) {
+        GlobalPlatformInstance.INSTANCE = instance;
     }
 
-    static Intermediary get() {
-        if (GlobalIntermediaryHolder.INSTANCE == null) {
+    static Platform get() {
+        if (GlobalPlatformInstance.INSTANCE == null) {
             throw new RuntimeException("Automobility's load order was disrupted!");
         }
 
-        return GlobalIntermediaryHolder.INSTANCE;
+        return GlobalPlatformInstance.INSTANCE;
     }
 
     CreativeModeTab creativeTab(ResourceLocation rl, Supplier<ItemStack> icon);
@@ -72,10 +72,6 @@ public interface Intermediary {
 
     void blockRenderType(Block block, RenderType type);
 
-    void blockColorProvider(BlockColor color, Block... blocks);
-
-    void itemColorProvider(ItemColor color, Item... items);
-
     <T extends BlockEntity> BlockEntityType<T> blockEntity(BiFunction<BlockPos, BlockState, T> factory, Block... blocks);
 
     <T extends BlockEntity> void blockEntityRenderer(BlockEntityType<T> type, Function<BlockEntityRendererProvider.Context, BlockEntityRenderer<T>> provider);
@@ -84,9 +80,9 @@ public interface Intermediary {
 
     void clientSendPacket(ResourceLocation rl, FriendlyByteBuf buf);
 
-    void serverReceivePacket(ResourceLocation rl, TriCons<MinecraftServer, ServerPlayer, FriendlyByteBuf> andThen);
+    void serverReceivePacket(ResourceLocation rl, TriCons<MinecraftServer, ServerPlayer, FriendlyByteBuf> run);
 
-    void clientReceivePacket(ResourceLocation rl, BiConsumer<Minecraft, FriendlyByteBuf> andThen);
+    void clientReceivePacket(ResourceLocation rl, BiConsumer<Minecraft, FriendlyByteBuf> run);
 
     <T extends Entity> EntityType<T> entityType(MobCategory category, BiFunction<EntityType<?>, Level, T> factory, EntityDimensions size, int updateRate, int updateRange);
 
@@ -95,8 +91,6 @@ public interface Intermediary {
     void modelLayer(ModelLayerLocation layer);
 
     SimpleParticleType simpleParticleType(boolean z);
-
-    <T extends ParticleOptions> void particleFactory(ParticleType<T> type, Function<SpriteSet, ParticleProvider<T>> factory);
 
     boolean controllerAccel();
 

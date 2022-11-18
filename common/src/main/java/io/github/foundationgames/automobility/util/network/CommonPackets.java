@@ -4,7 +4,7 @@ import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.attachment.rear.BannerPostRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.ExtendableRearAttachment;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import io.github.foundationgames.automobility.intermediary.Intermediary;
+import io.github.foundationgames.automobility.platform.Platform;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,7 +15,7 @@ public enum CommonPackets {;
         var buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
         entity.writeSyncToClientData(buf);
-        Intermediary.get().serverSendPacket(player, Automobility.rl("sync_automobile_data"), buf);
+        Platform.get().serverSendPacket(player, Automobility.rl("sync_automobile_data"), buf);
     }
 
     public static void sendSyncAutomobileComponentsPacket(AutomobileEntity entity, ServerPlayer player) {
@@ -24,7 +24,7 @@ public enum CommonPackets {;
         buf.writeUtf(entity.getFrame().id().toString());
         buf.writeUtf(entity.getWheels().id().toString());
         buf.writeUtf(entity.getEngine().id().toString());
-        Intermediary.get().serverSendPacket(player, Automobility.rl("sync_automobile_components"), buf);
+        Platform.get().serverSendPacket(player, Automobility.rl("sync_automobile_components"), buf);
     }
 
     public static void sendSyncAutomobileAttachmentsPacket(AutomobileEntity entity, ServerPlayer player) {
@@ -32,7 +32,7 @@ public enum CommonPackets {;
         buf.writeInt(entity.getId());
         buf.writeUtf(entity.getRearAttachmentType().id().toString());
         buf.writeUtf(entity.getFrontAttachmentType().id().toString());
-        Intermediary.get().serverSendPacket(player, Automobility.rl("sync_automobile_attachments"), buf);
+        Platform.get().serverSendPacket(player, Automobility.rl("sync_automobile_attachments"), buf);
     }
 
     public static void sendBannerPostAttachmentUpdatePacket(AutomobileEntity entity, CompoundTag banner, ServerPlayer player) {
@@ -41,7 +41,7 @@ public enum CommonPackets {;
         if (entity.getRearAttachment() instanceof BannerPostRearAttachment) {
             buf.writeInt(entity.getId());
             buf.writeNbt(banner);
-            Intermediary.get().serverSendPacket(player, Automobility.rl("update_banner_post"), buf);
+            Platform.get().serverSendPacket(player, Automobility.rl("update_banner_post"), buf);
         }
     }
 
@@ -51,12 +51,12 @@ public enum CommonPackets {;
         if (entity.getRearAttachment() instanceof ExtendableRearAttachment) {
             buf.writeInt(entity.getId());
             buf.writeBoolean(extended);
-            Intermediary.get().serverSendPacket(player, Automobility.rl("update_extendable_attachment"), buf);
+            Platform.get().serverSendPacket(player, Automobility.rl("update_extendable_attachment"), buf);
         }
     }
 
     public static void init() {
-        Intermediary.get().serverReceivePacket(Automobility.rl("sync_automobile_inputs"), (server, player, buf) -> {
+        Platform.get().serverReceivePacket(Automobility.rl("sync_automobile_inputs"), (server, player, buf) -> {
             boolean fwd = buf.readBoolean();
             boolean back = buf.readBoolean();
             boolean left = buf.readBoolean();
@@ -70,7 +70,7 @@ public enum CommonPackets {;
                 }
             });
         });
-        Intermediary.get().serverReceivePacket(Automobility.rl("request_sync_automobile_components"), (server, player, buf) -> {
+        Platform.get().serverReceivePacket(Automobility.rl("request_sync_automobile_components"), (server, player, buf) -> {
             int entityId = buf.readInt();
             server.execute(() -> {
                 if (player.level.getEntity(entityId) instanceof AutomobileEntity automobile) {

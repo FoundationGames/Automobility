@@ -12,7 +12,7 @@
     "sources": ""
   },
   "license": "MIT",
-  "icon": "assets/automobility/icon.png",
+  "icon": "automobility.png",
   "environment": "*",
   "entrypoints": {
     "main": [

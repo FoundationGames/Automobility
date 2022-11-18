@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[43,)"
+license="MIT"
+
+[[mods]]
+modId="automobility"
+version="${file.jarVersion}"
+displayName="Automobility"
+logoFile="automobility.png"
+authors="FoundationGames" #optional
+description='''
+Vehicles and whatnot
+'''
+
+[[dependencies.automobility]]
+modId="forge"
+mandatory=true
+versionRange="[43,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.automobility]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.19.2,1.20)"
+ordering="NONE"
+side="BOTH"

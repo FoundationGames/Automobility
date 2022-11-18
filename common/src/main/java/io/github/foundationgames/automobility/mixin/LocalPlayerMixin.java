@@ -1,7 +1,7 @@
 package io.github.foundationgames.automobility.mixin;
 
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import io.github.foundationgames.automobility.intermediary.Intermediary;
+import io.github.foundationgames.automobility.platform.Platform;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,13 +19,13 @@ public class LocalPlayerMixin {
     public void automobility$setAutomobileInputs(CallbackInfo ci) {
         LocalPlayer self = (LocalPlayer)(Object)this;
         if (self.getVehicle() instanceof AutomobileEntity vehicle) {
-            if (Intermediary.get().inControllerMode()) {
+            if (Platform.get().inControllerMode()) {
                 vehicle.provideClientInput(
-                        Intermediary.get().controllerAccel(),
-                        Intermediary.get().controllerBrake(),
+                        Platform.get().controllerAccel(),
+                        Platform.get().controllerBrake(),
                         input.left,
                         input.right,
-                        Intermediary.get().controllerDrift()
+                        Platform.get().controllerDrift()
                 );
             } else {
                 vehicle.provideClientInput(

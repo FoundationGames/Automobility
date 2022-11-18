@@ -2,13 +2,14 @@
 
 ### A Minecraft mod adding customizable vehicles.
 
-## Available for Fabric/Quilt
+## Available for Fabric/Quilt/Forge
 - Requires **[Fabric API](https://modrinth.com/mod/fabric-api)** (Fabric) or **[QSL](https://modrinth.com/mod/qsl)** (Quilt)
+- Neither are required for Forge
 
 **Support for old versions is NOT PLANNED.**
 
 ## Getting Started
-- **Recipes:** Crafting recipes can be viewed using [**EMI**](https://www.curseforge.com/minecraft/mc-mods/emi).
+- **Recipes:** Crafting recipes can be viewed using [**EMI**](https://www.curseforge.com/minecraft/mc-mods/emi) (Fabric/Quilt) or [**JEI**](https://www.curseforge.com/minecraft/mc-mods/jei) (Forge).
 - **Automobile Parts:** Craft an Auto Mechanic Table. Use the GUI to craft the frame, engine, and wheels for your automobile. You can optionally craft an attachment.
 - **Building your Automobile:** Craft an Automobile Assembler, as well as a Crowbar. Place parts on the assembler until the vehicle is complete. Use a crowbar to destroy the vehicle. After building, add your attachments.
 
@@ -19,13 +20,13 @@
 - W - Accelerate
 - S - Brake/Reverse/Burnout
 - A/D - Steer left/right
-- Space - Drift
+- Space - Drift/Deploy
 
-**Controller Support:** when using [MidnightControls](https://www.curseforge.com/minecraft/mc-mods/midnightcontrols), you will be able to control automobiles with the following default controls:
+**Controller Support (*Fabric and Quilt Exclusive*):** when using [MidnightControls](https://www.curseforge.com/minecraft/mc-mods/midnightcontrols), you will be able to control automobiles with the following default controls:
 - A - Accelerate
 - B - Brake/Reverse
 - LStick - Steer left/right
-- RTrigger - Drift
+- RTrigger - Drift/Deploy
 
 ![Driving](./md/driving.png)
 

@@ -1,5 +1,6 @@
 {
 	"ambientocclusion": false,
+    "render_type": "translucent",
     "textures": {
         "particle": "automobility:block/launch_gel",
         "gel": "automobility:block/launch_gel"

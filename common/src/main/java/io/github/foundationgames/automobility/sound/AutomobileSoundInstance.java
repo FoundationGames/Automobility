@@ -69,7 +69,7 @@ public abstract class AutomobileSoundInstance extends AbstractTickableSoundInsta
 
     public static class EngineSound extends AutomobileSoundInstance {
         public EngineSound(Minecraft client, AutomobileEntity automobile) {
-            super(automobile.getEngine().sound(), client, automobile);
+            super(automobile.getEngine().sound().get(), client, automobile);
         }
 
         @Override
@@ -90,7 +90,7 @@ public abstract class AutomobileSoundInstance extends AbstractTickableSoundInsta
 
     public static class SkiddingSound extends AutomobileSoundInstance {
         public SkiddingSound(Minecraft client, AutomobileEntity automobile) {
-            super(AutomobilitySounds.SKID, client, automobile);
+            super(AutomobilitySounds.SKID.require(), client, automobile);
         }
 
         @Override

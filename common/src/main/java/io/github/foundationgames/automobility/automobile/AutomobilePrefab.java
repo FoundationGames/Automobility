@@ -6,7 +6,7 @@ import net.minecraft.world.item.ItemStack;
 
 public record AutomobilePrefab(ResourceLocation id, AutomobileFrame frame, AutomobileWheel wheel, AutomobileEngine engine) {
     public ItemStack toStack() {
-        var stack = new ItemStack(AutomobilityItems.AUTOMOBILE);
+        var stack = new ItemStack(AutomobilityItems.AUTOMOBILE.require());
         var automobile = stack.getOrCreateTagElement("Automobile");
         automobile.putString("frame", frame().getId().toString());
         automobile.putString("wheels", wheel().getId().toString());

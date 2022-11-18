@@ -16,7 +16,7 @@ import io.github.foundationgames.automobility.automobile.render.RenderableAutomo
 import io.github.foundationgames.automobility.block.AutomobileAssemblerBlock;
 import io.github.foundationgames.automobility.block.LaunchGelBlock;
 import io.github.foundationgames.automobility.block.OffRoadBlock;
-import io.github.foundationgames.automobility.intermediary.Intermediary;
+import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.item.AutomobileInteractable;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import io.github.foundationgames.automobility.particle.AutomobilityParticles;
@@ -322,7 +322,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     public AutomobileEntity(Level world) {
-        this(AutomobilityEntities.AUTOMOBILE, world);
+        this(AutomobilityEntities.AUTOMOBILE.require(), world);
     }
 
     @Override
@@ -676,7 +676,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     public ItemStack asPrefabItem() {
-        var stack = new ItemStack(AutomobilityItems.AUTOMOBILE);
+        var stack = new ItemStack(AutomobilityItems.AUTOMOBILE.require());
         var automobile = stack.getOrCreateTagElement("Automobile");
         automobile.putString("frame", frame.getId().toString());
         automobile.putString("wheels", wheels.getId().toString());
@@ -930,7 +930,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             double knockSpeed = ((-0.2 * hSpeed) - 0.5);
             addedVelocity = addedVelocity.add(Math.sin(angle) * knockSpeed, 0, Math.cos(angle) * knockSpeed);
 
-            level.playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.COLLISION, SoundSource.AMBIENT, 0.76f, 0.65f + (0.06f * (this.level.random.nextFloat() - 0.5f)), true);
+            level.playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.COLLISION.require(), SoundSource.AMBIENT, 0.76f, 0.65f + (0.06f * (this.level.random.nextFloat() - 0.5f)), true);
         }
 
         double yDisp = position().subtract(this.lastPosForDisplacement).y();
@@ -1242,13 +1242,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                         .xRot((float) Math.toRadians(this.displacement.currAngularX))
                         .zRot((float) Math.toRadians(this.displacement.currAngularZ))
                         .yRot((float) Math.toRadians(-this.getYRot())).scale(0.0625).add(0, 0.4, 0);
-                level.addParticle(AutomobilityParticles.DRIFT_SMOKE, origin.x + pos.x, origin.y + pos.y, origin.z + pos.z, 0, 0, 0);
+                level.addParticle(AutomobilityParticles.DRIFT_SMOKE.require(), origin.x + pos.x, origin.y + pos.y, origin.z + pos.z, 0, 0, 0);
             }
         }
     }
 
     private static boolean inLockedViewMode() {
-        return Intermediary.get().inControllerMode();
+        return Platform.get().inControllerMode();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -1338,10 +1338,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     private void dropParts(Vec3 pos) {
-        level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_FRAME.createStack(this.getFrame())));
-        level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_ENGINE.createStack(this.getEngine())));
+        level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_FRAME.require().createStack(this.getFrame())));
+        level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_ENGINE.require().createStack(this.getEngine())));
 
-        var wheelStack = AutomobilityItems.AUTOMOBILE_WHEEL.createStack(this.getWheels());
+        var wheelStack = AutomobilityItems.AUTOMOBILE_WHEEL.require().createStack(this.getWheels());
         wheelStack.setCount(this.getFrame().model().wheelBase().wheelCount);
         level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, wheelStack));
     }
@@ -1350,7 +1350,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         if (drop) {
             var dropPos = this.rearAttachment.pos();
             level.addFreshEntity(new ItemEntity(level, dropPos.x, dropPos.y, dropPos.z,
-                    AutomobilityItems.REAR_ATTACHMENT.createStack(this.getRearAttachmentType())));
+                    AutomobilityItems.REAR_ATTACHMENT.require().createStack(this.getRearAttachmentType())));
         }
         this.setRearAttachment(RearAttachmentType.EMPTY);
     }
@@ -1359,7 +1359,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         if (drop) {
             var dropPos = this.frontAttachment.pos();
             level.addFreshEntity(new ItemEntity(level, dropPos.x, dropPos.y, dropPos.z,
-                    AutomobilityItems.FRONT_ATTACHMENT.createStack(this.getFrontAttachmentType())));
+                    AutomobilityItems.FRONT_ATTACHMENT.require().createStack(this.getFrontAttachmentType())));
         }
         this.setFrontAttachment(FrontAttachmentType.EMPTY);
     }
@@ -1391,7 +1391,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
 
         var stack = player.getItemInHand(hand);
-        if ((!this.decorative || player.isCreative()) && stack.is(AutomobilityItems.CROWBAR)) {
+        if ((!this.decorative || player.isCreative()) && stack.is(AutomobilityItems.CROWBAR.require())) {
             double playerAngle = Math.toDegrees(Math.atan2(player.getZ() - this.getZ(), player.getX() - this.getX()));
             double angleDiff = Mth.wrapDegrees(this.getYRot() - playerAngle);
 
@@ -1532,7 +1532,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     public void bounce() {
         suspensionBounceTimer = 3;
-        level.playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.LANDING, SoundSource.AMBIENT, 1, 1.5f + (0.15f * (this.level.random.nextFloat() - 0.5f)), true);
+        level.playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.LANDING.require(), SoundSource.AMBIENT, 1, 1.5f + (0.15f * (this.level.random.nextFloat() - 0.5f)), true);
     }
 
     public static final class Displacement {

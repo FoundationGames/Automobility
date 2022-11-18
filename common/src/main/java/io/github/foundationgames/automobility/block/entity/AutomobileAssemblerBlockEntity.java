@@ -65,7 +65,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     protected final AutomobileStats stats = new AutomobileStats();
 
     public AutomobileAssemblerBlockEntity(BlockPos pos, BlockState state) {
-        super(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER_ENTITY, pos, state);
+        super(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER_ENTITY.require(), pos, state);
     }
 
     @Override
@@ -133,7 +133,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
         // Returns success on the server since the client is never 100% confident that the action was valid
         // Subsequent handling is performed with the action result
 
-        if (stack.is(AutomobilityItems.CROWBAR)) {
+        if (stack.is(AutomobilityItems.CROWBAR.require())) {
             if (!level.isClientSide()) {
                 this.dropParts();
                 this.partChanged();
@@ -184,7 +184,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
                 }
             }
         }
-        if (!this.level.isClientSide() && stack.is(AutomobilityItems.FRONT_ATTACHMENT) || stack.is(AutomobilityItems.REAR_ATTACHMENT)) {
+        if (!this.level.isClientSide() && stack.is(AutomobilityItems.FRONT_ATTACHMENT.require()) || stack.is(AutomobilityItems.REAR_ATTACHMENT.require())) {
             player.displayClientMessage(AutomobileAssemblerBlock.INCOMPLETE_AUTOMOBILE_DIALOG, true);
         }
 
@@ -238,10 +238,10 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     public void dropParts() {
         var pos = this.centerPos();
 
-        this.level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_FRAME.createStack(this.getFrame())));
-        this.level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_ENGINE.createStack(this.getEngine())));
+        this.level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_FRAME.require().createStack(this.getFrame())));
+        this.level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, AutomobilityItems.AUTOMOBILE_ENGINE.require().createStack(this.getEngine())));
 
-        var wheelStack = AutomobilityItems.AUTOMOBILE_WHEEL.createStack(this.getWheels());
+        var wheelStack = AutomobilityItems.AUTOMOBILE_WHEEL.require().createStack(this.getWheels());
         wheelStack.setCount(this.wheelCount);
         this.level.addFreshEntity(new ItemEntity(level, pos.x, pos.y, pos.z, wheelStack));
 

@@ -38,7 +38,7 @@ public class AutoMechanicTableScreenHandler extends AbstractContainerMenu {
     }
 
     public AutoMechanicTableScreenHandler(int syncId, Inventory playerInv, ContainerLevelAccess ctx) {
-        super(Automobility.AUTO_MECHANIC_SCREEN, syncId);
+        super(Automobility.AUTO_MECHANIC_SCREEN.require("Auto mechanic screen not registered!"), syncId);
         this.world = playerInv.player.getLevel();
         this.context = ctx;
         this.inputInv = new SimpleContainer(9) {
@@ -124,7 +124,7 @@ public class AutoMechanicTableScreenHandler extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(this.context, player, AutomobilityBlocks.AUTO_MECHANIC_TABLE);
+        return stillValid(this.context, player, AutomobilityBlocks.AUTO_MECHANIC_TABLE.require());
     }
 
     @Override

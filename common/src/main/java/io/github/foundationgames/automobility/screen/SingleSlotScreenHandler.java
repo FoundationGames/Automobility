@@ -17,7 +17,7 @@ public class SingleSlotScreenHandler extends AbstractContainerMenu {
     }
 
     public SingleSlotScreenHandler(int syncId, Inventory playerInv, Container inv) {
-        super(Automobility.SINGLE_SLOT_SCREEN, syncId);
+        super(Automobility.SINGLE_SLOT_SCREEN.require("Single slot screen not registered!"), syncId);
 
         checkContainerSize(inv, 1);
         this.inventory = inv;

@@ -14,12 +14,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public record AutomobileEngine(
         ResourceLocation id,
         float torque,
         float speed,
-        SoundEvent sound,
+        Supplier<SoundEvent> sound,
         EngineModel model
 ) implements AutomobileComponent<AutomobileEngine> {
     public static final ResourceLocation ID = Automobility.rl("engine");
@@ -27,14 +28,14 @@ public record AutomobileEngine(
 
     public static final AutomobileEngine EMPTY = REGISTRY.register(
             new AutomobileEngine(Automobility.rl("empty"), 0.01f, 0.01f,
-                    SoundEvents.MINECART_INSIDE,
+                    () -> SoundEvents.MINECART_INSIDE,
                     new EngineModel(new ResourceLocation("empty"), Automobility.rl("empty"))
             )
     );
 
     public static final AutomobileEngine STONE = REGISTRY.register(
             new AutomobileEngine(Automobility.rl("stone"), 0.3f, 0.58f,
-                    AutomobilitySounds.STONE_ENGINE,
+                    AutomobilitySounds.STONE_ENGINE::require,
                     new EngineModel(
                             Automobility.rl("textures/entity/automobile/engine/stone.png"), Automobility.rl("engine_stone"),
                             new AutomobileEngine.ExhaustPos(0, 7f, -8.3f, 50, 0)
@@ -44,7 +45,7 @@ public record AutomobileEngine(
 
     public static final AutomobileEngine IRON = REGISTRY.register(
             new AutomobileEngine(Automobility.rl("iron"), 0.5f, 0.75f,
-                    AutomobilitySounds.IRON_ENGINE,
+                    AutomobilitySounds.IRON_ENGINE::require,
                     new EngineModel(
                             Automobility.rl("textures/entity/automobile/engine/iron.png"), Automobility.rl("engine_iron"),
                             new AutomobileEngine.ExhaustPos(-3.5f, 5.4f, -8, 26, 0),
@@ -55,7 +56,7 @@ public record AutomobileEngine(
 
     public static final AutomobileEngine COPPER = REGISTRY.register(
             new AutomobileEngine(Automobility.rl("copper"), 0.375f, 0.68f,
-                    AutomobilitySounds.COPPER_ENGINE,
+                    AutomobilitySounds.COPPER_ENGINE::require,
                     new EngineModel(
                             Automobility.rl("textures/entity/automobile/engine/copper.png"), Automobility.rl("engine_copper"),
                             new AutomobileEngine.ExhaustPos(2, 1.625f, -8.95f, 26, 0)
@@ -65,7 +66,7 @@ public record AutomobileEngine(
 
     public static final AutomobileEngine GOLD = REGISTRY.register(
             new AutomobileEngine(Automobility.rl("gold"), 0.8f, 0.75f,
-                    AutomobilitySounds.GOLD_ENGINE,
+                    AutomobilitySounds.GOLD_ENGINE::require,
                     new EngineModel(
                             Automobility.rl("textures/entity/automobile/engine/gold.png"), Automobility.rl("engine_gold"),
                             new AutomobileEngine.ExhaustPos(4, 9.3f, -7.75f, 26, 0),
@@ -76,7 +77,7 @@ public record AutomobileEngine(
 
     public static final AutomobileEngine DIAMOND = REGISTRY.register(
             new AutomobileEngine(Automobility.rl("diamond"), 0.95f, 0.85f,
-                    AutomobilitySounds.DIAMOND_ENGINE,
+                    AutomobilitySounds.DIAMOND_ENGINE::require,
                     new EngineModel(
                             Automobility.rl("textures/entity/automobile/engine/diamond.png"), Automobility.rl("engine_diamond"),
                             new AutomobileEngine.ExhaustPos(3, 3.8f, -7.6f, 40, 0),
@@ -89,7 +90,7 @@ public record AutomobileEngine(
 
     public static final AutomobileEngine CREATIVE = REGISTRY.register(
             new AutomobileEngine(Automobility.rl("creative"), 1f, 1f,
-                    AutomobilitySounds.CREATIVE_ENGINE,
+                    AutomobilitySounds.CREATIVE_ENGINE::require,
                     new EngineModel(
                             Automobility.rl("textures/entity/automobile/engine/creative.png"), Automobility.rl("engine_creative"),
                             new AutomobileEngine.ExhaustPos(0, 7, -7, 90, 0)

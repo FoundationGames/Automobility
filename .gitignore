@@ -3,9 +3,13 @@
 .gradle/
 common/.gradle/
 fabric/.gradle/
+forge/.gradle/
+
 build/
 common/build/
 fabric/build/
+forge/build/
+
 out/
 classes/
 
@@ -35,3 +39,4 @@ bin/
 run/
 common/run/
 fabric/run/
+forge/run/

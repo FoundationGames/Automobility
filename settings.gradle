@@ -12,4 +12,4 @@ pluginManagement {
 }
 
 rootProject.name = "Automobility"
-include("common", "fabric")
+include("common", "fabric", "forge")

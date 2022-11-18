@@ -1,7 +1,7 @@
 package io.github.foundationgames.automobility.item;
 
 import io.github.foundationgames.automobility.automobile.AutomobileComponent;
-import io.github.foundationgames.automobility.intermediary.Intermediary;
+import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.util.FloatFunc;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.ChatFormatting;
@@ -85,7 +85,7 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
 
     @OnlyIn(Dist.CLIENT)
     public void registerItemRenderer(Function<T, Model> modelProvider, Function<T, ResourceLocation> textureProvider, FloatFunc<T> scaleProvider) {
-        Intermediary.get().builtinItemRenderer(this, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
+        Platform.get().builtinItemRenderer(this, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
             var component = this.getComponent(stack);
             if (this.renders(component)) {
                 var model = modelProvider.apply(component);

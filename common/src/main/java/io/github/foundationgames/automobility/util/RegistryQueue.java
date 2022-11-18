@@ -6,14 +6,16 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class RegistryQueue<V> extends ArrayList<RegistryQueue.Entry<V>> {
     private static final Map<Registry<?>, RegistryQueue<?>> QUEUES = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    public static <V, E extends V> E register(Registry<V> registry, ResourceLocation rl, E entry) {
-        QUEUES.computeIfAbsent(registry, reg -> new RegistryQueue<V>()).add((Entry) new Entry<V>(entry, rl));
-        return entry;
+    public static <V, E extends V> Eventual<E> register(Registry<V> registry, ResourceLocation rl, Supplier<E> entry) {
+        var result = new Eventual<>(entry);
+        QUEUES.computeIfAbsent(registry, reg -> new RegistryQueue<V>()).add((Entry) new Entry<>(result, rl));
+        return result;
     }
 
     @SuppressWarnings("unchecked")
@@ -21,5 +23,5 @@ public class RegistryQueue<V> extends ArrayList<RegistryQueue.Entry<V>> {
         return (RegistryQueue<V>) QUEUES.get(registry);
     }
 
-    public record Entry<V> (V entry, ResourceLocation rl) {}
+    public record Entry<V> (Eventual<V> entry, ResourceLocation rl) {}
 }

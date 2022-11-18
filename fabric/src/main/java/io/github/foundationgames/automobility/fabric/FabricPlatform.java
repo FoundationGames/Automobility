@@ -2,7 +2,7 @@ package io.github.foundationgames.automobility.fabric;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.foundationgames.automobility.fabric.util.midnightcontrols.ControllerUtils;
-import io.github.foundationgames.automobility.intermediary.Intermediary;
+import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.util.HexCons;
 import io.github.foundationgames.automobility.util.TriCons;
 import io.github.foundationgames.automobility.util.TriFunc;
@@ -65,11 +65,11 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class FabricIntermediary implements Intermediary {
-    private static final FabricIntermediary INSTANCE = new FabricIntermediary();
+public class FabricPlatform implements Platform {
+    private static final FabricPlatform INSTANCE = new FabricPlatform();
 
     public static void init() {
-        Intermediary.init(INSTANCE);
+        Platform.init(INSTANCE);
     }
 
     @Override
@@ -98,16 +98,6 @@ public class FabricIntermediary implements Intermediary {
     }
 
     @Override
-    public void blockColorProvider(BlockColor color, Block... blocks) {
-        ColorProviderRegistry.BLOCK.register(color, blocks);
-    }
-
-    @Override
-    public void itemColorProvider(ItemColor color, Item... items) {
-        ColorProviderRegistry.ITEM.register(color, items);
-    }
-
-    @Override
     public <T extends BlockEntity> BlockEntityType<T> blockEntity(BiFunction<BlockPos, BlockState, T> factory, Block... blocks) {
         return FabricBlockEntityTypeBuilder.create(factory::apply, blocks).build();
     }
@@ -128,15 +118,15 @@ public class FabricIntermediary implements Intermediary {
     }
 
     @Override
-    public void serverReceivePacket(ResourceLocation rl, TriCons<MinecraftServer, ServerPlayer, FriendlyByteBuf> andThen) {
+    public void serverReceivePacket(ResourceLocation rl, TriCons<MinecraftServer, ServerPlayer, FriendlyByteBuf> run) {
         ServerPlayNetworking.registerGlobalReceiver(rl, (server, player, handler, buf, responseSender) ->
-                andThen.accept(server, player, buf));
+                run.accept(server, player, buf));
     }
 
     @Override
-    public void clientReceivePacket(ResourceLocation rl, BiConsumer<Minecraft, FriendlyByteBuf> andThen) {
+    public void clientReceivePacket(ResourceLocation rl, BiConsumer<Minecraft, FriendlyByteBuf> run) {
         ClientPlayNetworking.registerGlobalReceiver(rl, (client, handler, buf, responseSender) ->
-                andThen.accept(client, buf));
+                run.accept(client, buf));
     }
 
     @Override
@@ -157,11 +147,6 @@ public class FabricIntermediary implements Intermediary {
     @Override
     public SimpleParticleType simpleParticleType(boolean z) {
         return FabricParticleTypes.simple(z);
-    }
-
-    @Override
-    public <T extends ParticleOptions> void particleFactory(ParticleType<T> type, Function<SpriteSet, ParticleProvider<T>> factory) {
-        ParticleFactoryRegistry.getInstance().register(type, factory::apply);
     }
 
     @Override

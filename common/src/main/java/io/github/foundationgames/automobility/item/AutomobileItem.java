@@ -37,7 +37,7 @@ public class AutomobileItem extends Item {
         if (!context.getLevel().isClientSide()) {
             var stack = context.getItemInHand();
             data.read(stack.getOrCreateTagElement("Automobile"));
-            var e = new AutomobileEntity(AutomobilityEntities.AUTOMOBILE, context.getLevel());
+            var e = new AutomobileEntity(AutomobilityEntities.AUTOMOBILE.require(), context.getLevel());
             var pos = context.getClickLocation();
             e.moveTo(pos.x, pos.y, pos.z, context.getHorizontalDirection().toYRot(), 0);
             e.setComponents(data.getFrame(), data.getWheel(), data.getEngine());

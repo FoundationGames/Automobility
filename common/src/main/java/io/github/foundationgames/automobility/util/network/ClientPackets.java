@@ -9,7 +9,7 @@ import io.github.foundationgames.automobility.automobile.attachment.RearAttachme
 import io.github.foundationgames.automobility.automobile.attachment.rear.BannerPostRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.ExtendableRearAttachment;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import io.github.foundationgames.automobility.intermediary.Intermediary;
+import io.github.foundationgames.automobility.platform.Platform;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -26,17 +26,17 @@ public enum ClientPackets {;
         buf.writeBoolean(right);
         buf.writeBoolean(space);
         buf.writeInt(entity.getId());
-        Intermediary.get().clientSendPacket(Automobility.rl("sync_automobile_inputs"), buf);
+        Platform.get().clientSendPacket(Automobility.rl("sync_automobile_inputs"), buf);
     }
 
     public static void requestSyncAutomobileComponentsPacket(AutomobileEntity entity) {
         var buf = new FriendlyByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
-        Intermediary.get().clientSendPacket(Automobility.rl("request_sync_automobile_components"), buf);
+        Platform.get().clientSendPacket(Automobility.rl("request_sync_automobile_components"), buf);
     }
 
     public static void initClient() {
-        Intermediary.get().clientReceivePacket(Automobility.rl("sync_automobile_data"), (client, buf) -> {
+        Platform.get().clientReceivePacket(Automobility.rl("sync_automobile_data"), (client, buf) -> {
             FriendlyByteBuf dup = new FriendlyByteBuf(buf.copy());
             int entityId = dup.readInt();
             client.execute(() -> {
@@ -45,7 +45,7 @@ public enum ClientPackets {;
                 }
             });
         });
-        Intermediary.get().clientReceivePacket(Automobility.rl("sync_automobile_components"), (client, buf) -> {
+        Platform.get().clientReceivePacket(Automobility.rl("sync_automobile_components"), (client, buf) -> {
             int entityId = buf.readInt();
             var frame = AutomobileFrame.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
             var wheel = AutomobileWheel.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
@@ -56,7 +56,7 @@ public enum ClientPackets {;
                 }
             });
         });
-        Intermediary.get().clientReceivePacket(Automobility.rl("sync_automobile_attachments"), (client, buf) -> {
+        Platform.get().clientReceivePacket(Automobility.rl("sync_automobile_attachments"), (client, buf) -> {
             int entityId = buf.readInt();
             var rearAtt = RearAttachmentType.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
             var frontAtt = FrontAttachmentType.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
@@ -67,7 +67,7 @@ public enum ClientPackets {;
                 }
             });
         });
-        Intermediary.get().clientReceivePacket(Automobility.rl("update_banner_post"), (client, buf) -> {
+        Platform.get().clientReceivePacket(Automobility.rl("update_banner_post"), (client, buf) -> {
             int entityId = buf.readInt();
             var banner = buf.readNbt();
             client.execute(() -> {
@@ -77,7 +77,7 @@ public enum ClientPackets {;
                 }
             });
         });
-        Intermediary.get().clientReceivePacket(Automobility.rl("update_extendable_attachment"), (client, buf) -> {
+        Platform.get().clientReceivePacket(Automobility.rl("update_extendable_attachment"), (client, buf) -> {
             int entityId = buf.readInt();
             boolean extended = buf.readBoolean();
             client.execute(() -> {

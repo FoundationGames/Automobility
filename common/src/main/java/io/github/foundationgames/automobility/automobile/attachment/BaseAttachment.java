@@ -63,7 +63,7 @@ public abstract class BaseAttachment<T extends AutomobileComponent<T>> {
         }
 
         for (int i = 0; i < 4; i++) {
-            if (world().getBlockState(this.automobile.blockPosition().below(i)).is(AutomobilityBlocks.ALLOW)) {
+            if (world().getBlockState(this.automobile.blockPosition().below(i)).is(AutomobilityBlocks.ALLOW.require())) {
                 return true;
             }
         }

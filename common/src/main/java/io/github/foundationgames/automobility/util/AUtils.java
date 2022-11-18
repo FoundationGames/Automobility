@@ -196,11 +196,11 @@ public enum AUtils {;
     }
 
     public static ItemStack createGroupIcon() {
-        return new ItemStack(AutomobilityItems.CROWBAR);
+        return new ItemStack(AutomobilityItems.CROWBAR.require());
     }
 
     public static ItemStack createCourseElementsIcon() {
-        return new ItemStack(AutomobilityBlocks.SLOPED_DASH_PANEL);
+        return new ItemStack(AutomobilityBlocks.SLOPED_DASH_PANEL.require());
     }
 
     public static ItemStack createPrefabsIcon() {

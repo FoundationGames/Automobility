@@ -10,8 +10,9 @@ import io.github.foundationgames.automobility.automobile.attachment.FrontAttachm
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.automobile.render.AutomobileRenderer;
 import io.github.foundationgames.automobility.automobile.render.item.ItemRenderableAutomobile;
-import io.github.foundationgames.automobility.intermediary.Intermediary;
+import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.util.EntityRenderHelper;
+import io.github.foundationgames.automobility.util.Eventual;
 import io.github.foundationgames.automobility.util.RegistryQueue;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.ChatFormatting;
@@ -27,15 +28,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public enum AutomobilityItems {;
-    public static final Item CROWBAR = register("crowbar", new TooltipItem(Component.translatable("tooltip.item.automobility.crowbar").withStyle(ChatFormatting.BLUE), new Item.Properties().stacksTo(1).tab(Automobility.GROUP)));
-    public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Properties().stacksTo(1).tab(Automobility.PREFABS)));
-    public static final AutomobileFrameItem AUTOMOBILE_FRAME = register("automobile_frame", new AutomobileFrameItem(new Item.Properties().stacksTo(16).tab(Automobility.GROUP)));
-    public static final AutomobileWheelItem AUTOMOBILE_WHEEL = register("automobile_wheel", new AutomobileWheelItem(new Item.Properties().tab(Automobility.GROUP)));
-    public static final AutomobileEngineItem AUTOMOBILE_ENGINE = register("automobile_engine", new AutomobileEngineItem(new Item.Properties().stacksTo(16).tab(Automobility.GROUP)));
-    public static final FrontAttachmentItem FRONT_ATTACHMENT = register("front_attachment", new FrontAttachmentItem(new Item.Properties().stacksTo(1).tab(Automobility.GROUP)));
-    public static final RearAttachmentItem REAR_ATTACHMENT = register("rear_attachment", new RearAttachmentItem(new Item.Properties().stacksTo(1).tab(Automobility.GROUP)));
+    public static final Eventual<Item> CROWBAR = register("crowbar", () -> new TooltipItem(Component.translatable("tooltip.item.automobility.crowbar").withStyle(ChatFormatting.BLUE), new Item.Properties().stacksTo(1).tab(Automobility.GROUP)));
+    public static final Eventual<Item> AUTOMOBILE = register("automobile", () -> new AutomobileItem(new Item.Properties().stacksTo(1).tab(Automobility.PREFABS)));
+    public static final Eventual<AutomobileFrameItem> AUTOMOBILE_FRAME = register("automobile_frame", () -> new AutomobileFrameItem(new Item.Properties().stacksTo(16).tab(Automobility.GROUP)));
+    public static final Eventual<AutomobileWheelItem> AUTOMOBILE_WHEEL = register("automobile_wheel", () -> new AutomobileWheelItem(new Item.Properties().tab(Automobility.GROUP)));
+    public static final Eventual<AutomobileEngineItem> AUTOMOBILE_ENGINE = register("automobile_engine", () -> new AutomobileEngineItem(new Item.Properties().stacksTo(16).tab(Automobility.GROUP)));
+    public static final Eventual<FrontAttachmentItem> FRONT_ATTACHMENT = register("front_attachment", () -> new FrontAttachmentItem(new Item.Properties().stacksTo(1).tab(Automobility.GROUP)));
+    public static final Eventual<RearAttachmentItem> REAR_ATTACHMENT = register("rear_attachment", () -> new RearAttachmentItem(new Item.Properties().stacksTo(1).tab(Automobility.GROUP)));
 
     public static void init() {
         AutomobileItem.addPrefabs(
@@ -91,7 +93,7 @@ public enum AutomobilityItems {;
             rearAttModelPool.clear();
         });
 
-        Intermediary.get().builtinItemRenderer(AUTOMOBILE, (stack, type, pose, buffers, light, overlay) -> {
+        Platform.get().builtinItemRenderer(AUTOMOBILE.require(), (stack, type, pose, buffers, light, overlay) -> {
             if (cachedCtx != null) {
                 reader.read(stack.getOrCreateTagElement("Automobile"));
                 float wheelDist = reader.getFrame().model().lengthPx() / 16;
@@ -101,23 +103,23 @@ public enum AutomobilityItems {;
                 AutomobileRenderer.render(pose, buffers, light, overlay, Minecraft.getInstance().getFrameTime(), cachedCtx, itemAutomobile);
             }
         });
-        AUTOMOBILE_FRAME.registerItemRenderer(
+        AUTOMOBILE_FRAME.require().registerItemRenderer(
                 pooledModelProvider(t -> t.model().model().apply(cachedCtx), frameModelPool),
                 t -> t.model().texture(), t -> 1 / ((t.model().lengthPx() / 16) * 0.77f)
         );
-        AUTOMOBILE_WHEEL.registerItemRenderer(
+        AUTOMOBILE_WHEEL.require().registerItemRenderer(
                 pooledModelProvider(t -> t.model().model().apply(cachedCtx), wheelModelPool),
                 t -> t.model().texture(), t -> 6 / t.model().radius()
         );
-        AUTOMOBILE_ENGINE.registerItemRenderer(
+        AUTOMOBILE_ENGINE.require().registerItemRenderer(
                 pooledModelProvider(t -> t.model().model().apply(cachedCtx), engineModelPool),
                 t -> t.model().texture(), t -> 1
         );
-        REAR_ATTACHMENT.registerItemRenderer(
+        REAR_ATTACHMENT.require().registerItemRenderer(
                 pooledModelProvider(t -> t.model().model().apply(cachedCtx), rearAttModelPool),
                 t -> t.model().texture(), t -> 1
         );
-        FRONT_ATTACHMENT.registerItemRenderer(
+        FRONT_ATTACHMENT.require().registerItemRenderer(
                 pooledModelProvider(t -> t.model().model().apply(cachedCtx), frontAttModelPool),
                 t -> t.model().texture(), t -> t.model().scale()
         );
@@ -134,7 +136,7 @@ public enum AutomobilityItems {;
         };
     }
 
-    public static <T extends Item> T register(String name, T item) {
+    public static <T extends Item> Eventual<T> register(String name, Supplier<T> item) {
         return RegistryQueue.register(Registry.ITEM, Automobility.rl(name), item);
     }
 }

@@ -31,7 +31,8 @@ import io.github.foundationgames.automobility.automobile.render.wheel.StandardWh
 import io.github.foundationgames.automobility.automobile.render.wheel.SteelWheelModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.TractorWheelModel;
 import io.github.foundationgames.automobility.entity.render.AutomobileEntityRenderer;
-import io.github.foundationgames.automobility.intermediary.Intermediary;
+import io.github.foundationgames.automobility.platform.Platform;
+import io.github.foundationgames.automobility.util.Eventual;
 import io.github.foundationgames.automobility.util.RegistryQueue;
 import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
@@ -43,9 +44,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public enum AutomobilityEntities {;
-    public static final EntityType<AutomobileEntity> AUTOMOBILE = RegistryQueue.register(Registry.ENTITY_TYPE,
+    public static final Eventual<EntityType<AutomobileEntity>> AUTOMOBILE = RegistryQueue.register(Registry.ENTITY_TYPE,
             Automobility.rl("automobile"),
-            Intermediary.get().entityType(MobCategory.MISC, AutomobileEntity::new, new EntityDimensions(1f, 0.66f, true), 3, 10)
+            () -> Platform.get().entityType(MobCategory.MISC, AutomobileEntity::new, new EntityDimensions(1f, 0.66f, true), 3, 10)
     );
 
     public static final TagKey<EntityType<?>> DASH_PANEL_BOOSTABLES = TagKey.create(Registry.ENTITY_TYPE_REGISTRY, Automobility.rl("dash_panel_boostables"));
@@ -57,9 +58,9 @@ public enum AutomobilityEntities {;
 
     @OnlyIn(Dist.CLIENT)
     public static void initClient() {
-        var libs = Intermediary.get();
+        var libs = Platform.get();
 
-        libs.entityRenderer(AUTOMOBILE, AutomobileEntityRenderer::new);
+        libs.entityRenderer(AUTOMOBILE.require(), AutomobileEntityRenderer::new);
 
         libs.modelLayer(StandardFrameModel.MODEL_LAYER);
         libs.modelLayer(TractorFrameModel.MODEL_LAYER);
