@@ -12,7 +12,6 @@ import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.Registry;
 
 public class AutomobilityClientFabric implements ClientModInitializer {
     @Override
@@ -30,7 +29,7 @@ public class AutomobilityClientFabric implements ClientModInitializer {
             }
         });
 
-        ColorProviderRegistry.BLOCK.register(AutomobilityBlocks.GRASS_COLOR, AutomobilityBlocks.GRASS_OFF_ROAD.require());
-        ColorProviderRegistry.ITEM.register(AutomobilityBlocks.GRASS_ITEM_COLOR, AutomobilityBlocks.GRASS_OFF_ROAD.require());
+        ColorProviderRegistry.BLOCK.register(AutomobilityClient.GRASS_COLOR, AutomobilityBlocks.GRASS_OFF_ROAD.require());
+        ColorProviderRegistry.ITEM.register(AutomobilityClient.GRASS_ITEM_COLOR, AutomobilityBlocks.GRASS_OFF_ROAD.require());
     }
 }

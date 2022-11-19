@@ -37,16 +37,6 @@ public interface RenderableAutomobile {
         return this.getFrontAttachment().type;
     }
 
-    Model getFrameModel(EntityRendererProvider.Context ctx);
-
-    Model getWheelModel(EntityRendererProvider.Context ctx);
-
-    Model getEngineModel(EntityRendererProvider.Context ctx);
-
-    Model getRearAttachmentModel(EntityRendererProvider.Context ctx);
-
-    Model getFrontAttachmentModel(EntityRendererProvider.Context ctx);
-
     float getAutomobileYaw(float tickDelta);
 
     float getRearAttachmentYaw(float tickDelta);

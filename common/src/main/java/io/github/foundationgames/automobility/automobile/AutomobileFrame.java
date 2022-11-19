@@ -1,16 +1,10 @@
 package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
-import io.github.foundationgames.automobility.render.AutomobilityModels;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public record AutomobileFrame(
         ResourceLocation id,
@@ -256,10 +250,5 @@ public record AutomobileFrame(
             float enginePosUp,
             float rearAttachmentPos,
             float frontAttachmentPos
-    ) {
-        @OnlyIn(Dist.CLIENT)
-        public Function<EntityRendererProvider.Context, Model> model() {
-            return AutomobilityModels.MODELS.get(modelId);
-        }
-    }
+    ) {}
 }

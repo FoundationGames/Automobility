@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
 public class EmptyModel extends Model {
-    public EmptyModel(EntityRendererProvider.Context ctx) {
+    public EmptyModel() {
         super(RenderType::entitySolid);
     }
 

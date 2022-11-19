@@ -12,17 +12,11 @@ import io.github.foundationgames.automobility.automobile.attachment.rear.PaverRe
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.BlockRearAttachment;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import io.github.foundationgames.automobility.render.AutomobilityModels;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public record RearAttachmentType<T extends RearAttachment>(
         ResourceLocation id, BiFunction<RearAttachmentType<T>, AutomobileEntity, T> constructor, RearAttachmentModel model
@@ -105,10 +99,5 @@ public record RearAttachmentType<T extends RearAttachment>(
         return entry;
     }
 
-    public record RearAttachmentModel(ResourceLocation texture, ResourceLocation modelId, float pivotDistPx) {
-        @OnlyIn(Dist.CLIENT)
-        public Function<EntityRendererProvider.Context, Model> model() {
-            return AutomobilityModels.MODELS.get(modelId);
-        }
-    }
+    public record RearAttachmentModel(ResourceLocation texture, ResourceLocation modelId, float pivotDistPx) {}
 }

@@ -2,32 +2,24 @@ package io.github.foundationgames.automobility.block;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.block.entity.AutomobileAssemblerBlockEntity;
-import io.github.foundationgames.automobility.block.entity.render.AutomobileAssemblerBlockEntityRenderer;
-import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.item.SlopeBlockItem;
 import io.github.foundationgames.automobility.item.SteepSlopeBlockItem;
 import io.github.foundationgames.automobility.item.TooltipBlockItem;
+import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.Eventual;
 import io.github.foundationgames.automobility.util.RegistryQueue;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.color.block.BlockColor;
-import net.minecraft.client.color.item.ItemColor;
-import net.minecraft.client.renderer.BiomeColors;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.GrassColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -52,20 +44,9 @@ public enum AutomobilityBlocks {;
     public static final Eventual<BlockEntityType<AutomobileAssemblerBlockEntity>> AUTOMOBILE_ASSEMBLER_ENTITY = RegistryQueue.register(Registry.BLOCK_ENTITY_TYPE,
             Automobility.rl("automobile_assembler"), () -> Platform.get().blockEntity(AutomobileAssemblerBlockEntity::new, AUTOMOBILE_ASSEMBLER.require()));
 
-    public static final BlockColor GRASS_COLOR = (state, world, pos, tintIndex) -> world != null && pos != null ? BiomeColors.getAverageGrassColor(world, pos) : GrassColor.get(0.5D, 1.0D);
-    public static final ItemColor GRASS_ITEM_COLOR = (stack, tintIndex) -> GrassColor.get(0.5D, 1.0D);
-
     public static void init() {
         RegistryQueue.register(Registry.ITEM, Automobility.rl("sloped_dash_panel"), () -> new SlopeBlockItem(null, SLOPED_DASH_PANEL.require(), new Item.Properties().tab(Automobility.COURSE_ELEMENTS)));
         RegistryQueue.register(Registry.ITEM, Automobility.rl("steep_sloped_dash_panel"), () -> new SteepSlopeBlockItem(null, STEEP_SLOPED_DASH_PANEL.require(), new Item.Properties().tab(Automobility.COURSE_ELEMENTS)));
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static void initClient() {
-        Platform.get().blockRenderType(LAUNCH_GEL.require(), RenderType.translucent());
-        Platform.get().blockRenderType(AUTOMOBILE_ASSEMBLER.require(), RenderType.cutout());
-
-        Platform.get().blockEntityRenderer(AUTOMOBILE_ASSEMBLER_ENTITY.require(), AutomobileAssemblerBlockEntityRenderer::new);
     }
 
     public static Eventual<Block> register(String name, Supplier<Block> block) {

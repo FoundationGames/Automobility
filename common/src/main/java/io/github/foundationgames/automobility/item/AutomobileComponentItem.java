@@ -1,11 +1,8 @@
 package io.github.foundationgames.automobility.item;
 
 import io.github.foundationgames.automobility.automobile.AutomobileComponent;
-import io.github.foundationgames.automobility.platform.Platform;
-import io.github.foundationgames.automobility.util.FloatFunc;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.model.Model;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -14,12 +11,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Function;
 
 public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends Item {
     protected final String nbtKey;
@@ -74,26 +68,11 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    protected boolean renders(T component) {
+    public boolean isVisible(T component) {
         return !component.isEmpty();
     }
 
     protected boolean addToCreative(T component) {
         return !component.isEmpty();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void registerItemRenderer(Function<T, Model> modelProvider, Function<T, ResourceLocation> textureProvider, FloatFunc<T> scaleProvider) {
-        Platform.get().builtinItemRenderer(this, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
-            var component = this.getComponent(stack);
-            if (this.renders(component)) {
-                var model = modelProvider.apply(component);
-                float scale = scaleProvider.apply(component);
-                matrices.translate(0.5, 0, 0.5);
-                matrices.scale(scale, -scale, -scale);
-                model.renderToBuffer(matrices, vertexConsumers.getBuffer(model.renderType(textureProvider.apply(component))), light, overlay, 1, 1, 1, 1);
-            }
-        });
     }
 }

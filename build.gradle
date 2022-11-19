@@ -15,19 +15,6 @@ subprojects {
 		from("LICENSE") {
 			rename { "${it}_${project.archivesBaseName}"}
 		}
-
-		manifest {
-			attributes([
-					'Specification-Title'     : project.archives_base_name,
-					'Specification-Vendor'    : 'FoundationGames',
-					'Specification-Version'   : project.version,
-					'Implementation-Title'    : project.name,
-					'Implementation-Version'  : project.version,
-					'Implementation-Vendor'   : 'FoundationGames',
-					'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-					'Timestamp'              : System.currentTimeMillis()
-			])
-		}
 	}
 
 	repositories {

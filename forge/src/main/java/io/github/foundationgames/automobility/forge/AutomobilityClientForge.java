@@ -40,11 +40,11 @@ public class AutomobilityClientForge {
 
     @SubscribeEvent
     public static void registerBlockColors(RegisterColorHandlersEvent.Block evt) {
-        evt.register(AutomobilityBlocks.GRASS_COLOR, AutomobilityBlocks.GRASS_OFF_ROAD.require());
+        evt.register(AutomobilityClient.GRASS_COLOR, AutomobilityBlocks.GRASS_OFF_ROAD.require());
     }
 
     @SubscribeEvent
     public static void registerItemColors(RegisterColorHandlersEvent.Item evt) {
-        evt.register(AutomobilityBlocks.GRASS_ITEM_COLOR, AutomobilityBlocks.GRASS_OFF_ROAD.require());
+        evt.register(AutomobilityClient.GRASS_ITEM_COLOR, AutomobilityBlocks.GRASS_OFF_ROAD.require());
     }
 }

@@ -5,8 +5,6 @@ import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileStats;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
-import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
-import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.automobile.attachment.front.FrontAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
@@ -17,8 +15,6 @@ import io.github.foundationgames.automobility.item.AutomobileEngineItem;
 import io.github.foundationgames.automobility.item.AutomobileFrameItem;
 import io.github.foundationgames.automobility.item.AutomobileWheelItem;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
-import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -41,21 +37,12 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AutomobileAssemblerBlockEntity extends BlockEntity implements RenderableAutomobile {
-    @OnlyIn(Dist.CLIENT) private Model frameModel = null;
-    @OnlyIn(Dist.CLIENT) private Model engineModel = null;
-    @OnlyIn(Dist.CLIENT) private Model wheelModel = null;
-    @OnlyIn(Dist.CLIENT) private Model emptyRearAttModel = null;
-    @OnlyIn(Dist.CLIENT) private Model emptyFrontAttModel = null;
-    private boolean componentsUpdated = true;
-
     protected AutomobileFrame frame = AutomobileFrame.EMPTY;
     protected AutomobileEngine engine = AutomobileEngine.EMPTY;
     protected AutomobileWheel wheel = AutomobileWheel.EMPTY;
@@ -91,36 +78,6 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     @Override
     public @Nullable FrontAttachment getFrontAttachment() {
         return null;
-    }
-
-    @Override
-    public Model getFrameModel(EntityRendererProvider.Context ctx) {
-        if (this.componentsUpdated) this.frameModel = this.frame.model().model().apply(ctx);
-        return this.frameModel;
-    }
-
-    @Override
-    public Model getWheelModel(EntityRendererProvider.Context ctx) {
-        if (this.componentsUpdated) this.wheelModel = this.wheel.model().model().apply(ctx);
-        return this.wheelModel;
-    }
-
-    @Override
-    public Model getEngineModel(EntityRendererProvider.Context ctx) {
-        if (this.componentsUpdated) this.engineModel = this.engine.model().model().apply(ctx);
-        return this.engineModel;
-    }
-
-    @Override
-    public Model getRearAttachmentModel(EntityRendererProvider.Context ctx) {
-        if (this.componentsUpdated) this.emptyRearAttModel = RearAttachmentType.EMPTY.model().model().apply(ctx);
-        return this.emptyRearAttModel;
-    }
-
-    @Override
-    public Model getFrontAttachmentModel(EntityRendererProvider.Context ctx) {
-        if (this.componentsUpdated) this.emptyFrontAttModel = FrontAttachmentType.EMPTY.model().model().apply(ctx);
-        return this.emptyFrontAttModel;
     }
 
     private void partChanged() {
@@ -260,8 +217,6 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     }
 
     private void onComponentsUpdated() {
-        this.componentsUpdated = true;
-
         if (level == null || level.isClientSide()) {
             this.label.clear();
             if (this.hasAllParts()) {

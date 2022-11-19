@@ -1,33 +1,17 @@
 package io.github.foundationgames.automobility.item;
 
 import io.github.foundationgames.automobility.Automobility;
-import io.github.foundationgames.automobility.automobile.AutomobileData;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobilePrefab;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
-import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
-import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
-import io.github.foundationgames.automobility.automobile.render.AutomobileRenderer;
-import io.github.foundationgames.automobility.automobile.render.item.ItemRenderableAutomobile;
-import io.github.foundationgames.automobility.platform.Platform;
-import io.github.foundationgames.automobility.util.EntityRenderHelper;
 import io.github.foundationgames.automobility.util.Eventual;
 import io.github.foundationgames.automobility.util.RegistryQueue;
-import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public enum AutomobilityItems {;
@@ -74,66 +58,6 @@ public enum AutomobilityItems {;
                 new AutomobilePrefab(Automobility.rl("c_arr"), AutomobileFrame.C_ARR, AutomobileWheel.OFF_ROAD, AutomobileEngine.DIAMOND),
                 new AutomobilePrefab(Automobility.rl("pineapple"), AutomobileFrame.PINEAPPLE, AutomobileWheel.TRACTOR, AutomobileEngine.GOLD)
         );
-    }
-
-    @OnlyIn(Dist.CLIENT) private static EntityRendererProvider.Context cachedCtx;
-    @OnlyIn(Dist.CLIENT) private static final Map<AutomobileFrame, Model> frameModelPool = new HashMap<>();
-    @OnlyIn(Dist.CLIENT) private static final Map<AutomobileWheel, Model> wheelModelPool = new HashMap<>();
-    @OnlyIn(Dist.CLIENT) private static final Map<AutomobileEngine, Model> engineModelPool = new HashMap<>();
-    @OnlyIn(Dist.CLIENT) private static final Map<RearAttachmentType<?>, Model> rearAttModelPool = new HashMap<>();
-    @OnlyIn(Dist.CLIENT) private static final Map<FrontAttachmentType<?>, Model> frontAttModelPool = new HashMap<>();
-
-    private static final AutomobileData reader = new AutomobileData();
-
-    @OnlyIn(Dist.CLIENT)
-    public static void initClient() {
-        var itemAutomobile = new ItemRenderableAutomobile(reader);
-        EntityRenderHelper.registerContextListener(ctx -> {
-            cachedCtx = ctx;
-            rearAttModelPool.clear();
-        });
-
-        Platform.get().builtinItemRenderer(AUTOMOBILE.require(), (stack, type, pose, buffers, light, overlay) -> {
-            if (cachedCtx != null) {
-                reader.read(stack.getOrCreateTagElement("Automobile"));
-                float wheelDist = reader.getFrame().model().lengthPx() / 16;
-                float scale = 1;
-                scale /= wheelDist * 0.77f;
-                pose.scale(scale, scale, scale);
-                AutomobileRenderer.render(pose, buffers, light, overlay, Minecraft.getInstance().getFrameTime(), cachedCtx, itemAutomobile);
-            }
-        });
-        AUTOMOBILE_FRAME.require().registerItemRenderer(
-                pooledModelProvider(t -> t.model().model().apply(cachedCtx), frameModelPool),
-                t -> t.model().texture(), t -> 1 / ((t.model().lengthPx() / 16) * 0.77f)
-        );
-        AUTOMOBILE_WHEEL.require().registerItemRenderer(
-                pooledModelProvider(t -> t.model().model().apply(cachedCtx), wheelModelPool),
-                t -> t.model().texture(), t -> 6 / t.model().radius()
-        );
-        AUTOMOBILE_ENGINE.require().registerItemRenderer(
-                pooledModelProvider(t -> t.model().model().apply(cachedCtx), engineModelPool),
-                t -> t.model().texture(), t -> 1
-        );
-        REAR_ATTACHMENT.require().registerItemRenderer(
-                pooledModelProvider(t -> t.model().model().apply(cachedCtx), rearAttModelPool),
-                t -> t.model().texture(), t -> 1
-        );
-        FRONT_ATTACHMENT.require().registerItemRenderer(
-                pooledModelProvider(t -> t.model().model().apply(cachedCtx), frontAttModelPool),
-                t -> t.model().texture(), t -> t.model().scale()
-        );
-    }
-
-    private static <T extends SimpleMapContentRegistry.Identifiable> Function<T, Model> pooledModelProvider(Function<T, Model> provider, Map<T, Model> pool) {
-        return t -> {
-            if (!pool.containsKey(t)) {
-                var model = provider.apply(t);
-                pool.put(t, model);
-                return model;
-            }
-            return pool.get(t);
-        };
     }
 
     public static <T extends Item> Eventual<T> register(String name, Supplier<T> item) {

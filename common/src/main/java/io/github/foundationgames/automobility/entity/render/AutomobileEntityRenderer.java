@@ -11,11 +11,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
-    private final EntityRendererProvider.Context ctx;
-
     public AutomobileEntityRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
-        this.ctx = ctx;
     }
 
     @Override
@@ -33,7 +30,7 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
         pose.translate(0, offsetY, 0);
         pose.mulPose(Quaternion.fromXYZ((float) Math.toRadians(angX), 0, (float) Math.toRadians(angZ)));
 
-        AutomobileRenderer.render(pose, buffers, light, OverlayTexture.NO_OVERLAY, tickDelta, ctx, entity);
+        AutomobileRenderer.render(pose, buffers, light, OverlayTexture.NO_OVERLAY, tickDelta, entity);
         pose.popPose();
     }
 }

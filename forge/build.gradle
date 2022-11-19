@@ -57,6 +57,7 @@ sourceSets.main.resources.srcDir 'src/generated/resources'
 
 dependencies {
     minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     compileOnly project(':common')
 }
@@ -74,7 +75,7 @@ processResources {
     from project(":common").sourceSets.main.resources
 
     inputs.property 'version', project.version
-    filesMatching('mods.toml') {
+    filesMatching('META-INF/mods.toml') {
         expand 'version': project.version
     }
 }

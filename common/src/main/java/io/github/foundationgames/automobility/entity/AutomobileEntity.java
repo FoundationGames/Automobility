@@ -66,8 +66,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -80,6 +78,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public class AutomobileEntity extends Entity implements RenderableAutomobile, EntityWithInventory {
+    public static Consumer<AutomobileEntity> engineSound = e -> {};
+    public static Consumer<AutomobileEntity> skidSound = e -> {};
+
     private static final EntityDataAccessor<Float> REAR_ATTACHMENT_YAW = SynchedEntityData.defineId(AutomobileEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> REAR_ATTACHMENT_ANIMATION = SynchedEntityData.defineId(AutomobileEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> FRONT_ATTACHMENT_ANIMATION = SynchedEntityData.defineId(AutomobileEntity.class, EntityDataSerializers.FLOAT);
@@ -91,17 +92,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private FrontAttachment frontAttachment;
 
     private final AutomobileStats stats = new AutomobileStats();
-
-    @OnlyIn(Dist.CLIENT)
-    private Model frameModel = null;
-    @OnlyIn(Dist.CLIENT)
-    private Model wheelModel = null;
-    @OnlyIn(Dist.CLIENT)
-    private Model engineModel = null;
-    @OnlyIn(Dist.CLIENT)
-    private @Nullable Model rearAttachmentModel = null;
-    @OnlyIn(Dist.CLIENT)
-    private @Nullable Model frontAttachmentModel = null;
 
     public static final int SMALL_TURBO_TIME = 35;
     public static final int MEDIUM_TURBO_TIME = 70;
@@ -247,8 +237,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         despawnTime = nbt.getInt("despawnTime");
         despawnCountdown = nbt.getInt("despawnCountdown");
         decorative = nbt.getBoolean("decorative");
-
-        updateModels = true;
     }
 
     @Override
@@ -310,9 +298,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         d = d >> 0b1;
         accelerating = (1 & d) > 0;
     }
-
-    @OnlyIn(Dist.CLIENT)
-    public boolean updateModels = true;
 
     public AutomobileEntity(EntityType<?> type, Level world) {
         super(type, world);
@@ -434,7 +419,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     private void setDrifting(boolean drifting) {
         if (this.level.isClientSide() && !this.drifting && drifting) {
-            playSkiddingSound();
+            skidSound.accept(this);
         }
 
         this.drifting = drifting;
@@ -442,7 +427,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     private void setBurningOut(boolean burningOut) {
         if (this.level.isClientSide() && !this.drifting && !this.burningOut && burningOut) {
-            playSkiddingSound();
+            skidSound.accept(this);
         }
 
         this.burningOut = burningOut;
@@ -468,7 +453,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 this.getPassengers().get(1).stopRiding();
             }
 
-            this.updateModels = true;
             syncAttachments();
         }
     }
@@ -483,7 +467,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             }
             this.frontAttachment = frontAttachment.constructor().apply(frontAttachment, this);
 
-            this.updateModels = true;
             syncAttachments();
         }
     }
@@ -492,7 +475,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         this.frame = frame;
         this.wheels = wheel;
         this.engine = engine;
-        this.updateModels = true;
         this.maxUpStep = wheels.size();
         this.stats.from(frame, wheel, engine);
         this.displacement.applyWheelbase(frame.model().wheelBase());
@@ -533,22 +515,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         this.vSpeed = vertical;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private void playEngineSound() {
-        if (this.getEngine().isEmpty()) {
-            return;
-        }
-
-        var client = Minecraft.getInstance();
-        client.getSoundManager().play(new AutomobileSoundInstance.EngineSound(client, this));
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void playSkiddingSound() {
-        var client = Minecraft.getInstance();
-        client.getSoundManager().play(new AutomobileSoundInstance.SkiddingSound(client, this));
-    }
-
     @Override
     public void tick() {
         boolean first = this.firstTick;
@@ -557,7 +523,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         lastWheelAngle = wheelAngle;
 
         if (!this.wasEngineRunning && this.engineRunning() && this.level.isClientSide()) {
-            playEngineSound();
+            engineSound.accept(this);
         }
         this.wasEngineRunning = this.engineRunning();
 
@@ -1117,7 +1083,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         return (1 / ((300 * speed) + (18.5f - (stats.getAcceleration() * 5.3f)))) * (0.9f * ((stats.getAcceleration() + 1) / 2));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void provideClientInput(boolean fwd, boolean back, boolean left, boolean right, boolean space) {
         // Receives inputs client-side and sends them to the server
         if (!(
@@ -1249,49 +1214,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     private static boolean inLockedViewMode() {
         return Platform.get().inControllerMode();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void updateModels(EntityRendererProvider.Context ctx) {
-        if (updateModels) {
-            this.frameModel = frame.model().model().apply(ctx);
-            this.wheelModel = wheels.model().model().apply(ctx);
-            this.engineModel = engine.model().model().apply(ctx);
-            this.rearAttachmentModel = this.rearAttachment.type.model().model().apply(ctx);
-            this.frontAttachmentModel = this.frontAttachment.type.model().model().apply(ctx);
-
-            updateModels = false;
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Model getWheelModel(EntityRendererProvider.Context ctx) {
-        updateModels(ctx);
-        return wheelModel;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Model getFrameModel(EntityRendererProvider.Context ctx) {
-        updateModels(ctx);
-        return frameModel;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Model getEngineModel(EntityRendererProvider.Context ctx) {
-        updateModels(ctx);
-        return engineModel;
-    }
-
-    @Override
-    public @Nullable Model getRearAttachmentModel(EntityRendererProvider.Context ctx) {
-        updateModels(ctx);
-        return rearAttachmentModel;
-    }
-
-    @Override
-    public @Nullable Model getFrontAttachmentModel(EntityRendererProvider.Context ctx) {
-        updateModels(ctx);
-        return frontAttachmentModel;
     }
 
     @Override

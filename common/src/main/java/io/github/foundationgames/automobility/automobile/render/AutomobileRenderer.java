@@ -16,21 +16,16 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 
 public enum AutomobileRenderer {;
-    private static Model skidEffectModel;
-    private static Model exhaustFumesModel;
-
     public static void render(
-            PoseStack pose, MultiBufferSource buffers, int light, int overlay, float tickDelta,
-            EntityRendererProvider.Context ctx, RenderableAutomobile automobile
+            PoseStack pose, MultiBufferSource buffers, int light, int overlay,
+            float tickDelta, RenderableAutomobile automobile
     ) {
         var frame = automobile.getFrame();
         var wheels = automobile.getWheels();
         var engine = automobile.getEngine();
 
-        if (skidEffectModel == null || exhaustFumesModel == null) {
-            skidEffectModel = new SkidEffectModel(ctx);
-            exhaustFumesModel = new ExhaustFumesModel(ctx);
-        }
+        var skidEffectModel = AutomobileModels.getModel(AutomobileModels.SKID_EFFECT);
+        var exhaustFumesModel = AutomobileModels.getModel(AutomobileModels.EXHAUST_FUMES);
 
         pose.pushPose();
 
@@ -40,11 +35,11 @@ public enum AutomobileRenderer {;
         float chassisRaise = wheels.model().radius() / 16;
         float bounce = automobile.getSuspensionBounce(tickDelta) * 0.048f;
 
-        var frameModel = automobile.getFrameModel(ctx);
-        var wheelModel = automobile.getWheelModel(ctx);
-        var engineModel = automobile.getEngineModel(ctx);
-        var rearAttachmentModel = automobile.getRearAttachmentModel(ctx);
-        var frontAttachmentModel = automobile.getFrontAttachmentModel(ctx);
+        var frameModel = AutomobileModels.getModel(automobile.getFrame().model().modelId());
+        var wheelModel = AutomobileModels.getModel(automobile.getWheels().model().modelId());
+        var engineModel = AutomobileModels.getModel(automobile.getEngine().model().modelId());
+        var rearAttachmentModel = AutomobileModels.getModel(automobile.getRearAttachmentType().model().modelId());
+        var frontAttachmentModel = AutomobileModels.getModel(automobile.getFrontAttachmentType().model().modelId());
 
         pose.translate(0, -chassisRaise, 0);
 

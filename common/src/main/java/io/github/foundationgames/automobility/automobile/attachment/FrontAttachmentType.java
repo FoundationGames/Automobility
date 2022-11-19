@@ -9,17 +9,11 @@ import io.github.foundationgames.automobility.automobile.attachment.front.FrontA
 import io.github.foundationgames.automobility.automobile.attachment.front.GrassCutterFrontAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.front.MobControllerFrontAttachment;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import io.github.foundationgames.automobility.render.AutomobilityModels;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public record FrontAttachmentType<T extends FrontAttachment>(
         ResourceLocation id, BiFunction<FrontAttachmentType<T>, AutomobileEntity, T> constructor, FrontAttachmentModel model
@@ -70,10 +64,5 @@ public record FrontAttachmentType<T extends FrontAttachment>(
         return entry;
     }
 
-    public record FrontAttachmentModel(ResourceLocation texture, ResourceLocation modelId, float scale) {
-        @OnlyIn(Dist.CLIENT)
-        public Function<EntityRendererProvider.Context, Model> model() {
-            return AutomobilityModels.MODELS.get(modelId);
-        }
-    }
+    public record FrontAttachmentModel(ResourceLocation texture, ResourceLocation modelId, float scale) {}
 }
