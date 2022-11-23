@@ -1,17 +1,21 @@
 ![Automobility](./md/banner.png)
 
 ### A Minecraft mod adding customizable vehicles.
+**Automobility is currently in BETA!** <br/>
+The mod isn't feature-complete, and any feature requests would be greatly appreciated. Discuss features on the mod's GitHub Discussions page, or in the [Discord](https://discord.gg/7Aw3y4RtY9).
 
-## Available for Fabric/Quilt/Forge
+## Available for Fabric/Quilt and Forge
 - Requires **[Fabric API](https://modrinth.com/mod/fabric-api)** (Fabric) or **[QSL](https://modrinth.com/mod/qsl)** (Quilt)
-- Neither are required for Forge
+- No additional mods required for Forge
 
-**Support for old versions is NOT PLANNED.**
+**Currently maintained for version 1.19.2, older versions are retired.**
 
 ## Getting Started
 - **Recipes:** Crafting recipes can be viewed using [**EMI**](https://www.curseforge.com/minecraft/mc-mods/emi) (Fabric/Quilt) or [**JEI**](https://www.curseforge.com/minecraft/mc-mods/jei) (Forge).
 - **Automobile Parts:** Craft an Auto Mechanic Table. Use the GUI to craft the frame, engine, and wheels for your automobile. You can optionally craft an attachment.
-- **Building your Automobile:** Craft an Automobile Assembler, as well as a Crowbar. Place parts on the assembler until the vehicle is complete. Use a crowbar to destroy the vehicle. After building, add your attachments.
+- **Building your Automobile:** Craft an Automobile Assembler, as well as a Crowbar. Place parts on the assembler until the vehicle is complete. Use a crowbar to destroy the vehicle.
+- **Enhancing your Automobile:** Use your Auto Mechanic Table to craft attachments, which can be placed on your Automobile to add exciting functionality or utility.
+- **Building:** You can use Slopes, Dash Panels, Off-Road tiles and more to build roads, racetracks, or obstacle courses.
 
 ![Automobile Construction](./md/construction.png)
 ![Automobile Types](./md/parking.png)

@@ -16,20 +16,16 @@ import io.github.foundationgames.automobility.automobile.render.RenderableAutomo
 import io.github.foundationgames.automobility.block.AutomobileAssemblerBlock;
 import io.github.foundationgames.automobility.block.LaunchGelBlock;
 import io.github.foundationgames.automobility.block.OffRoadBlock;
-import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.item.AutomobileInteractable;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import io.github.foundationgames.automobility.particle.AutomobilityParticles;
+import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.screen.AutomobileContainerLevelAccess;
-import io.github.foundationgames.automobility.sound.AutomobileSoundInstance;
 import io.github.foundationgames.automobility.sound.AutomobilitySounds;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.duck.CollisionArea;
 import io.github.foundationgames.automobility.util.network.ClientPackets;
 import io.github.foundationgames.automobility.util.network.CommonPackets;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.Model;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
 import net.minecraft.nbt.CompoundTag;
@@ -364,7 +360,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     @Override
     public boolean engineRunning() {
-        return isVehicle();
+        return this.boostTimer > 0 || isVehicle();
     }
 
     @Override

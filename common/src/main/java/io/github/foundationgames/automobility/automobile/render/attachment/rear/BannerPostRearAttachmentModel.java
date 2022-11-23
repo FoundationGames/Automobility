@@ -6,9 +6,6 @@ import com.mojang.datafixers.util.Pair;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.attachment.rear.BannerPostRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -19,6 +16,9 @@ import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BannerPattern;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class BannerPostRearAttachmentModel extends RearAttachmentRenderModel {
     public static final ModelLayerLocation MODEL_LAYER = new ModelLayerLocation(Automobility.rl("automobile/rear_attachment/banner_post"), "main");

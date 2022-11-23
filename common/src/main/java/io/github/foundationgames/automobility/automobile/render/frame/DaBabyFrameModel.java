@@ -2,9 +2,6 @@ package io.github.foundationgames.automobility.automobile.render.frame;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-// import dev.monarkhes.myron.api.Myron;
-import io.github.foundationgames.automobility.Automobility;
-import io.github.foundationgames.automobility.util.AUtils;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

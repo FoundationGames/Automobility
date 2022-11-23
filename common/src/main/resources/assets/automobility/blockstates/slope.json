@@ -1,0 +1,36 @@
+{
+  "variants": {
+    "half=bottom,facing=west": {
+      "model": "automobility:block/slope_bottom",
+      "y": 270
+    },
+    "half=bottom,facing=east": {
+      "model": "automobility:block/slope_bottom",
+      "y": 90
+    },
+    "half=bottom,facing=south": {
+      "model": "automobility:block/slope_bottom",
+      "y": 180
+    },
+    "half=bottom,facing=north": {
+      "model": "automobility:block/slope_bottom",
+      "y": 0
+    },
+    "half=top,facing=west": {
+      "model": "automobility:block/slope_top",
+      "y": 270
+    },
+    "half=top,facing=east": {
+      "model": "automobility:block/slope_top",
+      "y": 90
+    },
+    "half=top,facing=south": {
+      "model": "automobility:block/slope_top",
+      "y": 180
+    },
+    "half=top,facing=north": {
+      "model": "automobility:block/slope_top",
+      "y": 0
+    }
+  }
+}

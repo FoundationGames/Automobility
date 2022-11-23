@@ -2,7 +2,6 @@ package io.github.foundationgames.automobility.automobile.attachment.front;
 
 import io.github.foundationgames.automobility.automobile.attachment.BaseAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
-import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.util.AUtils;
 import net.minecraft.nbt.CompoundTag;

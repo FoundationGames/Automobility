@@ -1,9 +1,10 @@
 package io.github.foundationgames.automobility.automobile;
 
-import java.util.List;
-import java.util.function.Consumer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 public interface StatContainer<C extends StatContainer<C>> {
     ResourceLocation containerId();

@@ -1,4 +1,4 @@
-package io.github.foundationgames.automobility.mixin;
+package io.github.foundationgames.automobility.fabric.mixin;
 
 import com.google.gson.JsonObject;
 import net.minecraft.util.GsonHelper;

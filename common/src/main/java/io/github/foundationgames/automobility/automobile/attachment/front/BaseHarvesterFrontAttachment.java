@@ -2,7 +2,6 @@ package io.github.foundationgames.automobility.automobile.attachment.front;
 
 import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -10,6 +9,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 public abstract class BaseHarvesterFrontAttachment extends FrontAttachment {
     private final BlockPos.MutableBlockPos blockIter = new BlockPos.MutableBlockPos();

@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "ABA"
+    ],
+    "key": {
+        "A": {
+            "item": "minecraft:snow_block"
+        },
+        "B": {
+            "item": "minecraft:gravel"
+        }
+    },
+    "result": {
+        "item": "automobility:snow_off_road",
+        "count": 6
+    }
+}

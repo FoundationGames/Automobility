@@ -1,0 +1,18 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "ABA"
+    ],
+    "key": {
+        "A": {
+            "item": "minecraft:slime_ball"
+        },
+        "B": {
+            "item": "minecraft:quartz"
+        }
+    },
+    "result": {
+        "item": "automobility:launch_gel",
+        "count": 3
+    }
+}

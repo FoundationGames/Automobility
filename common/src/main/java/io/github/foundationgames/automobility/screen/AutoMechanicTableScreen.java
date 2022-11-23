@@ -4,14 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.recipe.AutoMechanicTableRecipe;
-import org.lwjgl.glfw.GLFW;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -24,6 +16,14 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AutoMechanicTableScreen extends AbstractContainerScreen<AutoMechanicTableScreenHandler> {
     private static final ResourceLocation TEXTURE = Automobility.rl("textures/gui/container/auto_mechanic_table.png");

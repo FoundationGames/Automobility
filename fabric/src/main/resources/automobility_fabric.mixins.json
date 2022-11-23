@@ -6,6 +6,8 @@
   "mixins": [
   ],
   "client": [
+    "BlockElementDeserializerMixin",
+    "GameRendererMixin",
     "midnightcontrols.InputHandlersMixin"
   ],
   "injectors": {

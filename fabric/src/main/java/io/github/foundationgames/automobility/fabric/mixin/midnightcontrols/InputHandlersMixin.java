@@ -4,6 +4,7 @@ import eu.midnightdust.midnightcontrols.client.controller.ButtonBinding;
 import eu.midnightdust.midnightcontrols.client.controller.InputHandlers;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.fabric.util.midnightcontrols.AutomobilityMidnightControls;
+import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -12,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Arrays;
-import net.minecraft.client.Minecraft;
 
 @Pseudo
 @Mixin(value = InputHandlers.class, remap = false)

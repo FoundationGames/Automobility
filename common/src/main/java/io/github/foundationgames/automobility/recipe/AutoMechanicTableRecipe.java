@@ -1,12 +1,6 @@
 package io.github.foundationgames.automobility.recipe;
 
 import io.github.foundationgames.automobility.Automobility;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -16,6 +10,12 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class AutoMechanicTableRecipe implements Recipe<SimpleContainer>, Comparable<AutoMechanicTableRecipe> {
     public static final ResourceLocation ID = Automobility.rl("auto_mechanic_table");

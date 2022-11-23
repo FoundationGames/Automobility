@@ -43,7 +43,7 @@ public class OffRoadBlock extends Block {
 
     @Override
     public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
-        return state.getValue(LAYERS) < 3;
+        return state.getValue(LAYERS) < 3 && context.getItemInHand().is(this.asItem());
     }
 
     @Override

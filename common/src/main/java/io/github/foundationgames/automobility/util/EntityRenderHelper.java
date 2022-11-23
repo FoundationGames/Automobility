@@ -1,9 +1,10 @@
 package io.github.foundationgames.automobility.util;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
 public enum EntityRenderHelper {;
     private static final List<Consumer<EntityRendererProvider.Context>> LISTENERS = new ArrayList<>();

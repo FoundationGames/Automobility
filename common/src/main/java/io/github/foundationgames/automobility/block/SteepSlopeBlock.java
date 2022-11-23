@@ -29,10 +29,18 @@ public class SteepSlopeBlock extends HorizontalDirectionalBlock implements Simpl
     public static final VoxelShape EAST_SHAPE;
     public static final VoxelShape WEST_SHAPE;
 
+    public static final VoxelShape OLD_NORTH_SHAPE;
+    public static final VoxelShape OLD_SOUTH_SHAPE;
+    public static final VoxelShape OLD_EAST_SHAPE;
+    public static final VoxelShape OLD_WEST_SHAPE;
+
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public SteepSlopeBlock(Properties settings) {
+    protected final boolean old;
+
+    public SteepSlopeBlock(Properties settings, boolean old) {
         super(settings.noOcclusion());
+        this.old = old;
         registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(WATERLOGGED, false));
     }
 
@@ -62,17 +70,51 @@ public class SteepSlopeBlock extends HorizontalDirectionalBlock implements Simpl
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(FACING)) {
-            case NORTH -> NORTH_SHAPE;
-            case SOUTH -> SOUTH_SHAPE;
-            case WEST -> WEST_SHAPE;
-            case EAST -> EAST_SHAPE;
-            default -> Shapes.empty();
-        };
+        if (old) {
+            return switch (state.getValue(FACING)) {
+                case NORTH -> OLD_NORTH_SHAPE;
+                case SOUTH -> OLD_SOUTH_SHAPE;
+                case WEST -> OLD_WEST_SHAPE;
+                case EAST -> OLD_EAST_SHAPE;
+                default -> Shapes.empty();
+            };
+        } else {
+            return switch (state.getValue(FACING)) {
+                case NORTH -> NORTH_SHAPE;
+                case SOUTH -> SOUTH_SHAPE;
+                case WEST -> WEST_SHAPE;
+                case EAST -> EAST_SHAPE;
+                default -> Shapes.empty();
+            };
+        }
     }
 
     static {
         var shapes = new ArrayList<VoxelShape>();
+        for (var dir : AUtils.HORIZONTAL_DIRS) {
+            double ox = switch (dir) {
+                case WEST -> 0.5;
+                case EAST -> -0.5;
+                default -> 0;
+            };
+            double oz = switch (dir) {
+                case NORTH -> 0.5;
+                case SOUTH -> -0.5;
+                default -> 0;
+            };
+            var finalShape = Shapes.empty();
+            for (int j = 1; j < 32; j++) {
+                finalShape = Shapes.or(finalShape, SlopeBlock.slopeStep(dir, (j * 0.5)).move((ox * j) / 16, 0, (oz * j) / 16));
+            }
+            shapes.add(finalShape);
+        }
+        NORTH_SHAPE = shapes.get(0);
+        SOUTH_SHAPE = shapes.get(1);
+        EAST_SHAPE = shapes.get(2);
+        WEST_SHAPE = shapes.get(3);
+
+        // OLD SLOPE SHAPES
+        shapes.clear();
         for (var dir : AUtils.HORIZONTAL_DIRS) {
             double ox = switch (dir) {
                 case WEST -> 0.5;
@@ -97,9 +139,9 @@ public class SteepSlopeBlock extends HorizontalDirectionalBlock implements Simpl
             }
             shapes.add(finalShape);
         }
-        NORTH_SHAPE = shapes.get(0);
-        SOUTH_SHAPE = shapes.get(1);
-        EAST_SHAPE = shapes.get(2);
-        WEST_SHAPE = shapes.get(3);
+        OLD_NORTH_SHAPE = shapes.get(0);
+        OLD_SOUTH_SHAPE = shapes.get(1);
+        OLD_EAST_SHAPE = shapes.get(2);
+        OLD_WEST_SHAPE = shapes.get(3);
     }
 }

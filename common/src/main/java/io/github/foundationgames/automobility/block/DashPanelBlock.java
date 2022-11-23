@@ -12,6 +12,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -28,6 +29,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class DashPanelBlock extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock {
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty LEFT = BooleanProperty.create("left");
     public static final BooleanProperty RIGHT = BooleanProperty.create("right");
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -36,13 +38,20 @@ public class DashPanelBlock extends HorizontalDirectionalBlock implements Simple
 
     public DashPanelBlock(Properties settings) {
         super(settings);
-        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH).setValue(LEFT, false).setValue(RIGHT, false).setValue(WATERLOGGED, false));
+        registerDefaultState(defaultBlockState().setValue(FACING, Direction.NORTH)
+                .setValue(LEFT, false).setValue(RIGHT, false)
+                .setValue(POWERED, false).setValue(WATERLOGGED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(FACING, LEFT, RIGHT, WATERLOGGED);
+        builder.add(FACING, LEFT, RIGHT, POWERED, WATERLOGGED);
+    }
+
+    @Override
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        return level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP);
     }
 
     @Nullable
@@ -53,16 +62,27 @@ public class DashPanelBlock extends HorizontalDirectionalBlock implements Simple
 
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
-        boolean left = world.getBlockState(pos.relative(state.getValue(FACING).getCounterClockWise(Direction.Axis.Y))).is(this);
-        boolean right = world.getBlockState(pos.relative(state.getValue(FACING).getClockWise(Direction.Axis.Y))).is(this);
+        var lState = world.getBlockState(pos.relative(state.getValue(FACING).getCounterClockWise(Direction.Axis.Y)));
+        var rState = world.getBlockState(pos.relative(state.getValue(FACING).getClockWise(Direction.Axis.Y)));
+        boolean left = lState.is(this) && (lState.getValue(POWERED) == state.getValue(POWERED));
+        boolean right = rState.is(this) && (rState.getValue(POWERED) == state.getValue(POWERED));
+
         return state.setValue(LEFT, left).setValue(RIGHT, right);
     }
 
     @Override
-    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
-        super.neighborChanged(state, world, pos, block, fromPos, notify);
-        if (!world.getBlockState(pos.below()).isFaceSturdy(world, pos.below(), Direction.UP)) {
-            world.destroyBlock(pos, true);
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
+        super.neighborChanged(state, level, pos, block, fromPos, notify);
+
+        boolean levelPwr = level.hasNeighborSignal(pos);
+        boolean selfPwr = state.getValue(POWERED);
+
+        if (levelPwr != selfPwr) {
+            level.setBlockAndUpdate(pos, state.setValue(POWERED, levelPwr));
+        }
+
+        if (!canSurvive(state, level, pos)) {
+            level.destroyBlock(pos, true);
         }
     }
 
@@ -74,7 +94,7 @@ public class DashPanelBlock extends HorizontalDirectionalBlock implements Simple
     @Override
     public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
         super.entityInside(state, world, pos, entity);
-        onCollideWithDashPanel(entity);
+        onCollideWithDashPanel(state, entity);
     }
 
     @Override
@@ -82,16 +102,19 @@ public class DashPanelBlock extends HorizontalDirectionalBlock implements Simple
         return SHAPE;
     }
 
-    public static void onCollideWithDashPanel(Entity entity) {
+    public static void onCollideWithDashPanel(@Nullable BlockState panelState, Entity entity) {
+        if (panelState != null && panelState.getValue(POWERED)) {
+            return;
+        }
+
         if (entity instanceof AutomobileEntity auto) {
             auto.boost(0.45f, 50);
         } else if (entity.getType().is(AutomobilityEntities.DASH_PANEL_BOOSTABLES)) {
             if (entity instanceof LivingEntity living) {
-                living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 50, 20, true, false, false));
+                living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 6, true, false, false));
             }
-            Vec3 vel;
-            double yaw = Math.toRadians(entity.getYRot() + 180);
-            vel = new Vec3(Math.sin(yaw), 0, Math.cos(yaw));
+            double yaw = Math.toRadians(-entity.getYRot());
+            var vel = new Vec3(Math.sin(yaw), 0, Math.cos(yaw));
             entity.push(vel.x, vel.y, vel.z);
         }
     }

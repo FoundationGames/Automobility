@@ -10,6 +10,7 @@ import eu.midnightdust.midnightcontrols.client.controller.ButtonCategory;
 import eu.midnightdust.midnightcontrols.client.controller.InputManager;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import net.minecraft.client.Minecraft;
 import org.aperlambda.lambdacommon.Identifier;
 import org.aperlambda.lambdacommon.utils.function.PairPredicate;
 import org.jetbrains.annotations.NotNull;
@@ -17,9 +18,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
-import net.minecraft.client.Minecraft;
 
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER;
+import static org.lwjgl.glfw.GLFW.GLFW_GAMEPAD_BUTTON_A;
+import static org.lwjgl.glfw.GLFW.GLFW_GAMEPAD_BUTTON_B;
 
 public class AutomobilityMidnightControls implements CompatHandler {
     public static final PairPredicate<Minecraft, ButtonBinding> ON_AUTOMOBILE = (client, button) -> client.player != null && client.player.getVehicle() instanceof AutomobileEntity;

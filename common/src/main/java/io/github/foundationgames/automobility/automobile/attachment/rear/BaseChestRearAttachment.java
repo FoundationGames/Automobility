@@ -3,9 +3,6 @@ package io.github.foundationgames.automobility.automobile.attachment.rear;
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.util.duck.EnderChestContainerDuck;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.function.BiFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
@@ -21,6 +18,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestLidController;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.BiFunction;
 
 public class BaseChestRearAttachment extends BlockRearAttachment {
     public static final Component TITLE_CHEST = Component.translatable("container.chest");

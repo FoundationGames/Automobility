@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility;
 
 import io.github.foundationgames.automobility.automobile.AutomobileComponent;
 import io.github.foundationgames.automobility.automobile.AutomobileData;
+import io.github.foundationgames.automobility.automobile.render.AutomobileModels;
 import io.github.foundationgames.automobility.automobile.render.AutomobileRenderer;
 import io.github.foundationgames.automobility.automobile.render.ExhaustFumesModel;
 import io.github.foundationgames.automobility.automobile.render.SkidEffectModel;
@@ -41,7 +42,6 @@ import io.github.foundationgames.automobility.entity.render.AutomobileEntityRend
 import io.github.foundationgames.automobility.item.AutomobileComponentItem;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import io.github.foundationgames.automobility.platform.Platform;
-import io.github.foundationgames.automobility.automobile.render.AutomobileModels;
 import io.github.foundationgames.automobility.screen.AutoMechanicTableScreen;
 import io.github.foundationgames.automobility.screen.SingleSlotScreen;
 import io.github.foundationgames.automobility.sound.AutomobileSoundInstance;
@@ -52,7 +52,6 @@ import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.BiomeColors;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.GrassColor;
 
@@ -75,9 +74,6 @@ public class AutomobilityClient {
     }
 
     public static void initBlocks() {
-        Platform.get().blockRenderType(AutomobilityBlocks.LAUNCH_GEL.require(), RenderType.translucent());
-        Platform.get().blockRenderType(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER.require(), RenderType.cutout());
-
         Platform.get().blockEntityRenderer(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER_ENTITY.require(), AutomobileAssemblerBlockEntityRenderer::new);
     }
 
@@ -180,5 +176,15 @@ public class AutomobilityClient {
             var client = Minecraft.getInstance();
             client.getSoundManager().play(new AutomobileSoundInstance.SkiddingSound(client, auto));
         };
+    }
+
+    public static double modifyBoostFov(Minecraft client, double old, float tickDelta) {
+        var player = client.player;
+
+        if (player.getVehicle() instanceof AutomobileEntity auto) {
+            return old + ((Math.sqrt(auto.getBoostSpeed(tickDelta)) * 18) * client.options.fovEffectScale().get());
+        }
+
+        return old;
     }
 }

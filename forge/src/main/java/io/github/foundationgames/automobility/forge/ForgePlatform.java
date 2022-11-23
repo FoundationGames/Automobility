@@ -2,6 +2,7 @@ package io.github.foundationgames.automobility.forge;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.foundationgames.automobility.forge.client.BEWLRs;
+import io.github.foundationgames.automobility.forge.mixin.BlockColorsAccess;
 import io.github.foundationgames.automobility.forge.network.AutomobilityPacketHandler;
 import io.github.foundationgames.automobility.forge.vendored.jsonem.JsonEM;
 import io.github.foundationgames.automobility.platform.Platform;
@@ -10,13 +11,11 @@ import io.github.foundationgames.automobility.util.TriCons;
 import io.github.foundationgames.automobility.util.TriFunc;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
-import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -46,8 +45,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -87,8 +86,9 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public void blockRenderType(Block block, RenderType type) {
-        // No-op, render types are defined in block models
+    public @Nullable BlockColor blockColor(BlockState state) {
+        return ((BlockColorsAccess)Minecraft.getInstance().getBlockColors()).automobility$getForgeColorMap()
+                .get(ForgeRegistries.BLOCKS.getDelegateOrThrow(state.getBlock()));
     }
 
     @Override

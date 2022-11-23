@@ -15,9 +15,7 @@
   "client": [
     "LocalPlayerMixin",
     "MultiPlayerGameModeMixin",
-    "EntityRenderersMixin",
-    "GameRendererMixin",
-    "BlockElementDeserializerMixin"
+    "EntityRenderersMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -8,9 +8,7 @@ import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobilePrefab;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
-import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
-import java.text.DecimalFormat;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
@@ -19,6 +17,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+
+import java.text.DecimalFormat;
 
 public enum AUtils {;
     /**
@@ -197,10 +197,6 @@ public enum AUtils {;
 
     public static ItemStack createGroupIcon() {
         return new ItemStack(AutomobilityItems.CROWBAR.require());
-    }
-
-    public static ItemStack createCourseElementsIcon() {
-        return new ItemStack(AutomobilityBlocks.SLOPED_DASH_PANEL.require());
     }
 
     public static ItemStack createPrefabsIcon() {

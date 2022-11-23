@@ -1,0 +1,69 @@
+{
+  "variants": {
+    "powered=false,half=bottom,facing=west": {
+      "model": "automobility:block/slope_bottom_dash_panel",
+      "y": 270
+    },
+    "powered=false,half=bottom,facing=east": {
+      "model": "automobility:block/slope_bottom_dash_panel",
+      "y": 90
+    },
+    "powered=false,half=bottom,facing=south": {
+      "model": "automobility:block/slope_bottom_dash_panel",
+      "y": 180
+    },
+    "powered=false,half=bottom,facing=north": {
+      "model": "automobility:block/slope_bottom_dash_panel",
+      "y": 0
+    },
+    "powered=false,half=top,facing=west": {
+      "model": "automobility:block/slope_top_dash_panel",
+      "y": 270
+    },
+    "powered=false,half=top,facing=east": {
+      "model": "automobility:block/slope_top_dash_panel",
+      "y": 90
+    },
+    "powered=false,half=top,facing=south": {
+      "model": "automobility:block/slope_top_dash_panel",
+      "y": 180
+    },
+    "powered=false,half=top,facing=north": {
+      "model": "automobility:block/slope_top_dash_panel",
+      "y": 0
+    },
+
+    "powered=true,half=bottom,facing=west": {
+      "model": "automobility:block/slope_bottom_dash_panel_off",
+      "y": 270
+    },
+    "powered=true,half=bottom,facing=east": {
+      "model": "automobility:block/slope_bottom_dash_panel_off",
+      "y": 90
+    },
+    "powered=true,half=bottom,facing=south": {
+      "model": "automobility:block/slope_bottom_dash_panel_off",
+      "y": 180
+    },
+    "powered=true,half=bottom,facing=north": {
+      "model": "automobility:block/slope_bottom_dash_panel_off",
+      "y": 0
+    },
+    "powered=true,half=top,facing=west": {
+      "model": "automobility:block/slope_top_dash_panel_off",
+      "y": 270
+    },
+    "powered=true,half=top,facing=east": {
+      "model": "automobility:block/slope_top_dash_panel_off",
+      "y": 90
+    },
+    "powered=true,half=top,facing=south": {
+      "model": "automobility:block/slope_top_dash_panel_off",
+      "y": 180
+    },
+    "powered=true,half=top,facing=north": {
+      "model": "automobility:block/slope_top_dash_panel_off",
+      "y": 0
+    }
+  }
+}

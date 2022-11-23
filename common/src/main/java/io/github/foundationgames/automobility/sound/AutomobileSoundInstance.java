@@ -2,7 +2,6 @@ package io.github.foundationgames.automobility.sound;
 
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -74,7 +73,7 @@ public abstract class AutomobileSoundInstance extends AbstractTickableSoundInsta
 
         @Override
         protected boolean canPlay(AutomobileEntity automobile) {
-            return automobile.engineRunning() || automobile.getBoostTimer() > 0;
+            return automobile.engineRunning();
         }
 
         @Override

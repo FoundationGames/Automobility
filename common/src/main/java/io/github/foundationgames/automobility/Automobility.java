@@ -2,9 +2,9 @@ package io.github.foundationgames.automobility;
 
 import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.entity.AutomobilityEntities;
-import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import io.github.foundationgames.automobility.particle.AutomobilityParticles;
+import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.recipe.AutoMechanicTableRecipe;
 import io.github.foundationgames.automobility.recipe.AutoMechanicTableRecipeSerializer;
 import io.github.foundationgames.automobility.screen.AutoMechanicTableScreenHandler;
@@ -26,7 +26,6 @@ public class Automobility {
     public static final String MOD_ID = InitlessConstants.AUTOMOBILITY;
 
     public static final CreativeModeTab GROUP = Platform.get().creativeTab(rl("automobility"), AUtils::createGroupIcon);
-    public static final CreativeModeTab COURSE_ELEMENTS = Platform.get().creativeTab(rl("automobility_course_elements"), AUtils::createCourseElementsIcon);
     public static final CreativeModeTab PREFABS = Platform.get().creativeTab(rl("automobility_prefabs"), AUtils::createPrefabsIcon);
 
     public static final TagKey<Block> SLOPES = TagKey.create(Registry.BLOCK_REGISTRY, rl("slopes"));

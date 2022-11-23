@@ -2,7 +2,6 @@
   "entity.automobility.automobile": "Automobile",
 
   "itemGroup.automobility.automobility": "Automobility",
-  "itemGroup.automobility.automobility_course_elements": "Automobility: Course Elements",
   "itemGroup.automobility.automobility_prefabs": "Automobility: Prefabs",
 
   "automobility.automobility": "Automobility",
@@ -20,6 +19,7 @@
 
   "tooltip.item.automobility.crowbar": "Use on Automobile to remove",
   "tooltip.block.automobility.allow": "Let Adventure drivers harvest/plow",
+  "tooltip.block.automobility.dash_panel": "Can be placed on slopes",
 
   "container.automobility.auto_mechanic_table": "Auto Parts",
   "container.automobility.banner_post": "Banner",

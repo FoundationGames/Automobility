@@ -1,0 +1,26 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "ABA",
+        "ACA",
+        "ADA"
+    ],
+    "key": {
+        "A": {
+            "item": "minecraft:iron_ingot"
+        },
+        "B": {
+            "item": "minecraft:glow_ink_sac"
+        },
+        "C": {
+            "item": "minecraft:redstone"
+        },
+        "D": {
+            "item": "minecraft:blaze_powder"
+        }
+    },
+    "result": {
+        "item": "automobility:dash_panel",
+        "count": 2
+    }
+}

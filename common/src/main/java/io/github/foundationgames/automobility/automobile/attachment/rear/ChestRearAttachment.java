@@ -2,9 +2,6 @@ package io.github.foundationgames.automobility.automobile.attachment.rear;
 
 import io.github.foundationgames.automobility.automobile.attachment.RearAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.function.BiFunction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -21,7 +18,9 @@ import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.BiFunction;
 
 public class ChestRearAttachment extends BaseChestRearAttachment implements Container, MenuProvider {
     private NonNullList<ItemStack> inventory;

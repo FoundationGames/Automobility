@@ -5,9 +5,6 @@ import io.github.foundationgames.automobility.block.AutoMechanicTableBlock;
 import io.github.foundationgames.automobility.block.AutomobilityBlocks;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.screen.AutoMechanicTableScreenHandler;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.function.BiFunction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
@@ -20,6 +17,9 @@ import net.minecraft.world.inventory.SmithingMenu;
 import net.minecraft.world.inventory.StonecutterMenu;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.BiFunction;
 
 public class BlockRearAttachment extends RearAttachment {
     public static final Component TITLE_CRAFTING = Component.translatable("container.crafting");

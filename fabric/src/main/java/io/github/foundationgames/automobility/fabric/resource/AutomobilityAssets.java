@@ -5,10 +5,9 @@ import io.github.foundationgames.automobility.util.AUtils;
 import net.devtech.arrp.api.RRPCallback;
 import net.devtech.arrp.api.RuntimeResourcePack;
 import net.devtech.arrp.json.blockstate.JState;
-import net.devtech.arrp.json.blockstate.JVariant;
 import net.devtech.arrp.json.models.JModel;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Direction;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;

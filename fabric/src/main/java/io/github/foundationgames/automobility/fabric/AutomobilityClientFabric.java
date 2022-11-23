@@ -2,16 +2,22 @@ package io.github.foundationgames.automobility.fabric;
 
 import io.github.foundationgames.automobility.AutomobilityClient;
 import io.github.foundationgames.automobility.block.AutomobilityBlocks;
+import io.github.foundationgames.automobility.block.model.SlopeBakedModel;
+import io.github.foundationgames.automobility.block.model.SlopeUnbakedModel;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import io.github.foundationgames.automobility.fabric.block.render.FabricSlopeBakedModel;
 import io.github.foundationgames.automobility.fabric.resource.AutomobilityAssets;
 import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.particle.DriftSmokeParticle;
 import io.github.foundationgames.automobility.screen.AutomobileHud;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 
 public class AutomobilityClientFabric implements ClientModInitializer {
     @Override
@@ -31,5 +37,17 @@ public class AutomobilityClientFabric implements ClientModInitializer {
 
         ColorProviderRegistry.BLOCK.register(AutomobilityClient.GRASS_COLOR, AutomobilityBlocks.GRASS_OFF_ROAD.require());
         ColorProviderRegistry.ITEM.register(AutomobilityClient.GRASS_ITEM_COLOR, AutomobilityBlocks.GRASS_OFF_ROAD.require());
+
+        SlopeBakedModel.impl = FabricSlopeBakedModel::new;
+
+        ModelLoadingRegistry.INSTANCE.registerResourceProvider(manager -> (location, context) ->
+                SlopeUnbakedModel.DEFAULT_MODELS.containsKey(location) ? SlopeUnbakedModel.DEFAULT_MODELS.get(location).get() : null);
+
+        BlockRenderLayerMap.INSTANCE.putBlock(AutomobilityBlocks.LAUNCH_GEL.require(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER.require(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(AutomobilityBlocks.SLOPE.require(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(AutomobilityBlocks.STEEP_SLOPE.require(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(AutomobilityBlocks.SLOPE_WITH_DASH_PANEL.require(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(AutomobilityBlocks.STEEP_SLOPE_WITH_DASH_PANEL.require(), RenderType.translucent());
     }
 }

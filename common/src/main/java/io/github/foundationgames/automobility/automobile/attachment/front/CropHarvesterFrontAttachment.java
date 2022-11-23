@@ -2,14 +2,13 @@ package io.github.foundationgames.automobility.automobile.attachment.front;
 
 import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 public class CropHarvesterFrontAttachment extends BaseHarvesterFrontAttachment {
     public CropHarvesterFrontAttachment(FrontAttachmentType<?> type, AutomobileEntity automobile) {

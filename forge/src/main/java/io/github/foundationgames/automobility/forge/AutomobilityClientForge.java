@@ -2,7 +2,9 @@ package io.github.foundationgames.automobility.forge;
 
 import io.github.foundationgames.automobility.AutomobilityClient;
 import io.github.foundationgames.automobility.block.AutomobilityBlocks;
+import io.github.foundationgames.automobility.block.model.SlopeBakedModel;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import io.github.foundationgames.automobility.forge.block.render.ForgeSlopeBakedModel;
 import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.particle.DriftSmokeParticle;
 import io.github.foundationgames.automobility.screen.AutomobileHud;
@@ -12,6 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.client.event.RenderGuiEvent;
+import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,12 +28,17 @@ public class AutomobilityClientForge {
 
         AutomobilityClient.init();
 
+        SlopeBakedModel.impl = ForgeSlopeBakedModel::new;
+
         MinecraftForge.EVENT_BUS.<RenderGuiEvent.Pre>addListener(evt -> {
             var player = Minecraft.getInstance().player;
             if (player.getVehicle() instanceof AutomobileEntity auto) {
                 AutomobileHud.render(evt.getPoseStack(), player, auto, evt.getPartialTick());
             }
         });
+
+        MinecraftForge.EVENT_BUS.<ViewportEvent.ComputeFov>addListener(evt ->
+                evt.setFOV(AutomobilityClient.modifyBoostFov(Minecraft.getInstance(), evt.getFOV(), (float) evt.getPartialTick())));
     }
 
     @SubscribeEvent

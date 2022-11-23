@@ -4,7 +4,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.state.properties.Half;
-import org.jetbrains.annotations.Nullable;
 
 public class SlopePlacementContext extends BlockPlaceContext {
     private final Direction slopeFacing;

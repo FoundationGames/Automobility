@@ -9,10 +9,8 @@ import io.github.foundationgames.automobility.automobile.render.attachment.front
 import io.github.foundationgames.automobility.automobile.render.attachment.rear.RearAttachmentRenderModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.WheelContextReceiver;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 
 public enum AutomobileRenderer {;

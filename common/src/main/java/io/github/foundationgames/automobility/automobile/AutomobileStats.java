@@ -1,8 +1,9 @@
 package io.github.foundationgames.automobility.automobile;
 
 import io.github.foundationgames.automobility.Automobility;
-import java.util.function.Consumer;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.function.Consumer;
 
 public class AutomobileStats implements StatContainer<AutomobileStats> {
     public static final ResourceLocation ID = Automobility.rl("automobile");

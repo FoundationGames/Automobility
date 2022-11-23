@@ -1,6 +1,6 @@
-package io.github.foundationgames.automobility.mixin;
+package io.github.foundationgames.automobility.fabric.mixin;
 
-import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import io.github.foundationgames.automobility.AutomobilityClient;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -25,10 +25,6 @@ public class GameRendererMixin {
 
     @ModifyVariable(method = "getFov", at = @At(value = "RETURN", ordinal = 1, shift = At.Shift.BEFORE), index = 4)
     private double automobility$applyBoostFovEffect(double old) {
-        var player = minecraft.player;
-        if (player.getVehicle() instanceof AutomobileEntity auto) {
-            return old + ((auto.getBoostSpeed(tickDelta) * 18) * minecraft.options.fovEffectScale().get());
-        }
-        return old;
+        return AutomobilityClient.modifyBoostFov(minecraft, old, tickDelta);
     }
 }

@@ -6,7 +6,9 @@
   "mixins": [
   ],
   "client": [
+    "BlockColorsAccess",
     "BlockEntityWithoutLevelRendererMixin",
+    "ModelBakeryMixin",
     "jsonem.CubeDefinitionAccess",
     "jsonem.CubeDeformationAccess",
     "jsonem.EntityModelSetMixin",

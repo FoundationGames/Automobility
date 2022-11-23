@@ -4,8 +4,8 @@ import io.github.foundationgames.automobility.Automobility;
 import net.devtech.arrp.api.RRPCallback;
 import net.devtech.arrp.api.RuntimeResourcePack;
 import net.devtech.arrp.json.tags.JTag;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

@@ -5,9 +5,6 @@ import io.github.foundationgames.automobility.automobile.attachment.RearAttachme
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.screen.SingleSlotScreenHandler;
 import io.github.foundationgames.automobility.util.network.CommonPackets;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -25,6 +22,9 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BannerPattern;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class BannerPostRearAttachment extends RearAttachment {
     private static final Component UI_TITLE = Component.translatable("container.automobility.banner_post");

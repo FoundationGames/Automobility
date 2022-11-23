@@ -1,11 +1,12 @@
 package io.github.foundationgames.automobility.util;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import net.minecraft.resources.ResourceLocation;
 
 public class SimpleMapContentRegistry<V extends SimpleMapContentRegistry.Identifiable> {
     private final Map<ResourceLocation, V> entries = new Object2ObjectOpenHashMap<>();
