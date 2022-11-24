@@ -85,37 +85,37 @@ public class SlopeBakedModel implements BakedModel {
         float invRH = 1 - (rise + height);
         geo
                 // South face
+                .vertex(0, rise + height, 1, Direction.SOUTH, 0, 0, 1, sprite, 0, invRH, frameColor)
                 .vertex(0, 0, 1, Direction.SOUTH, 0, 0, 1, sprite, 0, 1, frameColor)
                 .vertex(1, 0, 1, Direction.SOUTH, 0, 0, 1, sprite, 1, 1, frameColor)
                 .vertex(1, rise + height, 1, Direction.SOUTH, 0, 0, 1, sprite, 1, invRH, frameColor)
-                .vertex(0, rise + height, 1, Direction.SOUTH, 0, 0, 1, sprite, 0, invRH, frameColor)
 
                 // Bottom face
+                .vertex(0, 0, 1, Direction.DOWN, 0, -1, 0, sprite, 0, 0, frameColor)
                 .vertex(0, 0, 0, Direction.DOWN, 0, -1, 0, sprite, 0, 1, frameColor)
                 .vertex(1, 0, 0, Direction.DOWN, 0, -1, 0, sprite, 1, 1, frameColor)
-                .vertex(1, 0, 1, Direction.DOWN, 0, -1, 0, sprite, 1, 0, frameColor)
-                .vertex(0, 0, 1, Direction.DOWN, 0, -1, 0, sprite, 0, 0, frameColor);
+                .vertex(1, 0, 1, Direction.DOWN, 0, -1, 0, sprite, 1, 0, frameColor);
 
         if (rise > 0) {
             float invR = 1 - rise;
             geo
                     // West face
+                    .vertex(0, rise, 0, Direction.WEST, -1, 0, 0, sprite, 0, invR, frameColor)
                     .vertex(0, 0, 0, Direction.WEST, -1, 0, 0, sprite, 0, 1, frameColor)
                     .vertex(0, 0, 1, Direction.WEST, -1, 0, 0, sprite, 1, 1, frameColor)
                     .vertex(0, rise, 1, Direction.WEST, -1, 0, 0, sprite, 1, invR, frameColor)
-                    .vertex(0, rise, 0, Direction.WEST, -1, 0, 0, sprite, 0, invR, frameColor)
 
                     // East face
-                    .vertex(1, rise, 0, Direction.EAST, 1, 0, 0, sprite, 0, invR, frameColor)
                     .vertex(1, rise, 1, Direction.EAST, 1, 0, 0, sprite, 1, invR, frameColor)
                     .vertex(1, 0, 1, Direction.EAST, 1, 0, 0, sprite, 1, 1, frameColor)
                     .vertex(1, 0, 0, Direction.EAST, 1, 0, 0, sprite, 0, 1, frameColor)
+                    .vertex(1, rise, 0, Direction.EAST, 1, 0, 0, sprite, 0, invR, frameColor)
 
                     // North face
-                    .vertex(0, 0, 0, Direction.NORTH, 0, 0, 1, sprite, 0, 1, frameColor)
-                    .vertex(0, rise, 0, Direction.NORTH, 0, 0, 1, sprite, 0, invR, frameColor)
                     .vertex(1, rise, 0, Direction.NORTH, 0, 0, 1, sprite, 1, invR, frameColor)
-                    .vertex(1, 0, 0, Direction.NORTH, 0, 0, 1, sprite, 1, 1, frameColor);
+                    .vertex(1, 0, 0, Direction.NORTH, 0, 0, 1, sprite, 1, 1, frameColor)
+                    .vertex(0, 0, 0, Direction.NORTH, 0, 0, 1, sprite, 0, 1, frameColor)
+                    .vertex(0, rise, 0, Direction.NORTH, 0, 0, 1, sprite, 0, invR, frameColor);
         }
     }
 
@@ -127,9 +127,9 @@ public class SlopeBakedModel implements BakedModel {
 
         geo
                 // West triangle
+                .vertex(0, rise + height, 1, Direction.WEST, -1, 0, 0, sprite, 1, invRH, color)
                 .vertex(0, rise, 0, Direction.WEST, -1, 0, 0, sprite, 0, invR, color)
                 .vertex(0, rise, 1, Direction.WEST, -1, 0, 0, sprite, 1, invR, color)
-                .vertex(0, rise + height, 1, Direction.WEST, -1, 0, 0, sprite, 1, invRH, color)
                 .vertex(0, rise + height, 1, Direction.WEST, -1, 0, 0, sprite, 1, invRH, color)
 
                 // East triangle
@@ -140,10 +140,10 @@ public class SlopeBakedModel implements BakedModel {
 
         if (top) {
             geo     // Top face
-                    .vertex(1, rise, 0, null, topNormal.x(), topNormal.y(), topNormal.z(), sprite, 0, 1, color)
                     .vertex(0, rise, 0, null, topNormal.x(), topNormal.y(), topNormal.z(), sprite, 1, 1, color)
                     .vertex(0, rise + height, 1, null, topNormal.x(), topNormal.y(), topNormal.z(), sprite, 1, 0, color)
-                    .vertex(1, rise + height, 1, null, topNormal.x(), topNormal.y(), topNormal.z(), sprite, 0, 0, color);
+                    .vertex(1, rise + height, 1, null, topNormal.x(), topNormal.y(), topNormal.z(), sprite, 0, 0, color)
+                    .vertex(1, rise, 0, null, topNormal.x(), topNormal.y(), topNormal.z(), sprite, 0, 1, color);
         }
     }
 

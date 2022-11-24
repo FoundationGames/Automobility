@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraftforge.client.model.pipeline.QuadBakingVertexConsumer;
+import net.minecraftforge.common.ForgeConfig;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class ForgeGeometryBuilder implements GeometryBuilder {
 
         this.quads = new QuadBakingVertexConsumer(quadPool::add);
         this.quads.setShade(true);
+        this.quads.setHasAmbientOcclusion(ForgeConfig.CLIENT.experimentalForgeLightPipelineEnabled.get());
     }
 
     @Override

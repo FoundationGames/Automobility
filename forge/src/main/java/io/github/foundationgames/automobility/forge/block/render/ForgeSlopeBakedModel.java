@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
+import net.minecraftforge.common.ForgeConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,5 +86,10 @@ public class ForgeSlopeBakedModel extends SlopeBakedModel {
         }
 
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean useAmbientOcclusion() {
+        return ForgeConfig.CLIENT.experimentalForgeLightPipelineEnabled.get();
     }
 }
