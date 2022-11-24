@@ -30,7 +30,7 @@ public class DashPanelItem extends TooltipBlockItem {
         var pos = ctx.getClickedPos();
         var state = lvl.getBlockState(pos);
 
-        if (state.getBlock() instanceof SlopeBlock) {
+        if (state.is(AutomobilityBlocks.SLOPE.require())) {
             if (!lvl.isClientSide()) {
                 ctx.getLevel().setBlockAndUpdate(pos, AutomobilityBlocks.SLOPE_WITH_DASH_PANEL.require()
                         .withPropertiesOf(state));
@@ -39,7 +39,7 @@ public class DashPanelItem extends TooltipBlockItem {
 
             return InteractionResult.SUCCESS;
         }
-        if (state.getBlock() instanceof SteepSlopeBlock) {
+        if (state.is(AutomobilityBlocks.STEEP_SLOPE.require())) {
             if (!lvl.isClientSide()) {
                 ctx.getLevel().setBlockAndUpdate(pos, AutomobilityBlocks.STEEP_SLOPE_WITH_DASH_PANEL.require()
                         .withPropertiesOf(state));
