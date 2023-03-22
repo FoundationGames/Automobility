@@ -2,7 +2,7 @@
   "entity.automobility.automobile": "자동차",
 
   "itemGroup.automobility.automobility": "자동차",
-  "itemGroup.automobility.automobility_prefabs": "자동차: 구조물",
+  "itemGroup.automobility.automobility_prefabs": "자동차: 프리셋",
 
   "automobility.automobility": "자동차",
   "lambdacontrols.action.automobility.accelerate_automobile": "가속",
