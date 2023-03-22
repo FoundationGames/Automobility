@@ -3,7 +3,7 @@
 
   "itemGroup.automobility.automobility": "자동차",
   "itemGroup.automobility.automobility_course_elements": "자동차: 코스 요소",
-  "itemGroup.automobility.automobility_prefabs": "자동차: 구조물",
+  "itemGroup.automobility.automobility_prefabs": "자동차: 프리셋",
 
   "automobility.automobility": "자동차",
   "midnightcontrols.action.automobility.accelerate_automobile": "가속",
