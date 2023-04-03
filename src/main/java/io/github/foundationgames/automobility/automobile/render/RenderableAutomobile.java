@@ -9,7 +9,7 @@ import io.github.foundationgames.automobility.automobile.attachment.front.FrontA
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.util.math.Vec3f;
+import org.joml.Vector3f;
 import org.jetbrains.annotations.Nullable;
 
 public interface RenderableAutomobile {
@@ -73,5 +73,5 @@ public interface RenderableAutomobile {
 
     boolean debris();
 
-    Vec3f debrisColor();
+    Vector3f debrisColor();
 }

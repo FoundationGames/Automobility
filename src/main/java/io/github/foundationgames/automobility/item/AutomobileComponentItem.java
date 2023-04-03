@@ -66,15 +66,6 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
         component.appendTexts(tooltip, component);
     }
 
-    @Override
-    public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
-        if (this.isIn(group)) {
-            this.registry.forEach(component -> {
-                if (addToCreative(component)) stacks.add(this.createStack(component));
-            });
-        }
-    }
-
     @Environment(EnvType.CLIENT)
     protected boolean renders(T component) {
         return !component.isEmpty();

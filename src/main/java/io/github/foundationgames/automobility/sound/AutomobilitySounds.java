@@ -1,8 +1,9 @@
 package io.github.foundationgames.automobility.sound;
 
 import io.github.foundationgames.automobility.Automobility;
+import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
 
 public class AutomobilitySounds {
     public static final SoundEvent COLLISION = register("entity.automobile.collision");
@@ -18,7 +19,7 @@ public class AutomobilitySounds {
 
     private static SoundEvent register(String path) {
         var id = Automobility.id(path);
-        return Registry.register(Registry.SOUND_EVENT, id, new SoundEvent(id));
+        return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(id));
     }
 
     public static void init() {

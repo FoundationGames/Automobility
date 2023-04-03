@@ -1,8 +1,6 @@
 package io.github.foundationgames.automobility.screen;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.midnightcontrols.ControllerUtils;

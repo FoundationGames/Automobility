@@ -13,8 +13,8 @@ import io.github.foundationgames.automobility.util.EntityRenderHelper;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3f;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -149,7 +149,7 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     }
 
     @Override
-    public Vec3f debrisColor() {
-        return new Vec3f();
+    public Vector3f debrisColor() {
+        return new Vector3f();
     }
 }

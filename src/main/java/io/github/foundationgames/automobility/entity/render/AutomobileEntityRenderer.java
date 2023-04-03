@@ -8,8 +8,8 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3f;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 
 public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
     private final EntityRendererFactory.Context ctx;
@@ -32,7 +32,7 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
         float offsetY = entity.getDisplacement().getVertical(tickDelta);
 
         matrices.translate(0, offsetY, 0);
-        matrices.multiply(Quaternion.fromEulerXyz((float) Math.toRadians(angX), 0, (float) Math.toRadians(angZ)));
+        matrices.multiply(new Quaternionf(new AxisAngle4f(0f, (float) Math.toRadians(angX), 0f, (float) Math.toRadians(angZ))));
 
         AutomobileRenderer.render(matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, tickDelta, ctx, entity);
         matrices.pop();

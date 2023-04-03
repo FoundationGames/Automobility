@@ -41,9 +41,9 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -384,7 +384,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     }
 
     @Override
-    public Vec3f debrisColor() {
+    public Vector3f debrisColor() {
         return null;
     }
 }

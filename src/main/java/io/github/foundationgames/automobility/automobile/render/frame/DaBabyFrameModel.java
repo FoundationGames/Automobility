@@ -1,17 +1,10 @@
 package io.github.foundationgames.automobility.automobile.render.frame;
 
-// import dev.monarkhes.myron.api.Myron;
-import io.github.foundationgames.automobility.Automobility;
-import io.github.foundationgames.automobility.util.AUtils;
 import net.minecraft.client.model.Model;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.TexturedRenderLayers;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3f;
 
 public class DaBabyFrameModel extends Model {
     // Credit to https://github.com/Sk3leCreeper for model
@@ -26,8 +19,8 @@ public class DaBabyFrameModel extends Model {
         /*
         if (model == null) return;
         matrices.push();
-        matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(180));
-        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(90));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180));
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90));
         matrices.translate(0.1, 0.04, 0);
         AUtils.renderMyronObj(model, vertices, matrices, light, overlay);
         matrices.pop();

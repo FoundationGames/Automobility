@@ -11,26 +11,29 @@ import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 public enum AutomobilityItems {;
-    public static final Item CROWBAR = register("crowbar", new TooltipItem(Text.translatable("tooltip.item.automobility.crowbar").formatted(Formatting.BLUE), new Item.Settings().maxCount(1).group(Automobility.GROUP)));
-    public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Settings().maxCount(1).group(Automobility.PREFABS)));
-    public static final AutomobileFrameItem AUTOMOBILE_FRAME = register("automobile_frame", new AutomobileFrameItem(new Item.Settings().maxCount(16).group(Automobility.GROUP)));
-    public static final AutomobileWheelItem AUTOMOBILE_WHEEL = register("automobile_wheel", new AutomobileWheelItem(new Item.Settings().group(Automobility.GROUP)));
-    public static final AutomobileEngineItem AUTOMOBILE_ENGINE = register("automobile_engine", new AutomobileEngineItem(new Item.Settings().maxCount(16).group(Automobility.GROUP)));
-    public static final FrontAttachmentItem FRONT_ATTACHMENT = register("front_attachment", new FrontAttachmentItem(new Item.Settings().maxCount(1).group(Automobility.GROUP)));
-    public static final RearAttachmentItem REAR_ATTACHMENT = register("rear_attachment", new RearAttachmentItem(new Item.Settings().maxCount(1).group(Automobility.GROUP)));
+    public static final Item CROWBAR = register("crowbar", new TooltipItem(Text.translatable("tooltip.item.automobility.crowbar").formatted(Formatting.BLUE), new Item.Settings().maxCount(1)), Automobility.GROUP);
+    public static final Item AUTOMOBILE = register("automobile", new AutomobileItem(new Item.Settings().maxCount(1)), Automobility.PREFABS);
+    public static final AutomobileFrameItem AUTOMOBILE_FRAME = register("automobile_frame", new AutomobileFrameItem(new Item.Settings().maxCount(16)), Automobility.GROUP);
+    public static final AutomobileWheelItem AUTOMOBILE_WHEEL = register("automobile_wheel", new AutomobileWheelItem(new Item.Settings()), Automobility.GROUP);
+    public static final AutomobileEngineItem AUTOMOBILE_ENGINE = register("automobile_engine", new AutomobileEngineItem(new Item.Settings().maxCount(16)), Automobility.GROUP);
+    public static final FrontAttachmentItem FRONT_ATTACHMENT = register("front_attachment", new FrontAttachmentItem(new Item.Settings().maxCount(1)), Automobility.GROUP);
+    public static final RearAttachmentItem REAR_ATTACHMENT = register("rear_attachment", new RearAttachmentItem(new Item.Settings().maxCount(1)), Automobility.GROUP);
 
     public static void init() {
         AutomobileItem.addPrefabs(
@@ -129,7 +132,8 @@ public enum AutomobilityItems {;
         };
     }
 
-    public static <T extends Item> T register(String name, T item) {
-        return Registry.register(Registry.ITEM, Automobility.id(name), item);
+    public static <T extends Item> T register(String name, T item, ItemGroup group) {
+        ItemGroupEvents.modifyEntriesEvent(group).register(entries -> entries.add(item));
+        return Registry.register(Registries.ITEM, Automobility.id(name), item);
     }
 }

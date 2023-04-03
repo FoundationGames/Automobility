@@ -16,7 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
+import org.joml.Vector3f;
 import net.minecraft.util.math.random.Random;
 
 import java.text.DecimalFormat;
@@ -155,15 +155,15 @@ public enum AUtils {;
     }
 
     /**
-     * Turns an RGB color integer into a Vec3f.
+     * Turns an RGB color integer into a Vector3f.
      * @param color An RGB color integer
-     * @return A Vec3f containing the color integer's RGB, with x being r, y being g, and z being b. All values are from 0 to 1.
+     * @return A Vector3f containing the color integer's RGB, with x being r, y being g, and z being b. All values are from 0 to 1.
      */
-    public static Vec3f colorFromInt(int color) {
+    public static Vector3f colorFromInt(int color) {
         int r = (color >> 16) & 0xFF;
         int g = (color >> 8) & 0xFF;
         int b = color & 0xFF;
-        return new Vec3f((float)r / 255, (float)g / 255, (float)b / 255);
+        return new Vector3f((float)r / 255, (float)g / 255, (float)b / 255);
     }
 
     public static boolean canMerge(ItemStack a, ItemStack b) {

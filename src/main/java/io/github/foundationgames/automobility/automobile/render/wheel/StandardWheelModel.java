@@ -6,7 +6,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.RotationAxis;
 
 public class StandardWheelModel extends BaseModel {
     public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Automobility.id("automobile/wheel/standard"), "main");
@@ -17,6 +17,6 @@ public class StandardWheelModel extends BaseModel {
 
     @Override
     protected void prepare(MatrixStack matrices) {
-        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-90));
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-90));
     }
 }

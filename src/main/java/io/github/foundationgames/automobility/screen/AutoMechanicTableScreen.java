@@ -114,7 +114,7 @@ public class AutoMechanicTableScreen extends HandledScreen<AutoMechanicTableScre
     }
 
     private void preDraw() {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.setShaderTexture(0, TEXTURE);
     }

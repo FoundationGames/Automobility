@@ -9,12 +9,12 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 public class OffRoadBlock extends Block {
     public static final VoxelShape ONE_LAYER_SHAPE = createCuboidShape(0, 0, 0, 16, 2, 16);
@@ -23,9 +23,9 @@ public class OffRoadBlock extends Block {
 
     public static final IntProperty LAYERS = IntProperty.of("layers", 1, 3);
 
-    public final Vec3f color;
+    public final Vector3f color;
 
-    public OffRoadBlock(Settings settings, Vec3f color) {
+    public OffRoadBlock(Settings settings, Vector3f color) {
         super(settings);
         setDefaultState(getDefaultState().with(LAYERS, 1));
         this.color = color;

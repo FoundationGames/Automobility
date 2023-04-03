@@ -13,7 +13,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.RotationAxis;
 
 public enum AutomobileRenderer {;
     private static Model skidEffectModel;
@@ -34,8 +34,8 @@ public enum AutomobileRenderer {;
 
         matrices.push();
 
-        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
-        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(automobile.getAutomobileYaw(tickDelta) + 180));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180));
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(automobile.getAutomobileYaw(tickDelta) + 180));
 
         float chassisRaise = wheels.model().radius() / 16;
         float bounce = automobile.getSuspensionBounce(tickDelta) * 0.048f;
@@ -64,7 +64,7 @@ public enum AutomobileRenderer {;
         float eBack = frame.model().enginePosBack() / 16;
         float eUp = frame.model().enginePosUp() / 16;
         matrices.translate(0, -eUp, eBack);
-        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180));
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180));
         if (!engine.isEmpty() && engineModel != null) {
             engineModel.render(matrices, vertexConsumers.getBuffer(engineModel.getLayer(engineTexture)), light, overlay, 1, 1, 1, 1);
             if (engineModel instanceof BaseModel base) {
@@ -88,8 +88,8 @@ public enum AutomobileRenderer {;
                 matrices.push();
 
                 matrices.translate(exhaust.x() / 16, -exhaust.y() / 16, exhaust.z() / 16);
-                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(exhaust.yaw()));
-                matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(exhaust.pitch()));
+                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(exhaust.yaw()));
+                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(exhaust.pitch()));
                 exhaustFumesModel.render(matrices, exhaustBuffer, light, overlay, 1, 1, 1, 1);
 
                 matrices.pop();
@@ -102,7 +102,7 @@ public enum AutomobileRenderer {;
         if (!rearAtt.isEmpty()) {
             matrices.push();
             matrices.translate(0, chassisRaise, frame.model().rearAttachmentPos() / 16);
-            matrices.multiply(Vec3f.NEGATIVE_Y.getDegreesQuaternion(automobile.getAutomobileYaw(tickDelta) - automobile.getRearAttachmentYaw(tickDelta)));
+            matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(automobile.getAutomobileYaw(tickDelta) - automobile.getRearAttachmentYaw(tickDelta)));
 
             matrices.translate(0, 0, rearAtt.model().pivotDistPx() / 16);
             if (rearAttachmentModel instanceof RearAttachmentRenderModel rm) {
@@ -153,12 +153,12 @@ public enum AutomobileRenderer {;
 
                 matrices.translate(pos.right() / 16, wheelRadius / 16, -pos.forward() / 16);
 
-                if (pos.end() == WheelBase.WheelEnd.FRONT) matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(automobile.getSteering(tickDelta) * 27));
+                if (pos.end() == WheelBase.WheelEnd.FRONT) matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(automobile.getSteering(tickDelta) * 27));
                 matrices.translate(0, -chassisRaise, 0);
-                matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(wheelAngle));
+                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(wheelAngle));
                 matrices.scale(scale, scale, scale);
 
-                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180 + pos.yaw()));
+                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180 + pos.yaw()));
 
                 wheelModel.render(matrices, wheelBuffer, light, overlay, 1, 1, 1, 1);
                 if (wheelModel instanceof BaseModel base) {
@@ -185,9 +185,9 @@ public enum AutomobileRenderer {;
             } else if (automobile.debris()) {
                 skidTexes = SkidEffectModel.DEBRIS_TEXTURES;
                 var c = automobile.debrisColor();
-                r = c.getX() * 0.85f;
-                g = c.getY() * 0.85f;
-                b = c.getZ() * 0.85f;
+                r = c.x * 0.85f;
+                g = c.y * 0.85f;
+                b = c.z * 0.85f;
                 bright = false;
             }
             int index = (int)Math.floor(((automobile.getTime() + tickDelta) / 1.5f) % skidTexes.length);

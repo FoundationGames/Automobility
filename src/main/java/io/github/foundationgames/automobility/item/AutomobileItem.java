@@ -9,8 +9,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
@@ -75,14 +77,5 @@ public class AutomobileItem extends Item {
 
     public static void addPrefabs(AutomobilePrefab ... prefabs) {
         PREFABS.addAll(Arrays.asList(prefabs));
-    }
-
-    @Override
-    public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
-        if (isIn(group) || group == ItemGroup.TRANSPORTATION) {
-            for (var prefab : PREFABS) {
-                stacks.add(prefab.toStack());
-            }
-        }
     }
 }

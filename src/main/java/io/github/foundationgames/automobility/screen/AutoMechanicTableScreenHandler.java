@@ -133,7 +133,7 @@ public class AutoMechanicTableScreenHandler extends ScreenHandler {
     }
 
     @Override
-    public ItemStack transferSlot(PlayerEntity player, int fromSlotId) {
+    public ItemStack quickMove(PlayerEntity player, int fromSlotId) {
         var newStack = ItemStack.EMPTY;
         var fromSlot = this.slots.get(fromSlotId);
 

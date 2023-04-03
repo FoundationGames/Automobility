@@ -10,7 +10,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.RotationAxis;
 
 public class AutomobileAssemblerBlockEntityRenderer implements BlockEntityRenderer<AutomobileAssemblerBlockEntity> {
     private final TextRenderer textRenderer;
@@ -36,7 +36,7 @@ public class AutomobileAssemblerBlockEntityRenderer implements BlockEntityRender
 
             matrices.push();
             matrices.translate(0.5, 0, 0.5);
-            matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-entity.getCachedState().get(Properties.HORIZONTAL_FACING).asRotation()));
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-entity.getCachedState().get(Properties.HORIZONTAL_FACING).asRotation()));
             matrices.translate(0, 0.372, 0.501);
             matrices.scale(0.008f, -0.008f, -0.008f);
 
