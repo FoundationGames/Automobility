@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=west": {
+      "model": "automobility:block/steep_slope",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "automobility:block/steep_slope",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "automobility:block/steep_slope",
+      "y": 180
+    },
+    "facing=north": {
+      "model": "automobility:block/steep_slope",
+      "y": 0
+    }
+  }
+}

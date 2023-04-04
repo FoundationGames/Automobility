@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "automobility:auto_mechanic_table",
+    "automobility:automobile_assembler",
+    "automobility:dash_panel",
+    "automobility:slope",
+    "automobility:steep_slope",
+    "automobility:slope_with_dash_panel",
+    "automobility:steep_slope_with_dash_panel"
+  ]
+}

@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT'
+    id 'maven-publish'
+}
+
+version = "${project.mod_version}+${project.minecraft_version}-common" as Object
+
+minecraft {
+    version(project.minecraft_version)
+    runs {
+        client('(Common) Client') {
+            workingDirectory(this.file("run"))
+        }
+        server('(Common) Server') {
+            workingDirectory(this.file("run"))
+        }
+    }
+}
+
+dependencies {
+    compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+}
+
+processResources {
+    def properties = project.properties.clone()
+
+    filesMatching('pack.mcmeta') {
+        expand properties as Map<String, ?>
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+        }
+    }
+
+    repositories {
+    }
+}

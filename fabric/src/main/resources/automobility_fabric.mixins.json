@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.foundationgames.automobility.fabric.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "automobility-refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "BlockElementDeserializerMixin",
+    "GameRendererMixin",
+    "midnightcontrols.InputHandlersMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

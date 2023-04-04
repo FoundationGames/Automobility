@@ -1,0 +1,47 @@
+{
+    "type": "minecraft:block",
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "automobility:grass_off_road",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "conditions": [
+                                {
+                                    "block": "automobility:grass_off_road",
+                                    "condition": "minecraft:block_state_property",
+                                    "properties": {
+                                        "layers": "2"
+                                    }
+                                }
+                            ],
+                            "count": 2
+                        },
+                        {
+                            "function": "minecraft:set_count",
+                            "conditions": [
+                                {
+                                    "block": "automobility:grass_off_road",
+                                    "condition": "minecraft:block_state_property",
+                                    "properties": {
+                                        "layers": "3"
+                                    }
+                                }
+                            ],
+                            "count": 3
+                        }
+                    ]
+                }
+            ],
+            "conditions": [
+                {
+                    "condition": "minecraft:survives_explosion"
+                }
+            ]
+        }
+    ]
+}

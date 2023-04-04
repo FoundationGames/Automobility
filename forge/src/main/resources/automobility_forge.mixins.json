@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.foundationgames.automobility.forge.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "automobility-refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "BlockColorsAccess",
+    "BlockEntityWithoutLevelRendererMixin",
+    "ModelBakeryMixin",
+    "jsonem.CubeDefinitionAccess",
+    "jsonem.CubeDeformationAccess",
+    "jsonem.EntityModelSetMixin",
+    "jsonem.LayerDefinitionAccess",
+    "jsonem.MaterialDefinitionAccess",
+    "jsonem.PartDefinitionAccess"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
