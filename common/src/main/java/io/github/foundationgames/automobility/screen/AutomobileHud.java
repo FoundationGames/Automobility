@@ -8,7 +8,7 @@ import io.github.foundationgames.automobility.util.AUtils;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
@@ -24,8 +24,8 @@ public enum AutomobileHud {;
             new ControlHint("drift", options -> options.keyJump)
     );
 
-    public static void render(PoseStack pose, Player player, AutomobileEntity auto, float tickDelta) {
-        renderSpeedometer(pose, auto);
+    public static void render(GuiGraphics graphics, Player player, AutomobileEntity auto, float tickDelta) {
+        renderSpeedometer(graphics, auto);
 
         if (!Platform.get().inControllerMode()) {
             float alpha = Math.max(0, (auto.getStandStillTime() * 2) - 1);
@@ -34,22 +34,22 @@ public enum AutomobileHud {;
             // reason, and small enough numbers (which would result in 0 alpha as an int, but non zero as a float) would
             // result in a brief tick of 100% alpha, messing up the smoothness of the fade in animation
             if ((int)(alpha * 0xFF) > 0) {
-                renderControlHints(pose, alpha);
+                renderControlHints(graphics, alpha);
             }
         }
     }
 
-    private static void renderSpeedometer(PoseStack pose, AutomobileEntity auto) {
+    private static void renderSpeedometer(GuiGraphics graphics, AutomobileEntity auto) {
         float speed = (float) auto.getEffectiveSpeed() * 20;
         int color = 0xFFFFFF;
         if (auto.getBoostTimer() > 0) color = 0xFF6F00;
         if (auto.getTurboCharge() > AutomobileEntity.SMALL_TURBO_TIME) color = 0xFFEA4A;
         if (auto.getTurboCharge() > AutomobileEntity.MEDIUM_TURBO_TIME) color = 0x7DE9FF;
         if (auto.getTurboCharge() > AutomobileEntity.LARGE_TURBO_TIME) color = 0x906EFF;
-        GuiComponent.drawString(pose, Minecraft.getInstance().font, Component.literal(AUtils.DEC_TWO_PLACES.format(speed) +" m/s"), 20, 20, color);
+        graphics.drawString(Minecraft.getInstance().font, Component.literal(AUtils.DEC_TWO_PLACES.format(speed) +" m/s"), 20, 20, color);
     }
 
-    private static void renderControlHints(PoseStack pose, float alpha) {
+    private static void renderControlHints(GuiGraphics graphics, float alpha) {
         int x = 20;
         int y = 50;
         var options = Minecraft.getInstance().options;
@@ -59,11 +59,11 @@ public enum AutomobileHud {;
             var keyTxt = control.getKeybindText(options);
             int keyTxtWid = font.width(keyTxt);
 
-            GuiComponent.fill(pose, x, y, x + keyTxtWid + 6, y + 14, ((int)(alpha * 0xAB) << 24));
+            graphics.fill(x, y, x + keyTxtWid + 6, y + 14, ((int)(alpha * 0xAB) << 24));
 
             int textColor = 0x00FFFFFF | ((int)(alpha * 0xFF) << 24);
-            GuiComponent.drawString(pose, font, keyTxt, x + 3, y + 3, textColor);
-            GuiComponent.drawString(pose, font, control.getText(), x + keyTxtWid + 9, y + 3, textColor);
+            graphics.drawString(font, keyTxt, x + 3, y + 3, textColor);
+            graphics.drawString(font, control.getText(), x + keyTxtWid + 9, y + 3, textColor);
 
             y += 17;
         }

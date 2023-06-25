@@ -10,6 +10,7 @@ import io.github.foundationgames.automobility.fabric.resource.AutomobilityData;
 import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
@@ -28,11 +29,11 @@ public class AutomobilityFabricBlocks {
     }
 
     public static Block register(String name, Block block) {
-        return Registry.register(Registry.BLOCK, Automobility.rl(name), block);
+        return Registry.register(BuiltInRegistries.BLOCK, Automobility.rl(name), block);
     }
 
     public static Block register(String name, Block block, Function<Block, BlockItem> item) {
-        Registry.register(Registry.ITEM, Automobility.rl(name), item.apply(block));
+        Registry.register(BuiltInRegistries.ITEM, Automobility.rl(name), item.apply(block));
         return register(name, block);
     }
 
@@ -46,9 +47,9 @@ public class AutomobilityFabricBlocks {
     public static void registerSlopes(String namespace) {
         AutomobilityData.NON_STEEP_SLOPE_TAG_CANDIDATES.add(Automobility.rl("sloped_dash_panel"));
         AutomobilityData.STEEP_SLOPE_TAG_CANDIDATES.add(Automobility.rl("steep_sloped_dash_panel"));
-        for (var base : Registry.BLOCK) {
+        for (var base : BuiltInRegistries.BLOCK) {
             if (base.getClass().equals(Block.class)) {
-                var id = Registry.BLOCK.getKey(base);
+                var id = BuiltInRegistries.BLOCK.getKey(base);
                 if (id.getNamespace().equals(namespace)) {
                     var path = id.getPath()+"_slope";
                     var steepPath = "steep_"+path;
@@ -62,10 +63,10 @@ public class AutomobilityFabricBlocks {
                 }
             }
 
-            makeStairsSticky(base, Registry.BLOCK.getKey(base));
+            makeStairsSticky(base, BuiltInRegistries.BLOCK.getKey(base));
         }
 
-        RegistryEntryAddedCallback.event(Registry.BLOCK).register((raw, id, block) -> {
+        RegistryEntryAddedCallback.event(BuiltInRegistries.BLOCK).register((raw, id, block) -> {
             makeStairsSticky(block, id);
         });
     }

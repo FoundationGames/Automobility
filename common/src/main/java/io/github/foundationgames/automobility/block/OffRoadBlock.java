@@ -1,6 +1,5 @@
 package io.github.foundationgames.automobility.block;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -15,6 +14,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 public class OffRoadBlock extends Block {
     public static final VoxelShape ONE_LAYER_SHAPE = box(0, 0, 0, 16, 2, 16);
@@ -26,7 +26,7 @@ public class OffRoadBlock extends Block {
     public final Vector3f color;
 
     public OffRoadBlock(Properties settings, Vector3f color) {
-        super(settings);
+        super(settings.pushReaction(PushReaction.DESTROY));
         registerDefaultState(defaultBlockState().setValue(LAYERS, 1));
         this.color = color;
     }
@@ -52,11 +52,6 @@ public class OffRoadBlock extends Block {
         if (!canSurvive(state, world, pos)) {
             world.destroyBlock(pos, true);
         }
-    }
-
-    @Override
-    public PushReaction getPistonPushReaction(BlockState state) {
-        return PushReaction.DESTROY;
     }
 
     @Override

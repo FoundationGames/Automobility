@@ -1,6 +1,8 @@
 package io.github.foundationgames.automobility.recipe;
 
 import io.github.foundationgames.automobility.Automobility;
+
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -48,6 +50,10 @@ public class AutoMechanicTableRecipe implements Recipe<SimpleContainer>, Compara
     }
 
     @Override
+    public ItemStack assemble(SimpleContainer inv, RegistryAccess var2) {
+        return assemble(inv);
+    }
+
     public ItemStack assemble(SimpleContainer inv) {
         for (var ing : this.ingredients) {
             for (int i = 0; i < inv.getContainerSize(); i++) {
@@ -68,6 +74,10 @@ public class AutoMechanicTableRecipe implements Recipe<SimpleContainer>, Compara
     }
 
     @Override
+    public ItemStack getResultItem(RegistryAccess var1) {
+        return getResultItem();
+    }
+
     public ItemStack getResultItem() {
         return this.result;
     }

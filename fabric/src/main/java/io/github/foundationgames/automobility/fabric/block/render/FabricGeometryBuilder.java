@@ -1,13 +1,13 @@
 package io.github.foundationgames.automobility.fabric.block.render;
 
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import io.github.foundationgames.automobility.block.model.GeometryBuilder;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class FabricGeometryBuilder implements GeometryBuilder {
     private final QuadEmitter quads;
@@ -29,8 +29,8 @@ public class FabricGeometryBuilder implements GeometryBuilder {
     public GeometryBuilder vertex(float x, float y, float z, @Nullable Direction face, float nx, float ny, float nz, TextureAtlasSprite sprite, float u, float v, int color) {
         var pos = new Vector4f(x - 0.5f, y, z - 0.5f, 1);
         var tNormal = new Vector4f(nx, ny, nz, 1);
-        pos.transform(this.transform);
-        tNormal.transform(this.transform); // This is under the assumption that transform will always be a rotation
+        pos.mul(this.transform);
+        tNormal.mul(this.transform); // This is under the assumption that transform will always be a rotation
 
         var normal = new Vector3f(tNormal.x(), tNormal.y(), tNormal.z());
         normal.normalize();

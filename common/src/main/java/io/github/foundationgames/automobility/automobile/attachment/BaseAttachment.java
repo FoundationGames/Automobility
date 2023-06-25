@@ -25,7 +25,7 @@ public abstract class BaseAttachment<T extends AutomobileComponent<T>> {
     }
 
     protected final Level world() {
-        return this.automobile.level;
+        return this.automobile.level();
     }
 
     public abstract Vec3 pos();

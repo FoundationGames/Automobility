@@ -64,7 +64,7 @@ public enum CommonPackets {;
             boolean space = buf.readBoolean();
             int entityId = buf.readInt();
             server.execute(() -> {
-                if (player.level.getEntity(entityId) instanceof AutomobileEntity automobile) {
+                if (player.level().getEntity(entityId) instanceof AutomobileEntity automobile) {
                     automobile.setInputs(fwd, back, left, right, space);
                     automobile.markDirty();
                 }
@@ -73,7 +73,7 @@ public enum CommonPackets {;
         Platform.get().serverReceivePacket(Automobility.rl("request_sync_automobile_components"), (server, player, buf) -> {
             int entityId = buf.readInt();
             server.execute(() -> {
-                if (player.level.getEntity(entityId) instanceof AutomobileEntity automobile) {
+                if (player.level().getEntity(entityId) instanceof AutomobileEntity automobile) {
                     sendSyncAutomobileComponentsPacket(automobile, player);
                     sendSyncAutomobileAttachmentsPacket(automobile, player);
 

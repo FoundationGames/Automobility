@@ -6,11 +6,12 @@ plugins {
 version = "${project.mod_version}+${project.minecraft_version}-fabric" as Object
 
 repositories {
+    mavenLocal()
     maven { url = 'https://maven.gegy.dev/' }
     maven { url = 'https://maven.terraformersmc.com/' }
     maven { url = 'https://aperlambda.github.io/maven' }
     // maven { url = 'https://hephaestus.dev/release' }
-    maven { url = 'https://storage.googleapis.com/devan-maven/' }
+    maven { url = 'https://ueaj.dev/maven' }
     maven { url = 'https://api.modrinth.com/maven' }
 }
 
@@ -24,7 +25,7 @@ dependencies {
 
     // Controller Support
     modImplementation "dev.lambdaurora:spruceui:${project.spruceui_version}"
-    modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
+    modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}-fabric"
     modImplementation "maven.modrinth:midnightcontrols:${project.midnightcontrols_version}"
     api('org.aperlambda:lambdajcommon:1.8.1') {
         exclude group: 'com.google.code.gson'
@@ -40,8 +41,8 @@ dependencies {
     include "net.devtech:arrp:${project.arrp_version}"
 
     // Json entity models
-    modImplementation "maven.modrinth:jsonem:${project.jsonem_version}"
-    include "maven.modrinth:jsonem:${project.jsonem_version}"
+    modImplementation "io.github.foundationgames:jsonem:${project.jsonem_version}"
+    include "io.github.foundationgames:jsonem:${project.jsonem_version}"
 
     implementation project(':common')
 }

@@ -4,6 +4,7 @@ import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.util.Eventual;
 import io.github.foundationgames.automobility.util.RegistryQueue;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;
 
 public class AutomobilitySounds {
@@ -20,7 +21,7 @@ public class AutomobilitySounds {
 
     private static Eventual<SoundEvent> register(String path) {
         var id = Automobility.rl(path);
-        return RegistryQueue.register(Registry.SOUND_EVENT, id, () -> new SoundEvent(id));
+        return RegistryQueue.register(BuiltInRegistries.SOUND_EVENT, id, () -> SoundEvent.createVariableRangeEvent(id));
     }
 
     public static void init() {

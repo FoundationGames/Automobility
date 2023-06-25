@@ -37,7 +37,7 @@ public enum ClientPackets {;
             FriendlyByteBuf dup = new FriendlyByteBuf(buf.copy());
             int entityId = dup.readInt();
             client.execute(() -> {
-                if (client.player.level.getEntity(entityId) instanceof AutomobileEntity automobile) {
+                if (client.player.level().getEntity(entityId) instanceof AutomobileEntity automobile) {
                     automobile.readSyncToClientData(dup);
                 }
             });
@@ -48,7 +48,7 @@ public enum ClientPackets {;
             var wheel = AutomobileWheel.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
             var engine = AutomobileEngine.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
             client.execute(() -> {
-                if (client.player.level.getEntity(entityId) instanceof AutomobileEntity automobile) {
+                if (client.player.level().getEntity(entityId) instanceof AutomobileEntity automobile) {
                     automobile.setComponents(frame, wheel, engine);
                 }
             });
@@ -58,7 +58,7 @@ public enum ClientPackets {;
             var rearAtt = RearAttachmentType.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
             var frontAtt = FrontAttachmentType.REGISTRY.getOrDefault(ResourceLocation.tryParse(buf.readUtf()));
             client.execute(() -> {
-                if (client.player.level.getEntity(entityId) instanceof AutomobileEntity automobile) {
+                if (client.player.level().getEntity(entityId) instanceof AutomobileEntity automobile) {
                     automobile.setRearAttachment(rearAtt);
                     automobile.setFrontAttachment(frontAtt);
                 }
@@ -68,7 +68,7 @@ public enum ClientPackets {;
             int entityId = buf.readInt();
             var banner = buf.readNbt();
             client.execute(() -> {
-                if (client.player.level.getEntity(entityId) instanceof AutomobileEntity automobile &&
+                if (client.player.level().getEntity(entityId) instanceof AutomobileEntity automobile &&
                         automobile.getRearAttachment() instanceof BannerPostRearAttachment bannerPost) {
                     bannerPost.setFromNbt(banner);
                 }
@@ -78,7 +78,7 @@ public enum ClientPackets {;
             int entityId = buf.readInt();
             boolean extended = buf.readBoolean();
             client.execute(() -> {
-                if (client.player.level.getEntity(entityId) instanceof AutomobileEntity automobile &&
+                if (client.player.level().getEntity(entityId) instanceof AutomobileEntity automobile &&
                         automobile.getRearAttachment() instanceof ExtendableRearAttachment att) {
                     att.setExtended(extended);
                 }
