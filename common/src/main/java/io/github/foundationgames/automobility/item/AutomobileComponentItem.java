@@ -3,7 +3,6 @@ package io.github.foundationgames.automobility.item;
 import io.github.foundationgames.automobility.automobile.AutomobileComponent;
 import io.github.foundationgames.automobility.util.SimpleMapContentRegistry;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
@@ -15,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends Item implements DynamicCreativeItem {
+public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends Item implements CustomCreativeOutput {
     protected final String nbtKey;
     protected final String translationKey;
     protected final SimpleMapContentRegistry<T> registry;
@@ -60,9 +59,9 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
     }
 
     @Override
-    public void fillItemCategory(List<ItemStack> stacks) {
+    public void provideCreativeOutput(CreativeModeTab.Output output) {
         this.registry.forEach(component -> {
-            if (addToCreative(component)) stacks.add(this.createStack(component));
+            if (addToCreative(component)) output.accept(this.createStack(component));
         });
     }
 

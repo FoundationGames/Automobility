@@ -6,11 +6,16 @@ import io.github.foundationgames.automobility.util.Eventual;
 import io.github.foundationgames.automobility.util.RegistryQueue;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.Level;
+
+import java.util.Optional;
 
 public enum AutomobilityEntities {;
     public static final Eventual<EntityType<AutomobileEntity>> AUTOMOBILE = RegistryQueue.register(BuiltInRegistries.ENTITY_TYPE,
@@ -20,7 +25,14 @@ public enum AutomobilityEntities {;
 
     public static final TagKey<EntityType<?>> DASH_PANEL_BOOSTABLES = TagKey.create(Registries.ENTITY_TYPE, Automobility.rl("dash_panel_boostables"));
 
-    public static final DamageSource AUTOMOBILE_DAMAGE_SOURCE = new AutomobileDamageSource("automobile");
+    public static final ResourceKey<DamageType> AUTOMOBILE_DAMAGE_SOURCE = ResourceKey.create(Registries.DAMAGE_TYPE, Automobility.rl("automobile"));
+
+    public static Optional<DamageSource> automobileDamageSource(Level level) {
+        return level.registryAccess()
+                .registryOrThrow(Registries.DAMAGE_TYPE)
+                .getHolder(AUTOMOBILE_DAMAGE_SOURCE)
+                .map(DamageSource::new);
+    }
 
     public static void init() {
     }

@@ -70,16 +70,6 @@ public class SlopeUnbakedModel implements UnbakedModel {
 
     @Override
     public void resolveParents(Function<ResourceLocation, UnbakedModel> function) {
-        // ???
-        // var list = Lists.<Material>newArrayList(this.frameTex);
-        // if (this.plateInnerTex != null) {
-        //     list.add(this.plateInnerTex);
-        // }
-        // if (this.plateOuterTex != null) {
-        //     list.add(this.plateOuterTex);
-        // }
-        //
-        // return list;
     }
 
     // TODO: Something better than this that supports other mods and resource packs

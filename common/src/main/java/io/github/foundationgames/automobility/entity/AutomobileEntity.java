@@ -869,7 +869,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         for (var entity : level().getEntities(EntityTypeTest.forClass(Entity.class), frontBox, entity -> entity != this && entity != getFirstPassenger())) {
             if (!entity.isInvulnerable()) {
                 if (entity instanceof LivingEntity living && entity.getVehicle() != this) {
-                    living.hurt(AutomobilityEntities.AUTOMOBILE_DAMAGE_SOURCE, hSpeed * 10);
+                    AutomobilityEntities.automobileDamageSource(level()).ifPresent(dmg -> living.hurt(dmg, hSpeed * 10));
 
                     entity.push(velAdd.x, velAdd.y, velAdd.z);
                 }

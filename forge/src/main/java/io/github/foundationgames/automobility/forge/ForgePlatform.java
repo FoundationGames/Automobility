@@ -38,6 +38,7 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -65,6 +66,7 @@ public class ForgePlatform implements Platform {
     public CreativeModeTab creativeTab(ResourceLocation rl, Supplier<ItemStack> icon, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {
         return CreativeModeTab.builder()
                 .icon(icon)
+                .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
                 .title(Component.translatable("itemGroup." + rl.getNamespace() + "." + rl.getPath()))
                 .displayItems(displayItemsGenerator)
                 .build();

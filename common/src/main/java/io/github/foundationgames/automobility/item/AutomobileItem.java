@@ -9,6 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AutomobileItem extends Item implements DynamicCreativeItem {
+public class AutomobileItem extends Item implements CustomCreativeOutput {
     public static final List<AutomobilePrefab> PREFABS = new ArrayList<>();
     private static final AutomobileData data = new AutomobileData();
     private static final AutomobileStats stats = new AutomobileStats();
@@ -76,9 +77,9 @@ public class AutomobileItem extends Item implements DynamicCreativeItem {
     }
 
     @Override
-    public void fillItemCategory(List<ItemStack> stacks) {
+    public void provideCreativeOutput(CreativeModeTab.Output output) {
         for (var prefab : PREFABS) {
-            stacks.add(prefab.toStack());
+            output.accept(prefab.toStack());
         }
     }
 }
