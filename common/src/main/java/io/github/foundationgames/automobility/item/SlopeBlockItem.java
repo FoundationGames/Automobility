@@ -20,7 +20,7 @@ public class SlopeBlockItem extends BlockItem {
     @Override
     public BlockPlaceContext updatePlacementContext(BlockPlaceContext context) {
         var hitPos = context.getClickLocation();
-        var pos = new BlockPos((int) hitPos.x, (int) hitPos.y, (int) hitPos.z);
+        var pos = BlockPos.containing(hitPos);
         var world = context.getLevel();
         if (world.getBlockState(pos).getBlock() instanceof SlopeBlock) {
             var facing = world.getBlockState(pos).getValue(BlockStateProperties.HORIZONTAL_FACING);
