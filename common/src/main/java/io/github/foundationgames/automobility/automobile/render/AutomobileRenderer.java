@@ -2,7 +2,7 @@ package io.github.foundationgames.automobility.automobile.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.WheelBase;
 import io.github.foundationgames.automobility.automobile.render.attachment.front.FrontAttachmentRenderModel;
@@ -27,8 +27,8 @@ public enum AutomobileRenderer {;
 
         pose.pushPose();
 
-        pose.mulPose(Vector3f.ZP.rotationDegrees(180));
-        pose.mulPose(Vector3f.YP.rotationDegrees(automobile.getAutomobileYaw(tickDelta) + 180));
+        pose.mulPose(Axis.ZP.rotationDegrees(180));
+        pose.mulPose(Axis.YP.rotationDegrees(automobile.getAutomobileYaw(tickDelta) + 180));
 
         float chassisRaise = wheels.model().radius() / 16;
         float bounce = automobile.getSuspensionBounce(tickDelta) * 0.048f;
@@ -57,7 +57,7 @@ public enum AutomobileRenderer {;
         float eBack = frame.model().enginePosBack() / 16;
         float eUp = frame.model().enginePosUp() / 16;
         pose.translate(0, -eUp, eBack);
-        pose.mulPose(Vector3f.YP.rotationDegrees(180));
+        pose.mulPose(Axis.YP.rotationDegrees(180));
         if (!engine.isEmpty() && engineModel != null) {
             engineModel.renderToBuffer(pose, buffers.getBuffer(engineModel.renderType(engineTexture)), light, overlay, 1, 1, 1, 1);
             if (engineModel instanceof BaseModel base) {
@@ -81,8 +81,8 @@ public enum AutomobileRenderer {;
                 pose.pushPose();
 
                 pose.translate(exhaust.x() / 16, -exhaust.y() / 16, exhaust.z() / 16);
-                pose.mulPose(Vector3f.YP.rotationDegrees(exhaust.yaw()));
-                pose.mulPose(Vector3f.XP.rotationDegrees(exhaust.pitch()));
+                pose.mulPose(Axis.YP.rotationDegrees(exhaust.yaw()));
+                pose.mulPose(Axis.XP.rotationDegrees(exhaust.pitch()));
                 exhaustFumesModel.renderToBuffer(pose, exhaustBuffer, light, overlay, 1, 1, 1, 1);
 
                 pose.popPose();
@@ -95,7 +95,7 @@ public enum AutomobileRenderer {;
         if (!rearAtt.isEmpty()) {
             pose.pushPose();
             pose.translate(0, chassisRaise, frame.model().rearAttachmentPos() / 16);
-            pose.mulPose(Vector3f.YN.rotationDegrees(automobile.getAutomobileYaw(tickDelta) - automobile.getRearAttachmentYaw(tickDelta)));
+            pose.mulPose(Axis.YN.rotationDegrees(automobile.getAutomobileYaw(tickDelta) - automobile.getRearAttachmentYaw(tickDelta)));
 
             pose.translate(0, 0, rearAtt.model().pivotDistPx() / 16);
             if (rearAttachmentModel instanceof RearAttachmentRenderModel rm) {
@@ -146,12 +146,12 @@ public enum AutomobileRenderer {;
 
                 pose.translate(pos.right() / 16, wheelRadius / 16, -pos.forward() / 16);
 
-                if (pos.end() == WheelBase.WheelEnd.FRONT) pose.mulPose(Vector3f.YP.rotationDegrees(automobile.getSteering(tickDelta) * 27));
+                if (pos.end() == WheelBase.WheelEnd.FRONT) pose.mulPose(Axis.YP.rotationDegrees(automobile.getSteering(tickDelta) * 27));
                 pose.translate(0, -chassisRaise, 0);
-                pose.mulPose(Vector3f.XP.rotationDegrees(wheelAngle));
+                pose.mulPose(Axis.XP.rotationDegrees(wheelAngle));
                 pose.scale(scale, scale, scale);
 
-                pose.mulPose(Vector3f.YP.rotationDegrees(180 + pos.yaw()));
+                pose.mulPose(Axis.YP.rotationDegrees(180 + pos.yaw()));
 
                 wheelModel.renderToBuffer(pose, wheelBuffer, light, overlay, 1, 1, 1, 1);
                 if (wheelModel instanceof BaseModel base) {

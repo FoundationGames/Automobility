@@ -1,9 +1,9 @@
 package io.github.foundationgames.automobility.entity.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
 import io.github.foundationgames.automobility.automobile.render.AutomobileRenderer;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import org.joml.Quaternionf;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -28,7 +28,7 @@ public class AutomobileEntityRenderer extends EntityRenderer<AutomobileEntity> {
         float offsetY = entity.getDisplacement().getVertical(tickDelta);
 
         pose.translate(0, offsetY, 0);
-        pose.mulPose(Quaternion.fromXYZ((float) Math.toRadians(angX), 0, (float) Math.toRadians(angZ)));
+        pose.mulPose(new Quaternionf().rotationXYZ((float) Math.toRadians(angX), 0, (float) Math.toRadians(angZ)));
 
         AutomobileRenderer.render(pose, buffers, light, OverlayTexture.NO_OVERLAY, tickDelta, entity);
         pose.popPose();

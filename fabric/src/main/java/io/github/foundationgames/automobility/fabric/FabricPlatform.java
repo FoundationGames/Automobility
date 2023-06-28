@@ -7,7 +7,6 @@ import io.github.foundationgames.automobility.util.HexCons;
 import io.github.foundationgames.automobility.util.TriCons;
 import io.github.foundationgames.automobility.util.TriFunc;
 import io.github.foundationgames.jsonem.JsonEM;
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -17,6 +16,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -24,7 +24,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -41,10 +40,12 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -66,18 +67,22 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public CreativeModeTab creativeTab(ResourceLocation rl, Supplier<ItemStack> icon) {
-        return FabricItemGroupBuilder.build(rl, icon);
+    public CreativeModeTab creativeTab(ResourceLocation rl, Supplier<ItemStack> icon, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {
+        return FabricItemGroup.builder()
+                .icon(icon)
+                .title(Component.translatable("itemGroup." + rl.getNamespace() + "." + rl.getPath()))
+                .displayItems(displayItemsGenerator)
+                .build();
     }
 
     @Override
-    public void builtinItemRenderer(Item item, HexCons<ItemStack, ItemTransforms.TransformType, PoseStack, MultiBufferSource, Integer, Integer> renderer) {
+    public void builtinItemRenderer(Item item, HexCons<ItemStack, ItemDisplayContext, PoseStack, MultiBufferSource, Integer, Integer> renderer) {
         BuiltinItemRendererRegistry.INSTANCE.register(item, renderer::accept);
     }
 
     @Override
     public <T extends AbstractContainerMenu> MenuType<T> menuType(BiFunction<Integer, Inventory, T> factory) {
-        return new MenuType<>(factory::apply);
+        return new MenuType<>(factory::apply, FeatureFlags.DEFAULT_FLAGS);
     }
 
     @Override

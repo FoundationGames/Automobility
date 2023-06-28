@@ -1,8 +1,5 @@
 package io.github.foundationgames.automobility.forge.block.render;
 
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import io.github.foundationgames.automobility.block.model.GeometryBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -10,6 +7,9 @@ import net.minecraft.core.Direction;
 import net.minecraftforge.client.model.pipeline.QuadBakingVertexConsumer;
 import net.minecraftforge.common.ForgeConfig;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.List;
 
@@ -43,8 +43,8 @@ public class ForgeGeometryBuilder implements GeometryBuilder {
 
         var pos = new Vector4f(x - 0.5f, y, z - 0.5f, 1);
         var tNormal = new Vector4f(nx, ny, nz, 1);
-        pos.transform(this.transform);
-        tNormal.transform(this.transform); // This is under the assumption that transform will always be a rotation
+        pos.mul(this.transform);
+        tNormal.mul(this.transform); // This is under the assumption that transform will always be a rotation
 
         var normal = new Vector3f(tNormal.x(), tNormal.y(), tNormal.z());
         normal.normalize();

@@ -5,6 +5,8 @@ import io.github.foundationgames.automobility.forge.network.AutomobilityPacketHa
 import io.github.foundationgames.automobility.util.InitlessConstants;
 import io.github.foundationgames.automobility.util.RegistryQueue;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.RegisterEvent;
@@ -22,15 +24,16 @@ public class AutomobilityForge {
     @SubscribeEvent
     @SuppressWarnings("deprecation")
     public static void registerAll(RegisterEvent evt) {
-        register(Registry.BLOCK, evt);
-        register(Registry.BLOCK_ENTITY_TYPE, evt);
-        register(Registry.ITEM, evt);
-        register(Registry.ENTITY_TYPE, evt);
-        register(Registry.PARTICLE_TYPE, evt);
-        register(Registry.SOUND_EVENT, evt);
-        register(Registry.MENU, evt);
-        register(Registry.RECIPE_TYPE, evt);
-        register(Registry.RECIPE_SERIALIZER, evt);
+        register(BuiltInRegistries.BLOCK, evt);
+        register(BuiltInRegistries.BLOCK_ENTITY_TYPE, evt);
+        register(BuiltInRegistries.ITEM, evt);
+        register(BuiltInRegistries.ENTITY_TYPE, evt);
+        register(BuiltInRegistries.PARTICLE_TYPE, evt);
+        register(BuiltInRegistries.SOUND_EVENT, evt);
+        register(BuiltInRegistries.MENU, evt);
+        register(BuiltInRegistries.RECIPE_TYPE, evt);
+        register(BuiltInRegistries.RECIPE_SERIALIZER, evt);
+        register(BuiltInRegistries.CREATIVE_MODE_TAB, evt);
     }
 
     public static <T> void register(Registry<T> registry, RegisterEvent evt) {
