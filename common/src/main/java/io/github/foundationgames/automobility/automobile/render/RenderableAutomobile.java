@@ -1,6 +1,5 @@
 package io.github.foundationgames.automobility.automobile.render;
 
-import com.mojang.math.Vector3f;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
@@ -9,6 +8,7 @@ import io.github.foundationgames.automobility.automobile.attachment.RearAttachme
 import io.github.foundationgames.automobility.automobile.attachment.front.FrontAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 public interface RenderableAutomobile {
     AutomobileFrame getFrame();

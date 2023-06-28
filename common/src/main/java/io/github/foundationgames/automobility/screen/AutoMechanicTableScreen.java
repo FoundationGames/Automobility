@@ -1,12 +1,10 @@
 package io.github.foundationgames.automobility.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.recipe.AutoMechanicTableRecipe;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -107,36 +105,34 @@ public class AutoMechanicTableScreen extends AbstractContainerScreen<AutoMechani
     }
 
     @Override
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        super.render(matrices, mouseX, mouseY, delta);
-        this.renderTooltip(matrices, mouseX, mouseY);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        super.render(graphics, mouseX, mouseY, delta);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
     private void preDraw() {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.setShaderTexture(0, TEXTURE);
     }
 
     @Override
-    protected void renderBg(PoseStack matrices, float delta, int mouseX, int mouseY) {
-        this.renderBackground(matrices);
+    protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
+        this.renderBackground(graphics);
 
         this.preDraw();
-        this.blit(matrices, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
-        this.drawCategoryBar(matrices, mouseX, mouseY);
-        this.drawRecipes(matrices, mouseX, mouseY);
+        graphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        this.drawCategoryBar(graphics, mouseX, mouseY);
+        this.drawRecipes(graphics, mouseX, mouseY);
 
-        this.drawMissingIngredients(matrices);
+        this.drawMissingIngredients(graphics);
     }
 
     @Override
-    protected void renderLabels(PoseStack matrices, int mouseX, int mouseY) {
-        super.renderLabels(matrices, mouseX, mouseY);
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        super.renderLabels(graphics, mouseX, mouseY);
 
         int hoveredRecipe = this.getHoveredRecipe(mouseX, mouseY);
         if (hoveredRecipe >= 0) {
-            this.renderTooltip(matrices, this.menu.recipes.get(hoveredRecipe).getResultItem(), mouseX - this.leftPos, mouseY - this.topPos);
+            graphics.renderTooltip(font, this.menu.recipes.get(hoveredRecipe).getResultItem(), mouseX - this.leftPos, mouseY - this.topPos);
         }
     }
 
@@ -203,18 +199,18 @@ public class AutoMechanicTableScreen extends AbstractContainerScreen<AutoMechani
         return false;
     }
 
-    protected final void drawMissingIngredient(PoseStack matrices, Ingredient ing, int x, int y) {
-        GuiComponent.fill(matrices, x, y, x + 16, y + 16, 0x45FF0000);
+    protected final void drawMissingIngredient(GuiGraphics graphics, Ingredient ing, int x, int y) {
+        graphics.fill(x, y, x + 16, y + 16, 0x45FF0000);
 
         var stacks = ing.getItems();
-        this.itemRenderer.renderAndDecorateFakeItem(stacks[Mth.floor((float)this.time / 30) % stacks.length], x, y);
+        graphics.renderFakeItem(stacks[Mth.floor((float)this.time / 30) % stacks.length], x, y);
 
         RenderSystem.depthFunc(516);
-        GuiComponent.fill(matrices, x, y, x + 16, y + 16, 0x30FFFFFF);
+        graphics.fill(x, y, x + 16, y + 16, 0x30FFFFFF);
         RenderSystem.depthFunc(515);
     }
 
-    protected void drawMissingIngredients(PoseStack matrices) {
+    protected void drawMissingIngredients(GuiGraphics graphics) {
         var inputInv = this.menu.inputInv;
         var missingIngs = new ArrayDeque<>(this.menu.missingIngredients);
 
@@ -223,7 +219,7 @@ public class AutoMechanicTableScreen extends AbstractContainerScreen<AutoMechani
             int y = this.topPos + 88;
 
             if (inputInv.getItem(i).isEmpty()) {
-                this.drawMissingIngredient(matrices, missingIngs.removeFirst(), x, y);
+                this.drawMissingIngredient(graphics, missingIngs.removeFirst(), x, y);
             }
         }
     }
@@ -277,21 +273,21 @@ public class AutoMechanicTableScreen extends AbstractContainerScreen<AutoMechani
         return -2;
     }
 
-    protected void drawCategoryBar(PoseStack matrices, int mouseX, int mouseY) {
+    protected void drawCategoryBar(GuiGraphics graphics, int mouseX, int mouseY) {
         int hoveredCatButton = this.getHoveredCategoryButton(mouseX, mouseY);
 
         this.preDraw();
-        this.blit(matrices, this.categoryButtonsX, this.categoryButtonsY,
+        graphics.blit(TEXTURE, this.categoryButtonsX, this.categoryButtonsY,
                 176, 17 + (hoveredCatButton < 0 ? CATEGORY_BUTTON_HEIGHT : 0), CATEGORY_BUTTON_WIDTH, CATEGORY_BUTTON_HEIGHT);
-        this.blit(matrices, this.categoryButtonsX + (CATEGORY_BUTTON_AREA_WIDTH - CATEGORY_BUTTON_WIDTH), this.categoryButtonsY,
+        graphics.blit(TEXTURE, this.categoryButtonsX + (CATEGORY_BUTTON_AREA_WIDTH - CATEGORY_BUTTON_WIDTH), this.categoryButtonsY,
                 188, 17 + (hoveredCatButton > 0 ? CATEGORY_BUTTON_HEIGHT : 0), CATEGORY_BUTTON_WIDTH, CATEGORY_BUTTON_HEIGHT);
 
         if (this.categoryTitle != null) {
-            GuiComponent.drawCenteredString(matrices, this.font, this.categoryTitle, this.leftPos + 120, this.topPos + 8, 0xFFFFFF);
+            graphics.drawCenteredString(this.font, this.categoryTitle, this.leftPos + 120, this.topPos + 8, 0xFFFFFF);
         }
     }
 
-    protected void drawRecipes(PoseStack matrices, int mouseX, int mouseY) {
+    protected void drawRecipes(GuiGraphics graphics, int mouseX, int mouseY) {
         if (this.orderedCategories.size() > 0) {
             var recipes = this.recipes.get(this.orderedCategories.get(this.currentCategory));
 
@@ -313,7 +309,7 @@ public class AutoMechanicTableScreen extends AbstractContainerScreen<AutoMechani
                             state = RecipeButtonState.HOVERED;
                         }
 
-                        this.drawRecipeEntry(entry, matrices, x, y, state);
+                        this.drawRecipeEntry(entry, graphics, x, y, state);
                     } else {
                         break;
                     }
@@ -330,15 +326,15 @@ public class AutoMechanicTableScreen extends AbstractContainerScreen<AutoMechani
             scrollBarY += (int)((SCROLL_BAR_AREA_HEIGHT - SCROLL_BAR_HEIGHT) * ((float)this.recipeScroll / maxScroll));
         }
 
-        this.blit(matrices, scrollBarX, scrollBarY, 227, 0, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
+        graphics.blit(TEXTURE, scrollBarX, scrollBarY, 227, 0, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
     }
 
-    protected void drawRecipeEntry(RecipeEntry entry, PoseStack matrices, int x, int y, RecipeButtonState state) {
+    protected void drawRecipeEntry(RecipeEntry entry, GuiGraphics graphics, int x, int y, RecipeButtonState state) {
         this.preDraw();
-        this.blit(matrices, x, y, 176 + (state.ordinal() * RECIPE_BUTTON_SIZE), 0, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE);
+        graphics.blit(TEXTURE, x, y, 176 + (state.ordinal() * RECIPE_BUTTON_SIZE), 0, RECIPE_BUTTON_SIZE, RECIPE_BUTTON_SIZE);
 
         var stack = entry.recipe.getResultItem();
-        this.itemRenderer.renderAndDecorateFakeItem(stack, x, y);
+        graphics.renderFakeItem(stack, x, y);
     }
 
     public static record RecipeEntry(int id, AutoMechanicTableRecipe recipe) {}

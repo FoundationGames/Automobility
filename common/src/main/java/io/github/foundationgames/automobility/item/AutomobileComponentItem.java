@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends Item {
+public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends Item implements DynamicCreativeItem {
     protected final String nbtKey;
     protected final String translationKey;
     protected final SimpleMapContentRegistry<T> registry;
@@ -60,12 +60,10 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
     }
 
     @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
-        if (this.allowedIn(group)) {
-            this.registry.forEach(component -> {
-                if (addToCreative(component)) stacks.add(this.createStack(component));
-            });
-        }
+    public void fillItemCategory(List<ItemStack> stacks) {
+        this.registry.forEach(component -> {
+            if (addToCreative(component)) stacks.add(this.createStack(component));
+        });
     }
 
     public boolean isVisible(T component) {

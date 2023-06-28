@@ -1,7 +1,7 @@
 package io.github.foundationgames.automobility.block.entity.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import io.github.foundationgames.automobility.automobile.render.AutomobileRenderer;
 import io.github.foundationgames.automobility.block.entity.AutomobileAssemblerBlockEntity;
 import net.minecraft.client.gui.Font;
@@ -26,14 +26,14 @@ public class AutomobileAssemblerBlockEntityRenderer implements BlockEntityRender
 
         matrices.pushPose();
         matrices.translate(0.5, 0, 0.5);
-        matrices.mulPose(Vector3f.YP.rotationDegrees(-entity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot()));
+        matrices.mulPose(Axis.YP.rotationDegrees(-entity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot()));
         matrices.translate(0, 0.372, 0.501);
         matrices.scale(0.008f, -0.008f, -0.008f);
 
         for (var text : entity.label) {
             matrices.pushPose();
             matrices.translate(-0.5 * textRenderer.width(text), 0, 0);
-            textRenderer.drawShadow(matrices, text, 0, 0, 0xFFFFFF);
+            textRenderer.drawInBatch(text, 0f, 0f, 0xFFFFFF, true, matrices.last().pose(), vertexConsumers, Font.DisplayMode.NORMAL, light, 0xFFFFFFFF);
             matrices.popPose();
             matrices.translate(0, 12, 0);
         }

@@ -3,7 +3,7 @@ package io.github.foundationgames.automobility.recipe;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.foundationgames.automobility.item.AutomobileComponentItem;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +18,7 @@ public class AutoMechanicTableRecipeSerializer implements RecipeSerializer<AutoM
     public static ItemStack autoComponentStackFromJson(JsonObject obj) throws JsonSyntaxException, IllegalStateException {
         var id = ResourceLocation.tryParse(obj.get("item").getAsString());
         int count = obj.has("count") ? obj.get("count").getAsInt() : 1;
-        var stack = Registry.ITEM.getOptional(id).map(i -> new ItemStack(i, count)).orElse(ItemStack.EMPTY);
+        var stack = BuiltInRegistries.ITEM.getOptional(id).map(i -> new ItemStack(i, count)).orElse(ItemStack.EMPTY);
 
         if (obj.has("component") && stack.getItem() instanceof AutomobileComponentItem<?> item) {
             var component = ResourceLocation.tryParse(obj.get("component").getAsString());

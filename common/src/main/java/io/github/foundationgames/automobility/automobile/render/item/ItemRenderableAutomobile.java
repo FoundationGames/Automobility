@@ -1,6 +1,5 @@
 package io.github.foundationgames.automobility.automobile.render.item;
 
-import com.mojang.math.Vector3f;
 import io.github.foundationgames.automobility.automobile.AutomobileData;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
@@ -9,6 +8,7 @@ import io.github.foundationgames.automobility.automobile.attachment.front.FrontA
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 public class ItemRenderableAutomobile implements RenderableAutomobile {
     private final AutomobileData reader;

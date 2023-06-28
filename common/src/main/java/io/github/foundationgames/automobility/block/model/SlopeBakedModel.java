@@ -1,6 +1,5 @@
 package io.github.foundationgames.automobility.block.model;
 
-import com.mojang.math.Vector3f;
 import io.github.foundationgames.automobility.platform.Platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -15,6 +14,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.Collections;
 import java.util.List;
@@ -155,9 +155,9 @@ public class SlopeBakedModel implements BakedModel {
         var southNormal = new Vector3f(0, height, 1);
         southNormal.normalize();
 
-        var topFaceOffset = topNormal.copy(); // Translate from the surface of the slope to the surface of the plate
+        var topFaceOffset = new Vector3f(topNormal); // Translate from the surface of the slope to the surface of the plate
         topFaceOffset.mul(0.0625f);
-        var onePxUp = southNormal.copy(); // Translate one pixel up the slope
+        var onePxUp = new Vector3f(southNormal); // Translate one pixel up the slope
         onePxUp.normalize();
         onePxUp.mul(0.0625f);
 
