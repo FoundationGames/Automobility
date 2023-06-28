@@ -33,7 +33,7 @@ public class AutomobilityClientForge {
         MinecraftForge.EVENT_BUS.<RenderGuiEvent.Pre>addListener(evt -> {
             var player = Minecraft.getInstance().player;
             if (player.getVehicle() instanceof AutomobileEntity auto) {
-                AutomobileHud.render(evt.getPoseStack(), player, auto, evt.getPartialTick());
+                AutomobileHud.render(evt.getGuiGraphics(), player, auto, evt.getPartialTick());
             }
         });
 
@@ -43,7 +43,7 @@ public class AutomobilityClientForge {
 
     @SubscribeEvent
     public static void registerParticleProviders(RegisterParticleProvidersEvent evt) {
-        evt.register(AutomobilityParticles.DRIFT_SMOKE.require(), DriftSmokeParticle.Factory::new);
+        evt.registerSpriteSet(AutomobilityParticles.DRIFT_SMOKE.require(), DriftSmokeParticle.Factory::new);
     }
 
     @SubscribeEvent

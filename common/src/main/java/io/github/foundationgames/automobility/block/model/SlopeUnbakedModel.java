@@ -1,14 +1,12 @@
 package io.github.foundationgames.automobility.block.model;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.mojang.datafixers.util.Pair;
 import io.github.foundationgames.automobility.Automobility;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
@@ -19,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -72,16 +69,7 @@ public class SlopeUnbakedModel implements UnbakedModel {
     }
 
     @Override
-    public Collection<Material> getMaterials(Function<ResourceLocation, UnbakedModel> function, Set<Pair<String, String>> set) {
-        var list = Lists.<Material>newArrayList(this.frameTex);
-        if (this.plateInnerTex != null) {
-            list.add(this.plateInnerTex);
-        }
-        if (this.plateOuterTex != null) {
-            list.add(this.plateOuterTex);
-        }
-
-        return list;
+    public void resolveParents(Function<ResourceLocation, UnbakedModel> function) {
     }
 
     // TODO: Something better than this that supports other mods and resource packs
@@ -97,7 +85,7 @@ public class SlopeUnbakedModel implements UnbakedModel {
 
     @Nullable
     @Override
-    public BakedModel bake(ModelBakery modelBakery, Function<Material, TextureAtlasSprite> function, ModelState modelState, ResourceLocation resourceLocation) {
+    public BakedModel bake(ModelBaker modelBaker, Function<Material, TextureAtlasSprite> function, ModelState modelState, ResourceLocation resourceLocation) {
         return SlopeBakedModel.impl.create(function.apply(frameTex), createFrameTexOverrides(function),
                 plateInnerTex != null ? function.apply(plateInnerTex) : null,
                 plateOuterTex != null ? function.apply(plateOuterTex) : null, modelState, type);

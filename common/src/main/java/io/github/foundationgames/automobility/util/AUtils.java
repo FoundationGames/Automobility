@@ -2,13 +2,14 @@ package io.github.foundationgames.automobility.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.AutomobileEngine;
 import io.github.foundationgames.automobility.automobile.AutomobileFrame;
 import io.github.foundationgames.automobility.automobile.AutomobilePrefab;
 import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
+import org.joml.Vector3f;
+
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
@@ -166,7 +167,7 @@ public enum AUtils {;
     }
 
     public static boolean canMerge(ItemStack a, ItemStack b) {
-        return (a.sameItemStackIgnoreDurability(b)) && (a.getCount() + b.getCount() <= a.getMaxStackSize());
+        return ItemStack.isSameItem(a, b) && (a.getCount() + b.getCount() <= a.getMaxStackSize());
     }
 
     /**

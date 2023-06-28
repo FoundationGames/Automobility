@@ -16,7 +16,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -35,10 +34,13 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -61,23 +63,23 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public CreativeModeTab creativeTab(ResourceLocation rl, Supplier<ItemStack> icon) {
-        return new CreativeModeTab(rl.getNamespace()+"."+rl.getPath()) {
-            @Override
-            public ItemStack makeIcon() {
-                return icon.get();
-            }
-        };
+    public CreativeModeTab creativeTab(ResourceLocation rl, Supplier<ItemStack> icon, CreativeModeTab.DisplayItemsGenerator displayItemsGenerator) {
+        return CreativeModeTab.builder()
+                .icon(icon)
+                .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
+                .title(Component.translatable("itemGroup." + rl.getNamespace() + "." + rl.getPath()))
+                .displayItems(displayItemsGenerator)
+                .build();
     }
 
     @Override
-    public void builtinItemRenderer(Item item, HexCons<ItemStack, ItemTransforms.TransformType, PoseStack, MultiBufferSource, Integer, Integer> renderer) {
+    public void builtinItemRenderer(Item item, HexCons<ItemStack, ItemDisplayContext, PoseStack, MultiBufferSource, Integer, Integer> renderer) {
         BEWLRs.add(item, renderer);
     }
 
     @Override
     public <T extends AbstractContainerMenu> MenuType<T> menuType(BiFunction<Integer, Inventory, T> factory) {
-        return new MenuType<>(factory::apply);
+        return new MenuType<>(factory::apply, FeatureFlags.DEFAULT_FLAGS);
     }
 
     @Override

@@ -39,7 +39,7 @@ public class AutoMechanicTableScreenHandler extends AbstractContainerMenu {
 
     public AutoMechanicTableScreenHandler(int syncId, Inventory playerInv, ContainerLevelAccess ctx) {
         super(Automobility.AUTO_MECHANIC_SCREEN.require("Auto mechanic screen not registered!"), syncId);
-        this.world = playerInv.player.getLevel();
+        this.world = playerInv.player.level();
         this.context = ctx;
         this.inputInv = new SimpleContainer(9) {
             @Override public void setChanged() { AutoMechanicTableScreenHandler.this.onInputUpdated(); }
@@ -144,7 +144,7 @@ public class AutoMechanicTableScreenHandler extends AbstractContainerMenu {
 
             // Items transferred out of output slot
             if (fromSlotId == this.outputSlot.index) {
-                fromItem.onCraftedBy(fromStack, player.level, player);
+                fromItem.onCraftedBy(fromStack, player.level(), player);
                 if (!this.moveItemStackTo(fromStack, this.playerInvSlot, this.playerInvSlot + 36, true)) {
                     return ItemStack.EMPTY;
                 }
@@ -209,7 +209,7 @@ public class AutoMechanicTableScreenHandler extends AbstractContainerMenu {
             AutoMechanicTableScreenHandler.this.getSelectedRecipe()
                     .ifPresent(recipe -> {
                         recipe.assemble(AutoMechanicTableScreenHandler.this.inputInv);
-                        stack.getItem().onCraftedBy(stack, player.getLevel(), player);
+                        stack.getItem().onCraftedBy(stack, player.level(), player);
                         AutoMechanicTableScreenHandler.this.updateRecipeState();
                     });
         }

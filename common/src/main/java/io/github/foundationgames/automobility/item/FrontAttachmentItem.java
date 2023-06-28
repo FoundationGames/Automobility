@@ -15,7 +15,7 @@ public class FrontAttachmentItem extends AutomobileComponentItem<FrontAttachment
     @Override
     public InteractionResult interactAutomobile(ItemStack stack, Player player, InteractionHand hand, AutomobileEntity automobile) {
         if (automobile.getFrontAttachment().type.isEmpty()) {
-            if (player.level.isClientSide()) {
+            if (player.level().isClientSide()) {
                 return InteractionResult.SUCCESS;
             }
 

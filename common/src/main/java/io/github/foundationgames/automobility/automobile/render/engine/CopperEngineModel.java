@@ -1,7 +1,7 @@
 package io.github.foundationgames.automobility.automobile.render.engine;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.automobile.render.BaseModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -17,6 +17,6 @@ public class CopperEngineModel extends BaseModel {
 
     @Override
     protected void prepare(PoseStack matrices) {
-        matrices.mulPose(Vector3f.YP.rotationDegrees(180));
+        matrices.mulPose(Axis.YP.rotationDegrees(180));
     }
 }

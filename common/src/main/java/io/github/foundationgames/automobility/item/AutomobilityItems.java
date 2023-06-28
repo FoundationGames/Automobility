@@ -8,20 +8,20 @@ import io.github.foundationgames.automobility.automobile.AutomobileWheel;
 import io.github.foundationgames.automobility.util.Eventual;
 import io.github.foundationgames.automobility.util.RegistryQueue;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 
 import java.util.function.Supplier;
 
 public enum AutomobilityItems {;
-    public static final Eventual<Item> CROWBAR = register("crowbar", () -> new TooltipItem(Component.translatable("tooltip.item.automobility.crowbar").withStyle(ChatFormatting.BLUE), new Item.Properties().stacksTo(1).tab(Automobility.GROUP)));
-    public static final Eventual<Item> AUTOMOBILE = register("automobile", () -> new AutomobileItem(new Item.Properties().stacksTo(1).tab(Automobility.PREFABS)));
-    public static final Eventual<AutomobileFrameItem> AUTOMOBILE_FRAME = register("automobile_frame", () -> new AutomobileFrameItem(new Item.Properties().stacksTo(16).tab(Automobility.GROUP)));
-    public static final Eventual<AutomobileWheelItem> AUTOMOBILE_WHEEL = register("automobile_wheel", () -> new AutomobileWheelItem(new Item.Properties().tab(Automobility.GROUP)));
-    public static final Eventual<AutomobileEngineItem> AUTOMOBILE_ENGINE = register("automobile_engine", () -> new AutomobileEngineItem(new Item.Properties().stacksTo(16).tab(Automobility.GROUP)));
-    public static final Eventual<FrontAttachmentItem> FRONT_ATTACHMENT = register("front_attachment", () -> new FrontAttachmentItem(new Item.Properties().stacksTo(1).tab(Automobility.GROUP)));
-    public static final Eventual<RearAttachmentItem> REAR_ATTACHMENT = register("rear_attachment", () -> new RearAttachmentItem(new Item.Properties().stacksTo(1).tab(Automobility.GROUP)));
+    public static final Eventual<Item> CROWBAR = register("crowbar", () -> new TooltipItem(Component.translatable("tooltip.item.automobility.crowbar").withStyle(ChatFormatting.BLUE), new Item.Properties().stacksTo(1)), Automobility.TAB);
+    public static final Eventual<Item> AUTOMOBILE = register("automobile", () -> new AutomobileItem(new Item.Properties().stacksTo(1)), Automobility.PREFAB_TAB);
+    public static final Eventual<AutomobileFrameItem> AUTOMOBILE_FRAME = register("automobile_frame", () -> new AutomobileFrameItem(new Item.Properties().stacksTo(16)), Automobility.TAB);
+    public static final Eventual<AutomobileWheelItem> AUTOMOBILE_WHEEL = register("automobile_wheel", () -> new AutomobileWheelItem(new Item.Properties()), Automobility.TAB);
+    public static final Eventual<AutomobileEngineItem> AUTOMOBILE_ENGINE = register("automobile_engine", () -> new AutomobileEngineItem(new Item.Properties().stacksTo(16)), Automobility.TAB);
+    public static final Eventual<FrontAttachmentItem> FRONT_ATTACHMENT = register("front_attachment", () -> new FrontAttachmentItem(new Item.Properties().stacksTo(1)), Automobility.TAB);
+    public static final Eventual<RearAttachmentItem> REAR_ATTACHMENT = register("rear_attachment", () -> new RearAttachmentItem(new Item.Properties().stacksTo(1)), Automobility.TAB);
 
     public static void init() {
         AutomobileItem.addPrefabs(
@@ -60,7 +60,9 @@ public enum AutomobilityItems {;
         );
     }
 
-    public static <T extends Item> Eventual<T> register(String name, Supplier<T> item) {
-        return RegistryQueue.register(Registry.ITEM, Automobility.rl(name), item);
+    public static <T extends Item> Eventual<T> register(String name, Supplier<T> item, CreativeTabQueue tab) {
+        var itemPromise = RegistryQueue.register(BuiltInRegistries.ITEM, Automobility.rl(name), item);
+        tab.queue(itemPromise);
+        return itemPromise;
     }
 }

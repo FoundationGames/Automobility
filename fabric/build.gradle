@@ -6,17 +6,21 @@ plugins {
 version = "${project.mod_version}+${project.minecraft_version}-fabric" as Object
 
 repositories {
+    mavenLocal()
     maven { url = 'https://maven.gegy.dev/' }
     maven { url = 'https://maven.terraformersmc.com/' }
     maven { url = 'https://aperlambda.github.io/maven' }
-    // maven { url = 'https://hephaestus.dev/release' }
-    maven { url = "https://ueaj.dev/maven/" }
+    maven { url = 'https://ueaj.dev/maven' }
     maven { url = 'https://api.modrinth.com/maven' }
+    maven { url = 'https://maven.parchmentmc.org' }
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.parchment_release}@zip")
+    }
     modImplementation "net.fabricmc:fabric-loader:${project.fabric_version}"
 
     // Fabric API
@@ -24,7 +28,7 @@ dependencies {
 
     // Controller Support
     modImplementation "dev.lambdaurora:spruceui:${project.spruceui_version}"
-    modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
+    modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}-fabric"
     modImplementation "maven.modrinth:midnightcontrols:${project.midnightcontrols_version}"
     api('org.aperlambda:lambdajcommon:1.8.1') {
         exclude group: 'com.google.code.gson'

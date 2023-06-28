@@ -7,7 +7,6 @@ import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.entity.AutomobilityEntities;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.CreativeModeTab;
@@ -22,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AutomobileItem extends Item {
+public class AutomobileItem extends Item implements CustomCreativeOutput {
     public static final List<AutomobilePrefab> PREFABS = new ArrayList<>();
     private static final AutomobileData data = new AutomobileData();
     private static final AutomobileStats stats = new AutomobileStats();
@@ -78,11 +77,9 @@ public class AutomobileItem extends Item {
     }
 
     @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
-        if (allowedIn(group) || group == CreativeModeTab.TAB_TRANSPORTATION) {
-            for (var prefab : PREFABS) {
-                stacks.add(prefab.toStack());
-            }
+    public void provideCreativeOutput(CreativeModeTab.Output output) {
+        for (var prefab : PREFABS) {
+            output.accept(prefab.toStack());
         }
     }
 }

@@ -16,7 +16,7 @@ public class AutomobileContainerLevelAccess implements ContainerLevelAccess {
     private final AutomobileEntity automobile;
 
     public AutomobileContainerLevelAccess(AutomobileEntity automobile) {
-        this.world = automobile.getLevel();
+        this.world = automobile.level();
         this.automobile = automobile;
     }
 
