@@ -114,24 +114,6 @@ public record AutomobileFrame(
             )
     );
 
-    public static final AutomobileFrame DABABY = REGISTRY.register(
-            new AutomobileFrame(
-                    Automobility.rl("dababy"),
-                    0.93f,
-                    new FrameModel(
-                            Automobility.rl("textures/entity/automobile/frame/c_arr.png"),
-                            Automobility.rl("frame_dababy"),
-                            WheelBase.basic(40, 8),
-                            40,
-                            22,
-                            13,
-                            3,
-                            24,
-                            24
-                    )
-            )
-    );
-
     private static AutomobileFrame standard(String color) {
         return new AutomobileFrame(
                 Automobility.rl("standard_"+color),

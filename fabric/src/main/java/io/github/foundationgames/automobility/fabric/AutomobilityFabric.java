@@ -1,8 +1,6 @@
 package io.github.foundationgames.automobility.fabric;
 
 import io.github.foundationgames.automobility.Automobility;
-import io.github.foundationgames.automobility.fabric.block.AutomobilityFabricBlocks;
-import io.github.foundationgames.automobility.fabric.resource.AutomobilityData;
 import io.github.foundationgames.automobility.util.RegistryQueue;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.Registry;
@@ -22,9 +20,6 @@ public class AutomobilityFabric implements ModInitializer {
         register(Registry.MENU);
         register(Registry.RECIPE_TYPE);
         register(Registry.RECIPE_SERIALIZER);
-
-        AutomobilityData.setup();
-        AutomobilityFabricBlocks.init();
     }
 
     public static <V> void register(Registry<V> registry) {

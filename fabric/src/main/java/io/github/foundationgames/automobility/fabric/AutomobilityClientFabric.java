@@ -6,7 +6,6 @@ import io.github.foundationgames.automobility.block.model.SlopeBakedModel;
 import io.github.foundationgames.automobility.block.model.SlopeUnbakedModel;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.fabric.block.render.FabricSlopeBakedModel;
-import io.github.foundationgames.automobility.fabric.resource.AutomobilityAssets;
 import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.particle.DriftSmokeParticle;
 import io.github.foundationgames.automobility.screen.AutomobileHud;
@@ -25,7 +24,6 @@ public class AutomobilityClientFabric implements ClientModInitializer {
         FabricPlatform.init();
 
         AutomobilityClient.init();
-        AutomobilityAssets.setup();
 
         ParticleFactoryRegistry.getInstance().register(AutomobilityParticles.DRIFT_SMOKE.require(), DriftSmokeParticle.Factory::new);
         HudRenderCallback.EVENT.register((pose, tickDelta) -> {

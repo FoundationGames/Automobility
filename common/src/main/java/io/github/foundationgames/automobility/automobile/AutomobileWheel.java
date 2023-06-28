@@ -42,10 +42,6 @@ public record AutomobileWheel(
     public static final AutomobileWheel GILDED = REGISTRY.register(carriage("gilded", 0.45f));
     public static final AutomobileWheel BEJEWELED = REGISTRY.register(carriage("bejeweled", 0.475f));
 
-    public static final AutomobileWheel CONVERTIBLE = REGISTRY.register(
-            new AutomobileWheel(Automobility.rl("convertible"), 0.75f, 0.45f, new WheelModel(5.2f, 4.1f, Automobility.rl("textures/entity/automobile/frame/c_arr.png"), Automobility.rl("wheel_convertible")))
-    );
-
     private static AutomobileWheel carriage(String name, float grip) {
         return new AutomobileWheel(Automobility.rl(name), 1.05f, grip, new WheelModel(5, 2, Automobility.rl("textures/entity/automobile/wheel/"+name+".png"), Automobility.rl("wheel_carriage")));
     }

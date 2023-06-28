@@ -6,9 +6,4 @@ public class AutomobileWheelItem extends AutomobileComponentItem<AutomobileWheel
     public AutomobileWheelItem(Properties settings) {
         super(settings, "wheel", "wheel", AutomobileWheel.REGISTRY);
     }
-
-    @Override
-    protected boolean addToCreative(AutomobileWheel component) {
-        return super.addToCreative(component) && component != AutomobileWheel.CONVERTIBLE;
-    }
 }

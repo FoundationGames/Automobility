@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.11-SNAPSHOT'
+    id 'fabric-loom' version '1.2-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -10,7 +10,7 @@ repositories {
     maven { url = 'https://maven.terraformersmc.com/' }
     maven { url = 'https://aperlambda.github.io/maven' }
     // maven { url = 'https://hephaestus.dev/release' }
-    maven { url = 'https://storage.googleapis.com/devan-maven/' }
+    maven { url = "https://ueaj.dev/maven/" }
     maven { url = 'https://api.modrinth.com/maven' }
 }
 
@@ -30,14 +30,6 @@ dependencies {
         exclude group: 'com.google.code.gson'
         exclude group: 'com.google.guava'
     }
-
-    // OBJ loader TODO: Update
-    // modImplementation "dev.monarkhes:myron:${project.myron_version}"
-    // include "dev.monarkhes:myron:${project.myron_version}"
-
-    // Json't
-    modImplementation "net.devtech:arrp:${project.arrp_version}"
-    include "net.devtech:arrp:${project.arrp_version}"
 
     // Json entity models
     modImplementation "maven.modrinth:jsonem:${project.jsonem_version}"

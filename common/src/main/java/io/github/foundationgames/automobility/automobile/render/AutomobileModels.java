@@ -17,7 +17,6 @@ import io.github.foundationgames.automobility.automobile.render.engine.GoldEngin
 import io.github.foundationgames.automobility.automobile.render.engine.IronEngineModel;
 import io.github.foundationgames.automobility.automobile.render.engine.StoneEngineModel;
 import io.github.foundationgames.automobility.automobile.render.frame.CARRFrameModel;
-import io.github.foundationgames.automobility.automobile.render.frame.DaBabyFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.MotorcarFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.PineappleFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.RickshawFrameModel;
@@ -25,7 +24,6 @@ import io.github.foundationgames.automobility.automobile.render.frame.ShoppingCa
 import io.github.foundationgames.automobility.automobile.render.frame.StandardFrameModel;
 import io.github.foundationgames.automobility.automobile.render.frame.TractorFrameModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.CarriageWheelModel;
-import io.github.foundationgames.automobility.automobile.render.wheel.ConvertibleWheelModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.OffRoadWheelModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.StandardWheelModel;
 import io.github.foundationgames.automobility.automobile.render.wheel.SteelWheelModel;
@@ -69,14 +67,12 @@ public enum AutomobileModels {;
         register(Automobility.rl("frame_pineapple"), PineappleFrameModel::new);
         register(Automobility.rl("frame_motorcar"), MotorcarFrameModel::new);
         register(Automobility.rl("frame_rickshaw"), RickshawFrameModel::new);
-        register(Automobility.rl("frame_dababy"), DaBabyFrameModel::new);
 
         register(Automobility.rl("wheel_standard"), StandardWheelModel::new);
         register(Automobility.rl("wheel_off_road"), OffRoadWheelModel::new);
         register(Automobility.rl("wheel_steel"), SteelWheelModel::new);
         register(Automobility.rl("wheel_tractor"), TractorWheelModel::new);
         register(Automobility.rl("wheel_carriage"), CarriageWheelModel::new);
-        register(Automobility.rl("wheel_convertible"), ConvertibleWheelModel::new);
 
         register(Automobility.rl("engine_stone"), StoneEngineModel::new);
         register(Automobility.rl("engine_iron"), IronEngineModel::new);
