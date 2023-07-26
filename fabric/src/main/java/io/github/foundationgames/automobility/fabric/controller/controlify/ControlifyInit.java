@@ -3,11 +3,16 @@ package io.github.foundationgames.automobility.fabric.controller.controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.api.event.ControlifyEvents;
+import dev.isxander.controlify.api.guide.ActionPriority;
+import dev.isxander.controlify.api.ingameguide.ActionLocation;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.GamepadBinds;
 import io.github.foundationgames.automobility.Automobility;
+import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.network.chat.Component;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class ControlifyInit implements ControlifyEntrypoint {
@@ -28,6 +33,28 @@ public class ControlifyInit implements ControlifyEntrypoint {
                 .defaultBind(GamepadBinds.RIGHT_TRIGGER)
                 .context(drivingCtx)
                 .category(category));
+
+        ControlifyEvents.INGAME_GUIDE_REGISTRY.register((bindings, registry) -> {
+            var accelerate = bindings.get(Automobility.rl("accelerate_automobile"));
+            var brake = bindings.get(Automobility.rl("brake_automobile"));
+            var drift = bindings.get(Automobility.rl("drift_automobile"));
+
+            registry.registerGuideAction(accelerate, ActionLocation.LEFT, ActionPriority.LOW, ctx -> {
+                if (ctx.player().getVehicle() instanceof AutomobileEntity)
+                    return Optional.of(Component.translatable("controlify.binding.automobility.accelerate_automobile"));
+                return Optional.empty();
+            });
+            registry.registerGuideAction(brake, ActionLocation.LEFT, ActionPriority.LOW, ctx -> {
+                if (ctx.player().getVehicle() instanceof AutomobileEntity)
+                    return Optional.of(Component.translatable("controlify.binding.automobility.brake_automobile"));
+                return Optional.empty();
+            });
+            registry.registerGuideAction(drift, ActionLocation.LEFT, ActionPriority.LOW, ctx -> {
+                if (ctx.player().getVehicle() instanceof AutomobileEntity)
+                    return Optional.of(Component.translatable("controlify.binding.automobility.drift_automobile"));
+                return Optional.empty();
+            });
+        });
     }
 
     @Override
