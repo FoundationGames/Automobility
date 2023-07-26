@@ -13,7 +13,6 @@ public class ControlifyCompat implements ControllerCompat {
     static BindingSupplier accelerateBinding, brakeBinding, driftBinding;
     private ContinuousRumbleEffect driftRumbleEffect = null;
 
-
     @Override
     public boolean accelerating() {
         return isDown(accelerateBinding);
