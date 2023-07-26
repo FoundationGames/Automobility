@@ -1,4 +1,4 @@
-package io.github.foundationgames.automobility.fabric.util.midnightcontrols;
+package io.github.foundationgames.automobility.fabric.controller.midnightcontrols;
 
 import eu.midnightdust.midnightcontrols.ControlsMode;
 import eu.midnightdust.midnightcontrols.client.MidnightControlsClient;
@@ -10,6 +10,7 @@ import eu.midnightdust.midnightcontrols.client.controller.ButtonCategory;
 import eu.midnightdust.midnightcontrols.client.controller.InputManager;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import io.github.foundationgames.automobility.controller.ControllerCompat;
 import net.minecraft.client.Minecraft;
 import org.aperlambda.lambdacommon.Identifier;
 import org.aperlambda.lambdacommon.utils.function.PairPredicate;
@@ -23,25 +24,26 @@ import static org.lwjgl.glfw.GLFW.GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER;
 import static org.lwjgl.glfw.GLFW.GLFW_GAMEPAD_BUTTON_A;
 import static org.lwjgl.glfw.GLFW.GLFW_GAMEPAD_BUTTON_B;
 
-public class AutomobilityMidnightControls implements CompatHandler {
-    public static final PairPredicate<Minecraft, ButtonBinding> ON_AUTOMOBILE = (client, button) -> client.player != null && client.player.getVehicle() instanceof AutomobileEntity;
+public class AutomobilityMidnightControls implements CompatHandler, ControllerCompat {
+    public final PairPredicate<Minecraft, ButtonBinding> ON_AUTOMOBILE = (client, button) -> client.player != null && client.player.getVehicle() instanceof AutomobileEntity;
 
-    public static final Set<ButtonBinding> AUTOMOBILITY_BINDINGS = new HashSet<>();
+    public final Set<ButtonBinding> AUTOMOBILITY_BINDINGS = new HashSet<>();
 
-    public static final ButtonBinding ACCELERATE = binding(new ButtonBinding.Builder(Automobility.rl("accelerate_automobile"))
+    public final ButtonBinding ACCELERATE = binding(new ButtonBinding.Builder(Automobility.rl("accelerate_automobile"))
             .buttons(GLFW_GAMEPAD_BUTTON_A).filter(ON_AUTOMOBILE).register());
 
-    public static final ButtonBinding BRAKE = binding(new ButtonBinding.Builder(Automobility.rl("brake_automobile"))
+    public final ButtonBinding BRAKE = binding(new ButtonBinding.Builder(Automobility.rl("brake_automobile"))
             .buttons(GLFW_GAMEPAD_BUTTON_B).filter(ON_AUTOMOBILE).register());
 
-    public static final ButtonBinding DRIFT = binding(new ButtonBinding.Builder(Automobility.rl("drift_automobile"))
+    public final ButtonBinding DRIFT = binding(new ButtonBinding.Builder(Automobility.rl("drift_automobile"))
             .buttons(ButtonBinding.axisAsButton(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, true)).filter(ON_AUTOMOBILE).register());
 
-    public static final ButtonCategory AUTOMOBILITY_CATEGORY = InputManager.registerCategory(new Identifier(Automobility.MOD_ID, "automobility"));
+    public final ButtonCategory AUTOMOBILITY_CATEGORY = InputManager.registerCategory(new Identifier(Automobility.MOD_ID, "automobility"));
 
-    public static Supplier<Boolean> IN_CONTROLLER_MODE = () -> false;
+    public Supplier<Boolean> IN_CONTROLLER_MODE = () -> false;
 
-    public static void init() {
+    @Override
+    public void initCompat() {
         MidnightControlsCompat.registerCompatHandler(new AutomobilityMidnightControls());
     }
 
@@ -51,8 +53,28 @@ public class AutomobilityMidnightControls implements CompatHandler {
         IN_CONTROLLER_MODE = () -> MidnightControlsConfig.controlsMode == ControlsMode.CONTROLLER;
     }
 
-    private static ButtonBinding binding(ButtonBinding binding) {
+    private ButtonBinding binding(ButtonBinding binding) {
         AUTOMOBILITY_BINDINGS.add(binding);
         return binding;
+    }
+
+    @Override
+    public boolean accelerating() {
+        return ACCELERATE.isButtonDown();
+    }
+
+    @Override
+    public boolean braking() {
+        return BRAKE.isButtonDown();
+    }
+
+    @Override
+    public boolean drifting() {
+        return DRIFT.isButtonDown();
+    }
+
+    @Override
+    public boolean inControllerMode() {
+        return IN_CONTROLLER_MODE.get();
     }
 }

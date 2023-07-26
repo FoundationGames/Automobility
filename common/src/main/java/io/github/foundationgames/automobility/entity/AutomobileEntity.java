@@ -25,6 +25,7 @@ import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.duck.CollisionArea;
 import io.github.foundationgames.automobility.util.network.ClientPackets;
 import io.github.foundationgames.automobility.util.network.CommonPackets;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
 import net.minecraft.nbt.CompoundTag;
@@ -415,8 +416,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     private void setDrifting(boolean drifting) {
-        if (this.level().isClientSide() && !this.drifting && drifting) {
-            skidSound.accept(this);
+        if (this.level().isClientSide()) {
+            if (!this.drifting && drifting) {
+                skidSound.accept(this);
+            }
+
+            if (this.drifting != drifting) {
+                Platform.get().controllerCompat().updateDriftRumbleState(drifting);
+            }
         }
 
         this.drifting = drifting;
@@ -894,6 +901,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             addedVelocity = addedVelocity.add(Math.sin(angle) * knockSpeed, 0, Math.cos(angle) * knockSpeed);
 
             level().playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.COLLISION.require(), SoundSource.AMBIENT, 0.76f, 0.65f + (0.06f * (this.level().random.nextFloat() - 0.5f)), true);
+
+            if (isVehicle() && level().isClientSide()) {
+                if (getPassengers().stream().anyMatch(p -> p instanceof LocalPlayer)) {
+                    Platform.get().controllerCompat().crashRumble();
+                }
+            }
+
         }
 
         double yDisp = position().subtract(this.lastPosForDisplacement).y();
@@ -1210,7 +1224,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     private static boolean inLockedViewMode() {
-        return Platform.get().inControllerMode();
+        return Platform.get().controllerCompat().inControllerMode();
     }
 
     @Override

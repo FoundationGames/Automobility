@@ -1,7 +1,9 @@
 package io.github.foundationgames.automobility.fabric;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.foundationgames.automobility.fabric.util.midnightcontrols.ControllerUtils;
+import io.github.foundationgames.automobility.controller.ControllerCompat;
+import io.github.foundationgames.automobility.fabric.controller.controlify.ControlifyCompat;
+import io.github.foundationgames.automobility.fabric.controller.midnightcontrols.AutomobilityMidnightControls;
 import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.util.HexCons;
 import io.github.foundationgames.automobility.util.TriCons;
@@ -17,6 +19,7 @@ import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityT
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -61,6 +64,8 @@ import java.util.function.Supplier;
 
 public class FabricPlatform implements Platform {
     private static final FabricPlatform INSTANCE = new FabricPlatform();
+
+    private ControllerCompat controllerCompat = null;
 
     public static void init() {
         Platform.init(INSTANCE);
@@ -148,22 +153,18 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public boolean controllerAccel() {
-        return ControllerUtils.accelerating();
+    public ControllerCompat controllerCompat() {
+        if (controllerCompat == null) {
+            if (FabricLoader.getInstance().isModLoaded("controlify")) {
+                controllerCompat = new ControlifyCompat();
+            } else if (FabricLoader.getInstance().isModLoaded("midnightcontrols")) {
+                controllerCompat = new AutomobilityMidnightControls();
+            } else {
+                controllerCompat = ControllerCompat.INCOMPATIBLE;
+            }
+        }
+
+        return controllerCompat;
     }
 
-    @Override
-    public boolean controllerBrake() {
-        return ControllerUtils.braking();
-    }
-
-    @Override
-    public boolean controllerDrift() {
-        return ControllerUtils.drifting();
-    }
-
-    @Override
-    public boolean inControllerMode() {
-        return ControllerUtils.inControllerMode();
-    }
 }
