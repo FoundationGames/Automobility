@@ -60,7 +60,7 @@ public class ControlifyCompat implements ControllerCompat {
                 return;
 
             driftRumbleEffect = ContinuousRumbleEffect.builder()
-                    .byTick(t -> new RumbleState(t % 3 <= 1 ? 0.5f : 0, 0.5f))
+                    .constant(0f, 0.8f)
                     .build();
             ControlifyApi.get().getCurrentController().ifPresent(controller ->
                     controller.rumbleManager().play(RumbleSource.MASTER, driftRumbleEffect));
