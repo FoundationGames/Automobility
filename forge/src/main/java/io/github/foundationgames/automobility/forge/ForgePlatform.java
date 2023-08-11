@@ -1,7 +1,7 @@
 package io.github.foundationgames.automobility.forge;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.foundationgames.automobility.controller.ControllerCompat;
+import io.github.foundationgames.automobility.controller.AutomobileController;
 import io.github.foundationgames.automobility.forge.client.BEWLRs;
 import io.github.foundationgames.automobility.forge.mixin.BlockColorsAccess;
 import io.github.foundationgames.automobility.forge.network.AutomobilityPacketHandler;
@@ -145,8 +145,8 @@ public class ForgePlatform implements Platform {
     }
 
     @Override
-    public ControllerCompat controllerCompat() {
-        return ControllerCompat.INCOMPATIBLE;
+    public AutomobileController controller() {
+        return AutomobileController.INCOMPATIBLE;
     }
 
 }

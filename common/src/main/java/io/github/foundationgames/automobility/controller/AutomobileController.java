@@ -1,6 +1,6 @@
 package io.github.foundationgames.automobility.controller;
 
-public interface ControllerCompat {
+public interface AutomobileController {
     boolean accelerating();
 
     boolean braking();
@@ -15,7 +15,7 @@ public interface ControllerCompat {
 
     default void initCompat() {}
 
-    ControllerCompat INCOMPATIBLE = new ControllerCompat() {
+    AutomobileController INCOMPATIBLE = new AutomobileController() {
         @Override
         public boolean accelerating() {
             return false;

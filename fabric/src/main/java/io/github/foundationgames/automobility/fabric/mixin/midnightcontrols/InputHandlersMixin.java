@@ -3,7 +3,7 @@ package io.github.foundationgames.automobility.fabric.mixin.midnightcontrols;
 import eu.midnightdust.midnightcontrols.client.controller.ButtonBinding;
 import eu.midnightdust.midnightcontrols.client.controller.InputHandlers;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import io.github.foundationgames.automobility.fabric.controller.midnightcontrols.AutomobilityMidnightControls;
+import io.github.foundationgames.automobility.fabric.controller.midnightcontrols.MidnightController;
 import io.github.foundationgames.automobility.platform.Platform;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +22,7 @@ public class InputHandlersMixin {
     private static void automobility$makeAutomobileInputsWork(@NotNull Minecraft client, @NotNull ButtonBinding binding, CallbackInfoReturnable<Boolean> cir) {
         var player = client.player;
         if (!(player == null || !(player.getVehicle() instanceof AutomobileEntity))) {
-            for (ButtonBinding ab : ((AutomobilityMidnightControls) Platform.get().controllerCompat()).AUTOMOBILITY_BINDINGS) {
+            for (ButtonBinding ab : ((MidnightController) Platform.get().controller()).AUTOMOBILITY_BINDINGS) {
                 if (Arrays.equals(ab.getButton(), binding.getButton())) cir.setReturnValue(false);
             }
         }

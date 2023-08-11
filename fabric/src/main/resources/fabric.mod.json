@@ -22,7 +22,7 @@
       "io.github.foundationgames.automobility.fabric.AutomobilityClientFabric"
     ],
     "controlify": [
-      "io.github.foundationgames.automobility.fabric.controller.controlify.ControlifyInit"
+      "io.github.foundationgames.automobility.fabric.controller.controlify.ControlifyCompat"
     ]
   },
   "mixins": [

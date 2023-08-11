@@ -10,7 +10,7 @@ import eu.midnightdust.midnightcontrols.client.controller.ButtonCategory;
 import eu.midnightdust.midnightcontrols.client.controller.InputManager;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
-import io.github.foundationgames.automobility.controller.ControllerCompat;
+import io.github.foundationgames.automobility.controller.AutomobileController;
 import net.minecraft.client.Minecraft;
 import org.aperlambda.lambdacommon.Identifier;
 import org.aperlambda.lambdacommon.utils.function.PairPredicate;
@@ -24,7 +24,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER;
 import static org.lwjgl.glfw.GLFW.GLFW_GAMEPAD_BUTTON_A;
 import static org.lwjgl.glfw.GLFW.GLFW_GAMEPAD_BUTTON_B;
 
-public class AutomobilityMidnightControls implements CompatHandler, ControllerCompat {
+public class MidnightController implements CompatHandler, AutomobileController {
     public final PairPredicate<Minecraft, ButtonBinding> ON_AUTOMOBILE = (client, button) -> client.player != null && client.player.getVehicle() instanceof AutomobileEntity;
 
     public final Set<ButtonBinding> AUTOMOBILITY_BINDINGS = new HashSet<>();
@@ -44,7 +44,7 @@ public class AutomobilityMidnightControls implements CompatHandler, ControllerCo
 
     @Override
     public void initCompat() {
-        MidnightControlsCompat.registerCompatHandler(new AutomobilityMidnightControls());
+        MidnightControlsCompat.registerCompatHandler(new MidnightController());
     }
 
     @Override
