@@ -422,7 +422,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             }
 
             if (this.drifting != drifting) {
-                Platform.get().controllerCompat().updateDriftRumbleState(drifting);
+                Platform.get().controller().updateDriftRumbleState(drifting);
             }
         }
 
@@ -904,7 +904,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
             if (isVehicle() && level().isClientSide()) {
                 if (getPassengers().stream().anyMatch(p -> p instanceof LocalPlayer)) {
-                    Platform.get().controllerCompat().crashRumble();
+                    Platform.get().controller().crashRumble();
                 }
             }
 
@@ -1224,7 +1224,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     private static boolean inLockedViewMode() {
-        return Platform.get().controllerCompat().inControllerMode();
+        return Platform.get().controller().inControllerMode();
     }
 
     @Override

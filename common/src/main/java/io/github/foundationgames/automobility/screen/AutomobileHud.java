@@ -1,7 +1,6 @@
 package io.github.foundationgames.automobility.screen;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.util.AUtils;
@@ -27,7 +26,7 @@ public enum AutomobileHud {;
     public static void render(GuiGraphics graphics, Player player, AutomobileEntity auto, float tickDelta) {
         renderSpeedometer(graphics, auto);
 
-        if (!Platform.get().controllerCompat().inControllerMode()) {
+        if (!Platform.get().controller().inControllerMode()) {
             float alpha = Math.max(0, (auto.getStandStillTime() * 2) - 1);
 
             // Check on a 0-255 converted version of alpha, because 0 alpha will render things at 100% alpha for some

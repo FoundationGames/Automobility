@@ -69,7 +69,7 @@ public class AutomobilityClient {
         initEntities();
         ClientPackets.initClient();
 
-        Platform.get().controllerCompat().initCompat();
+        Platform.get().controller().initCompat();
 
         Platform.get().registerMenuScreen(Automobility.AUTO_MECHANIC_SCREEN.require(), AutoMechanicTableScreen::new);
         Platform.get().registerMenuScreen(Automobility.SINGLE_SLOT_SCREEN.require(), SingleSlotScreen::new);

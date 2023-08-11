@@ -1,71 +1,64 @@
 package io.github.foundationgames.automobility.fabric.controller.controlify;
 
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.api.bind.BindingSupplier;
-import dev.isxander.controlify.api.bind.ControllerBinding;
-import dev.isxander.controlify.rumble.BasicRumbleEffect;
-import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
-import io.github.foundationgames.automobility.controller.ControllerCompat;
+import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
+import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.api.event.ControlifyEvents;
+import dev.isxander.controlify.api.guide.ActionPriority;
+import dev.isxander.controlify.api.ingameguide.ActionLocation;
+import dev.isxander.controlify.bindings.BindContext;
+import dev.isxander.controlify.bindings.GamepadBinds;
+import io.github.foundationgames.automobility.Automobility;
+import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import net.minecraft.network.chat.Component;
 
-public class ControlifyCompat implements ControllerCompat {
-    static BindingSupplier accelerateBinding, brakeBinding, driftBinding;
-    private ContinuousRumbleEffect driftRumbleEffect = null;
+import java.util.Optional;
+import java.util.Set;
 
+public class ControlifyCompat implements ControlifyEntrypoint {
     @Override
-    public boolean accelerating() {
-        return isDown(accelerateBinding);
-    }
+    public void onControlifyPreInit(ControlifyApi controlify) {
+        BindContext drivingCtx = new BindContext(Automobility.rl("driving"), Set.of());
+        Component category = Component.translatable("controlify.binding_category.driving");
 
-    @Override
-    public boolean braking() {
-        return isDown(brakeBinding);
-    }
+        ControlifyController.accelerateBinding = ControlifyBindingsApi.get().registerBind(Automobility.rl("accelerate_automobile"), builder -> builder
+                .defaultBind(GamepadBinds.A_BUTTON)
+                .context(drivingCtx)
+                .category(category));
+        ControlifyController.brakeBinding = ControlifyBindingsApi.get().registerBind(Automobility.rl("brake_automobile"), builder -> builder
+                .defaultBind(GamepadBinds.B_BUTTON)
+                .context(drivingCtx)
+                .category(category));
+        ControlifyController.driftBinding = ControlifyBindingsApi.get().registerBind(Automobility.rl("drift_automobile"), builder -> builder
+                .defaultBind(GamepadBinds.RIGHT_TRIGGER)
+                .context(drivingCtx)
+                .category(category));
 
-    @Override
-    public boolean drifting() {
-        return isDown(driftBinding);
-    }
+        ControlifyEvents.INGAME_GUIDE_REGISTRY.register((bindings, registry) -> {
+            var accelerate = bindings.get(Automobility.rl("accelerate_automobile"));
+            var brake = bindings.get(Automobility.rl("brake_automobile"));
+            var drift = bindings.get(Automobility.rl("drift_automobile"));
 
-    @Override
-    public boolean inControllerMode() {
-        return ControlifyApi.get().currentInputMode().isController();
-    }
-
-    private boolean isDown(BindingSupplier binding) {
-        return inControllerMode() && ControlifyApi.get().getCurrentController()
-                .map(binding::onController)
-                .map(ControllerBinding::held)
-                .orElse(false);
-    }
-
-    @Override
-    public void crashRumble() {
-        ControlifyApi.get().getCurrentController().ifPresent(controller -> {
-            controller.rumbleManager().play(
-                    RumbleSource.DAMAGE,
-                    BasicRumbleEffect.byTime(
-                            t -> new RumbleState(t < 0.5 ? 1 : 0, 1 - t),
-                            20
-                    )
-            );
+            registry.registerGuideAction(accelerate, ActionLocation.LEFT, ActionPriority.LOW, ctx -> {
+                if (ctx.player().getVehicle() instanceof AutomobileEntity)
+                    return Optional.of(Component.translatable("controlify.binding.automobility.accelerate_automobile"));
+                return Optional.empty();
+            });
+            registry.registerGuideAction(brake, ActionLocation.LEFT, ActionPriority.LOW, ctx -> {
+                if (ctx.player().getVehicle() instanceof AutomobileEntity)
+                    return Optional.of(Component.translatable("controlify.binding.automobility.brake_automobile"));
+                return Optional.empty();
+            });
+            registry.registerGuideAction(drift, ActionLocation.LEFT, ActionPriority.LOW, ctx -> {
+                if (ctx.player().getVehicle() instanceof AutomobileEntity)
+                    return Optional.of(Component.translatable("controlify.binding.automobility.drift_automobile"));
+                return Optional.empty();
+            });
         });
     }
 
     @Override
-    public void updateDriftRumbleState(boolean drifting) {
-        if (drifting) {
-            if (driftRumbleEffect != null && !driftRumbleEffect.isFinished())
-                return;
+    public void onControllersDiscovered(ControlifyApi controlify) {
 
-            driftRumbleEffect = ContinuousRumbleEffect.builder()
-                    .constant(0f, 0.8f)
-                    .build();
-            ControlifyApi.get().getCurrentController().ifPresent(controller ->
-                    controller.rumbleManager().play(RumbleSource.MASTER, driftRumbleEffect));
-        } else if (driftRumbleEffect != null) {
-            driftRumbleEffect.stop();
-        }
     }
 }

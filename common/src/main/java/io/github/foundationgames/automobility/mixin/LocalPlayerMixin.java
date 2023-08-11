@@ -19,13 +19,13 @@ public class LocalPlayerMixin {
     public void automobility$setAutomobileInputs(CallbackInfo ci) {
         LocalPlayer self = (LocalPlayer)(Object)this;
         if (self.getVehicle() instanceof AutomobileEntity vehicle) {
-            if (Platform.get().controllerCompat().inControllerMode()) {
+            if (Platform.get().controller().inControllerMode()) {
                 vehicle.provideClientInput(
-                        Platform.get().controllerCompat().accelerating(),
-                        Platform.get().controllerCompat().braking(),
+                        Platform.get().controller().accelerating(),
+                        Platform.get().controller().braking(),
                         input.left,
                         input.right,
-                        Platform.get().controllerCompat().drifting()
+                        Platform.get().controller().drifting()
                 );
             } else {
                 vehicle.provideClientInput(

@@ -1,7 +1,7 @@
 package io.github.foundationgames.automobility.platform;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.foundationgames.automobility.controller.ControllerCompat;
+import io.github.foundationgames.automobility.controller.AutomobileController;
 import io.github.foundationgames.automobility.util.HexCons;
 import io.github.foundationgames.automobility.util.TriCons;
 import io.github.foundationgames.automobility.util.TriFunc;
@@ -88,6 +88,6 @@ public interface Platform {
 
     SimpleParticleType simpleParticleType(boolean z);
 
-    ControllerCompat controllerCompat();
+    AutomobileController controller();
 
 }

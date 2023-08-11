@@ -1,9 +1,9 @@
 package io.github.foundationgames.automobility.fabric;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.foundationgames.automobility.controller.ControllerCompat;
-import io.github.foundationgames.automobility.fabric.controller.controlify.ControlifyCompat;
-import io.github.foundationgames.automobility.fabric.controller.midnightcontrols.AutomobilityMidnightControls;
+import io.github.foundationgames.automobility.controller.AutomobileController;
+import io.github.foundationgames.automobility.fabric.controller.controlify.ControlifyController;
+import io.github.foundationgames.automobility.fabric.controller.midnightcontrols.MidnightController;
 import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.util.HexCons;
 import io.github.foundationgames.automobility.util.TriCons;
@@ -65,7 +65,7 @@ import java.util.function.Supplier;
 public class FabricPlatform implements Platform {
     private static final FabricPlatform INSTANCE = new FabricPlatform();
 
-    private ControllerCompat controllerCompat = null;
+    private AutomobileController automobileController = null;
 
     public static void init() {
         Platform.init(INSTANCE);
@@ -153,18 +153,18 @@ public class FabricPlatform implements Platform {
     }
 
     @Override
-    public ControllerCompat controllerCompat() {
-        if (controllerCompat == null) {
+    public AutomobileController controller() {
+        if (automobileController == null) {
             if (FabricLoader.getInstance().isModLoaded("controlify")) {
-                controllerCompat = new ControlifyCompat();
+                automobileController = new ControlifyController();
             } else if (FabricLoader.getInstance().isModLoaded("midnightcontrols")) {
-                controllerCompat = new AutomobilityMidnightControls();
+                automobileController = new MidnightController();
             } else {
-                controllerCompat = ControllerCompat.INCOMPATIBLE;
+                automobileController = AutomobileController.INCOMPATIBLE;
             }
         }
 
-        return controllerCompat;
+        return automobileController;
     }
 
 }
