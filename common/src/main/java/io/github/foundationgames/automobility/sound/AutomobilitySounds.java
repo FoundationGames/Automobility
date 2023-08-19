@@ -3,7 +3,6 @@ package io.github.foundationgames.automobility.sound;
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.util.Eventual;
 import io.github.foundationgames.automobility.util.RegistryQueue;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;
 

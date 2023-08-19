@@ -1,6 +1,7 @@
 package io.github.foundationgames.automobility.fabric.controller.controlify;
 
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.api.bind.BindingSupplier;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.api.event.ControlifyEvents;
@@ -12,10 +13,13 @@ import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import net.minecraft.network.chat.Component;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
 public class ControlifyCompat implements ControlifyEntrypoint {
+    public static final Set<BindingSupplier> AUTOMOBILITY_BINDINGS = new HashSet<>();
+
     @Override
     public void onControlifyPreInit(ControlifyApi controlify) {
         BindContext drivingCtx = new BindContext(Automobility.rl("driving"), Set.of());
@@ -33,6 +37,11 @@ public class ControlifyCompat implements ControlifyEntrypoint {
                 .defaultBind(GamepadBinds.RIGHT_TRIGGER)
                 .context(drivingCtx)
                 .category(category));
+
+        AUTOMOBILITY_BINDINGS.clear();
+        AUTOMOBILITY_BINDINGS.add(ControlifyController.accelerateBinding);
+        AUTOMOBILITY_BINDINGS.add(ControlifyController.brakeBinding);
+        AUTOMOBILITY_BINDINGS.add(ControlifyController.driftBinding);
 
         ControlifyEvents.INGAME_GUIDE_REGISTRY.register((bindings, registry) -> {
             var accelerate = bindings.get(Automobility.rl("accelerate_automobile"));

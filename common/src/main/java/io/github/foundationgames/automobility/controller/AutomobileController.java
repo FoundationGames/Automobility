@@ -9,7 +9,15 @@ public interface AutomobileController {
 
     default void crashRumble() {}
 
-    default void updateDriftRumbleState(boolean drifting) {};
+    default void groundThudRumble() {}
+
+    default void driftChargeRumble() {}
+
+    default void updateMaxChargeRumbleState(boolean maxCharge) {}
+
+    default void updateBoostingRumbleState(boolean boosting, float boostPower) {}
+
+    default void updateOffRoadRumbleState(boolean inOffRoad) {}
 
     boolean inControllerMode();
 

@@ -1,7 +1,6 @@
 package io.github.foundationgames.automobility.recipe;
 
 import io.github.foundationgames.automobility.Automobility;
-
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;

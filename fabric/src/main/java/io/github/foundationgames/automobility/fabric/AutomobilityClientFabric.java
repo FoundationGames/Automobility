@@ -8,9 +8,11 @@ import io.github.foundationgames.automobility.entity.AutomobileEntity;
 import io.github.foundationgames.automobility.fabric.block.render.FabricSlopeBakedModel;
 import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.particle.DriftSmokeParticle;
+import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.screen.AutomobileHud;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
@@ -19,6 +21,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 
 public class AutomobilityClientFabric implements ClientModInitializer {
+    private static boolean wasRidingAutomobile = false;
+
     @Override
     public void onInitializeClient() {
         FabricPlatform.init();
@@ -40,6 +44,21 @@ public class AutomobilityClientFabric implements ClientModInitializer {
 
         ModelLoadingRegistry.INSTANCE.registerResourceProvider(manager -> (location, context) ->
                 SlopeUnbakedModel.DEFAULT_MODELS.containsKey(location) ? SlopeUnbakedModel.DEFAULT_MODELS.get(location).get() : null);
+
+        ClientTickEvents.START_WORLD_TICK.register(world -> {
+            boolean isRidingAutomobile = Minecraft.getInstance().player != null &&
+                    Minecraft.getInstance().player.getVehicle() instanceof AutomobileEntity;
+
+            if (wasRidingAutomobile && !isRidingAutomobile) {
+                var con = Platform.get().controller();
+
+                con.updateMaxChargeRumbleState(false);
+                con.updateOffRoadRumbleState(false);
+                con.updateBoostingRumbleState(false, 0);
+            }
+
+            wasRidingAutomobile = isRidingAutomobile;
+        });
 
         BlockRenderLayerMap.INSTANCE.putBlock(AutomobilityBlocks.LAUNCH_GEL.require(), RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(AutomobilityBlocks.AUTOMOBILE_ASSEMBLER.require(), RenderType.cutout());

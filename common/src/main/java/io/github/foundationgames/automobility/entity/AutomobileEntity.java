@@ -15,6 +15,7 @@ import io.github.foundationgames.automobility.automobile.render.RenderableAutomo
 import io.github.foundationgames.automobility.block.AutomobileAssemblerBlock;
 import io.github.foundationgames.automobility.block.LaunchGelBlock;
 import io.github.foundationgames.automobility.block.OffRoadBlock;
+import io.github.foundationgames.automobility.controller.AutomobileController;
 import io.github.foundationgames.automobility.item.AutomobileInteractable;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
 import io.github.foundationgames.automobility.particle.AutomobilityParticles;
@@ -25,6 +26,7 @@ import io.github.foundationgames.automobility.util.AUtils;
 import io.github.foundationgames.automobility.util.duck.CollisionArea;
 import io.github.foundationgames.automobility.util.network.ClientPackets;
 import io.github.foundationgames.automobility.util.network.CommonPackets;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
@@ -316,6 +318,14 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
     }
 
+    private void controllerAction(Consumer<AutomobileController> action) {
+        if (this.level().isClientSide()) {
+            if (this.getControllingPassenger() == Minecraft.getInstance().player) {
+                action.accept(Platform.get().controller());
+            }
+        }
+    }
+
     @Override
     public AutomobileFrame getFrame() {
         return frame;
@@ -420,10 +430,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             if (!this.drifting && drifting) {
                 skidSound.accept(this);
             }
-
-            if (this.drifting != drifting) {
-                Platform.get().controller().updateDriftRumbleState(drifting);
-            }
         }
 
         this.drifting = drifting;
@@ -432,6 +438,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private void setBurningOut(boolean burningOut) {
         if (this.level().isClientSide() && !this.drifting && !this.burningOut && burningOut) {
             skidSound.accept(this);
+        }
+
+        if (this.burningOut != burningOut || (this.turboCharge >= LARGE_TURBO_TIME) != burningOut) {
+            controllerAction(c -> c.updateMaxChargeRumbleState(burningOut));
         }
 
         this.burningOut = burningOut;
@@ -736,6 +746,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 engineSpeed += 0.012f;
             }
             markDirty();
+
+            if (boostTimer == 0) {
+                controllerAction(c -> c.updateBoostingRumbleState(false, 0));
+            }
         } else {
             boostSpeed = AUtils.zero(boostSpeed, 0.09f);
         }
@@ -810,14 +824,20 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             slopeStickingTimer = Math.max(0, slopeStickingTimer--);
         }
 
+        boolean wasOffRoad = this.offRoad && this.hSpeed > 0.01;
+
         // Handle being in off-road
-        if (boostSpeed < 0.4f && level().getBlockState(blockPosition()).getBlock() instanceof OffRoadBlock offRoad) {
+        if (boostSpeed < 0.4f && level().getBlockState(blockPosition()).getBlock() instanceof OffRoadBlock block) {
             int layers = level().getBlockState(blockPosition()).getValue(OffRoadBlock.LAYERS);
             float cap = stats.getComfortableSpeed() * (1 - ((float)layers / 3.5f));
             engineSpeed = Math.min(cap, engineSpeed);
-            this.debrisColor = offRoad.color;
+            this.debrisColor = block.color;
             this.offRoad = true;
         } else this.offRoad = false;
+
+        if ((this.offRoad && this.hSpeed > 0.01) != wasOffRoad) {
+            controllerAction(c -> c.updateOffRoadRumbleState(this.offRoad));
+        }
 
         // Set the horizontal speed
         if (!burningOut()) hSpeed = engineSpeed + boostSpeed;
@@ -904,7 +924,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
             if (isVehicle() && level().isClientSide()) {
                 if (getPassengers().stream().anyMatch(p -> p instanceof LocalPlayer)) {
-                    Platform.get().controller().crashRumble();
+                    controllerAction(c -> c.crashRumble());
                 }
             }
 
@@ -1124,6 +1144,8 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         if (this.isControlledByLocalInstance()) {
             this.engineSpeed = Math.max(this.engineSpeed, this.stats.getComfortableSpeed() * 0.5f);
         }
+
+        controllerAction(c -> c.updateBoostingRumbleState(true, power));
     }
 
     private void steeringTick() {
@@ -1152,10 +1174,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     private void driftingTick() {
+        int prevTurboCharge = turboCharge;
+
         // Handles starting a drift
         if (!prevHoldDrift && holdingDrift) {
             if (steering != 0 && !drifting && hSpeed > 0.4f && automobileOnGround) {
                 setDrifting(true);
+                controllerAction(AutomobileController::driftChargeRumble);
                 driftDir = steering > 0 ? 1 : -1;
                 // Reduce speed when a drift starts, based on how long the last drift was for
                 // This allows you to do a series of short drifts without tanking all your speed, while still reducing your speed when you begin the drift(s)
@@ -1171,13 +1196,25 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             // Ending a drift successfully, giving you a turbo boost
             if (prevHoldDrift && !holdingDrift) {
                 setDrifting(false);
+                controllerAction(c -> c.updateMaxChargeRumbleState(false));
                 consumeTurboCharge();
             // Ending a drift unsuccessfully, not giving you a boost
             } else if (hSpeed < 0.33f) {
                 setDrifting(false);
+                controllerAction(c -> c.updateMaxChargeRumbleState(false));
                 turboCharge = 0;
             }
             if (automobileOnGround) turboCharge += ((steeringLeft && driftDir < 0) || (steeringRight && driftDir > 0)) ? 2 : 1;
+        }
+
+        if (turboCharge == SMALL_TURBO_TIME || turboCharge == MEDIUM_TURBO_TIME || turboCharge == LARGE_TURBO_TIME) {
+            controllerAction(AutomobileController::driftChargeRumble);
+        }
+
+        if (turboCharge >= LARGE_TURBO_TIME && prevTurboCharge < LARGE_TURBO_TIME) {
+            controllerAction(c -> c.updateMaxChargeRumbleState(true));
+        } else if (prevTurboCharge >= LARGE_TURBO_TIME && turboCharge < LARGE_TURBO_TIME) {
+            controllerAction(c -> c.updateMaxChargeRumbleState(false));
         }
 
         this.prevHoldDrift = this.holdingDrift;
@@ -1472,6 +1509,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     public void bounce() {
         suspensionBounceTimer = 3;
         level().playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.LANDING.require(), SoundSource.AMBIENT, 1, 1.5f + (0.15f * (this.level().random.nextFloat() - 0.5f)), true);
+        controllerAction(AutomobileController::groundThudRumble);
     }
 
     public static final class Displacement {

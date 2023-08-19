@@ -8,6 +8,7 @@
   ],
   "client": [
     "GameRendererMixin",
+    "controlify.ControllerBindingImplMixin",
     "midnightcontrols.InputHandlersMixin"
   ],
   "injectors": {

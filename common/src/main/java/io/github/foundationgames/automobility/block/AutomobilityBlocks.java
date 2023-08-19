@@ -2,8 +2,8 @@ package io.github.foundationgames.automobility.block;
 
 import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.block.entity.AutomobileAssemblerBlockEntity;
-import io.github.foundationgames.automobility.item.DashPanelItem;
 import io.github.foundationgames.automobility.item.CreativeTabQueue;
+import io.github.foundationgames.automobility.item.DashPanelItem;
 import io.github.foundationgames.automobility.item.SlopeBlockItem;
 import io.github.foundationgames.automobility.item.SteepSlopeBlockItem;
 import io.github.foundationgames.automobility.item.TooltipBlockItem;

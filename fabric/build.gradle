@@ -41,7 +41,7 @@ dependencies {
     }
 
     // Controlify Support
-    modImplementation "dev.isxander:controlify:${project.controlify_version}"
+    modCompileOnly "dev.isxander:controlify:${project.controlify_version}"
 
     // Json entity models
     modImplementation "maven.modrinth:jsonem:${project.jsonem_version}"

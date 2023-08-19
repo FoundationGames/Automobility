@@ -1,8 +1,6 @@
 package io.github.foundationgames.automobility.item;
 
 import io.github.foundationgames.automobility.block.AutomobilityBlocks;
-import io.github.foundationgames.automobility.block.SlopeBlock;
-import io.github.foundationgames.automobility.block.SteepSlopeBlock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

@@ -11,7 +11,7 @@ import io.github.foundationgames.automobility.controller.AutomobileController;
 
 public class ControlifyController implements AutomobileController {
     static BindingSupplier accelerateBinding, brakeBinding, driftBinding;
-    private ContinuousRumbleEffect driftRumbleEffect = null;
+    private ContinuousRumbleEffect maxChargeRumble = null, boostingRumble = null, offRoadRumble = null;
 
     @Override
     public boolean accelerating() {
@@ -46,26 +46,81 @@ public class ControlifyController implements AutomobileController {
             controller.rumbleManager().play(
                     RumbleSource.DAMAGE,
                     BasicRumbleEffect.byTime(
-                            t -> new RumbleState(t < 0.5 ? 1 : 0, 1 - t),
-                            20
+                            t -> new RumbleState(t < 0.25 ? 1 : 0, (1 - t) * 0.7f),
+                            5
                     )
             );
         });
     }
 
     @Override
-    public void updateDriftRumbleState(boolean drifting) {
-        if (drifting) {
-            if (driftRumbleEffect != null && !driftRumbleEffect.isFinished())
+    public void groundThudRumble() {
+        ControlifyApi.get().getCurrentController().ifPresent(controller -> {
+            controller.rumbleManager().play(
+                    RumbleSource.DAMAGE,
+                    BasicRumbleEffect.constant(0.1f, 0.3f, 3)
+            );
+        });
+    }
+
+    @Override
+    public void driftChargeRumble() {
+        ControlifyApi.get().getCurrentController().ifPresent(controller -> {
+            controller.rumbleManager().play(
+                    RumbleSource.DAMAGE,
+                    BasicRumbleEffect.byTime(
+                            t -> new RumbleState(t < 0.15 ? 0.4f : 0, (1 - t) * 0.2f),
+                            6
+                    )
+            );
+        });
+    }
+
+    @Override
+    public void updateMaxChargeRumbleState(boolean maxCharge) {
+        if (maxCharge) {
+            if (maxChargeRumble != null && !maxChargeRumble.isFinished())
                 return;
 
-            driftRumbleEffect = ContinuousRumbleEffect.builder()
-                    .constant(0f, 0.8f)
+            maxChargeRumble = ContinuousRumbleEffect.builder()
+                    .constant(0f, 0.05f)
                     .build();
             ControlifyApi.get().getCurrentController().ifPresent(controller ->
-                    controller.rumbleManager().play(RumbleSource.MASTER, driftRumbleEffect));
-        } else if (driftRumbleEffect != null) {
-            driftRumbleEffect.stop();
+                    controller.rumbleManager().play(RumbleSource.MASTER, maxChargeRumble));
+        } else if (maxChargeRumble != null) {
+            maxChargeRumble.stop();
+        }
+    }
+
+    @Override
+    public void updateBoostingRumbleState(boolean boosting, float boostPower) {
+        if (boosting) {
+            if (boostingRumble != null && !boostingRumble.isFinished())
+                return;
+
+            boostingRumble = ContinuousRumbleEffect.builder()
+                    .constant(0.1f * boostPower, 0.5f * boostPower)
+                    .build();
+            ControlifyApi.get().getCurrentController().ifPresent(controller ->
+                    controller.rumbleManager().play(RumbleSource.MASTER, boostingRumble));
+        } else if (boostingRumble != null) {
+            boostingRumble.stop();
+        }
+    }
+
+    @Override
+    public void updateOffRoadRumbleState(boolean inOffRoad) {
+        if (inOffRoad) {
+            if (offRoadRumble != null && !offRoadRumble.isFinished())
+                return;
+
+            offRoadRumble = ContinuousRumbleEffect.builder()
+                    .constant(0.04f, 0.02f)
+                    .build();
+            ControlifyApi.get().getCurrentController().ifPresent(controller ->
+                    controller.rumbleManager().play(RumbleSource.MASTER, offRoadRumble));
+        } else if (offRoadRumble != null) {
+            offRoadRumble.stop();
         }
     }
 }
