@@ -1,9 +1,9 @@
 package io.github.foundationgames.automobility.controller;
 
 public interface AutomobileController {
-    boolean accelerating();
+    float acceleration();
 
-    boolean braking();
+    float brakeForce();
 
     boolean drifting();
 
@@ -25,13 +25,13 @@ public interface AutomobileController {
 
     AutomobileController INCOMPATIBLE = new AutomobileController() {
         @Override
-        public boolean accelerating() {
-            return false;
+        public float acceleration() {
+            return 0f;
         }
 
         @Override
-        public boolean braking() {
-            return false;
+        public float brakeForce() {
+            return 0f;
         }
 
         @Override

@@ -57,13 +57,13 @@ public class MidnightController implements CompatHandler, AutomobileController {
     }
 
     @Override
-    public boolean accelerating() {
-        return ACCELERATE.isButtonDown();
+    public float acceleration() {
+        return ACCELERATE.isButtonDown() ? 1f : 0f;
     }
 
     @Override
-    public boolean braking() {
-        return BRAKE.isButtonDown();
+    public float brakeForce() {
+        return BRAKE.isButtonDown() ? 1f : 0f;
     }
 
     @Override

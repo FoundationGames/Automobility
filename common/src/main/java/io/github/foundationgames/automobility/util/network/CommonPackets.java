@@ -57,15 +57,15 @@ public enum CommonPackets {;
 
     public static void init() {
         Platform.get().serverReceivePacket(Automobility.rl("sync_automobile_inputs"), (server, player, buf) -> {
-            boolean fwd = buf.readBoolean();
-            boolean back = buf.readBoolean();
-            boolean left = buf.readBoolean();
-            boolean right = buf.readBoolean();
-            boolean space = buf.readBoolean();
+            float acceleration = buf.readFloat();
+            float brakeForce = buf.readFloat();
+            float steerLeftImpulse = buf.readFloat();
+            boolean drifting = buf.readBoolean();
             int entityId = buf.readInt();
+
             server.execute(() -> {
                 if (player.level().getEntity(entityId) instanceof AutomobileEntity automobile) {
-                    automobile.setInputs(fwd, back, left, right, space);
+                    automobile.setInputs(acceleration, brakeForce, steerLeftImpulse, drifting);
                     automobile.markDirty();
                 }
             });

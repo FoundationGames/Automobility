@@ -78,7 +78,7 @@ public class ItemRenderableAutomobile implements RenderableAutomobile {
     }
 
     @Override
-    public int getTurboCharge() {
+    public float getTurboCharge() {
         return 0;
     }
 
