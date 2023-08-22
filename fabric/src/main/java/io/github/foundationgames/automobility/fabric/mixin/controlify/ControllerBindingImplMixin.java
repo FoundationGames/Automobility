@@ -25,8 +25,9 @@ public abstract class ControllerBindingImplMixin implements ControllerBinding {
 
     @Inject(method = "held", at = @At("HEAD"), cancellable = true)
     private void automobility$makeAutomobileInputsWork(CallbackInfoReturnable<Boolean> cir) {
-        var player = Minecraft.getInstance().player;
-        if (player != null && player.getVehicle() instanceof AutomobileEntity) {
+        var minecraft = Minecraft.getInstance();
+        var player = minecraft.player;
+        if (minecraft.screen == null && player != null && player.getVehicle() instanceof AutomobileEntity) {
             var controller = this.controller;
             for (var supplier : ControlifyCompat.AUTOMOBILITY_BINDINGS) {
                 var binding = supplier.onController(controller);
