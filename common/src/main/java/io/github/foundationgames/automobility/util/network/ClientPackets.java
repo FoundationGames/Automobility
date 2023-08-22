@@ -15,14 +15,15 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 public enum ClientPackets {;
-    public static void sendSyncAutomobileInputPacket(AutomobileEntity entity, boolean fwd, boolean back, boolean left, boolean right, boolean space) {
+    public static void sendSyncAutomobileInputPacket(AutomobileEntity entity, float acceleration, float brakeForce, float steerLeftImpulse, boolean drifting) {
         var buf = new FriendlyByteBuf(Unpooled.buffer());
-        buf.writeBoolean(fwd);
-        buf.writeBoolean(back);
-        buf.writeBoolean(left);
-        buf.writeBoolean(right);
-        buf.writeBoolean(space);
+
+        buf.writeFloat(acceleration);
+        buf.writeFloat(brakeForce);
+        buf.writeFloat(steerLeftImpulse);
+        buf.writeBoolean(drifting);
         buf.writeInt(entity.getId());
+
         Platform.get().clientSendPacket(Automobility.rl("sync_automobile_inputs"), buf);
     }
 

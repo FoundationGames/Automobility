@@ -14,13 +14,13 @@ public class ControlifyController implements AutomobileController {
     private ContinuousRumbleEffect maxChargeRumble = null, boostingRumble = null, offRoadRumble = null;
 
     @Override
-    public boolean accelerating() {
-        return isDown(accelerateBinding);
+    public float acceleration() {
+        return state(accelerateBinding);
     }
 
     @Override
-    public boolean braking() {
-        return isDown(brakeBinding);
+    public float brakeForce() {
+        return state(brakeBinding);
     }
 
     @Override
@@ -38,6 +38,14 @@ public class ControlifyController implements AutomobileController {
                 .map(binding::onController)
                 .map(ControllerBinding::held)
                 .orElse(false);
+    }
+
+    private float state(BindingSupplier binding) {
+        return ControlifyApi.get().getCurrentController()
+                .filter(c -> inControllerMode())
+                .map(binding::onController)
+                .map(ControllerBinding::state)
+                .orElse(0f);
     }
 
     @Override

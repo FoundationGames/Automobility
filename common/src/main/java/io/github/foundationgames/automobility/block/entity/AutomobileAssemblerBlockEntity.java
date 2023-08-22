@@ -319,7 +319,7 @@ public class AutomobileAssemblerBlockEntity extends BlockEntity implements Rende
     }
 
     @Override
-    public int getTurboCharge() {
+    public float getTurboCharge() {
         return 0;
     }
 

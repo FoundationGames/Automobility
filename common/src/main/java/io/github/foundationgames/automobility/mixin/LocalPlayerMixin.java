@@ -21,18 +21,14 @@ public class LocalPlayerMixin {
         if (self.getVehicle() instanceof AutomobileEntity vehicle) {
             if (Platform.get().controller().inControllerMode()) {
                 vehicle.provideClientInput(
-                        Platform.get().controller().accelerating(),
-                        Platform.get().controller().braking(),
-                        input.left,
-                        input.right,
+                        Platform.get().controller().acceleration() - Platform.get().controller().brakeForce(),
+                        input.leftImpulse,
                         Platform.get().controller().drifting()
                 );
             } else {
                 vehicle.provideClientInput(
-                        input.up,
-                        input.down,
-                        input.left,
-                        input.right,
+                        input.forwardImpulse,
+                        input.leftImpulse,
                         input.jumping
                 );
             }
