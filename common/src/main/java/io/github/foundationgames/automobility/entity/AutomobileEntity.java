@@ -137,8 +137,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private int driftDir = 0;
     private int turboCharge = 0;
 
-    private float lockedViewOffset = 0;
-
     private boolean automobileOnGround = true;
     private boolean wasOnGround = automobileOnGround;
     private boolean isFloorDirectlyBelow = true;
@@ -957,16 +955,6 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             prevYDisplacements.removeLast();
         }
 
-        // Handle setting the locked view offset
-        if (hSpeed != 0) {
-            float vOTarget = (drifting ? driftDir * -23 : steering * -5.6f);
-            if (vOTarget == 0) lockedViewOffset = AUtils.zero(lockedViewOffset, 2.5f);
-            else {
-                if (lockedViewOffset < vOTarget) lockedViewOffset = Math.min(lockedViewOffset + 3.7f, vOTarget);
-                else lockedViewOffset = Math.max(lockedViewOffset - 3.7f, vOTarget);
-            }
-        }
-
         float newAngularSpeed = this.angularSpeed;
         if (this.burningOut()) {
             float speed = (float) this.addedVelocity.length();
@@ -999,8 +987,21 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 var passenger = getFirstPassenger();
                 if (passenger instanceof Player player) {
                     if (inLockedViewMode()) {
-                        player.setYRot(Mth.wrapDegrees(getYRot() + lockedViewOffset));
-                        player.setYBodyRot(Mth.wrapDegrees(getYRot() + lockedViewOffset));
+                        double lockStrength = 0.36;
+
+                        if (this.drifting) {
+                            lockStrength = 0.16;
+                        } else if (this.burningOut()) {
+                            lockStrength = 0.43;
+                        }
+
+                        var selfDir = new Vec3(0, 0, 1).yRot((float) Math.toRadians(180 - this.getYRot()));
+                        var playerDir = new Vec3(0, 0, 1).yRot((float) Math.toRadians(180 - player.getYRot()));
+                        var newDir = playerDir.add(selfDir.scale(lockStrength));
+
+                        float rot = 180 - (float) Math.toDegrees(Math.atan2(newDir.x, newDir.z));
+                        player.setYRot(rot);
+                        player.setYBodyRot(rot);
                     } else {
                         player.setYRot(Mth.wrapDegrees(player.getYRot() + yawInc));
                         player.setYBodyRot(Mth.wrapDegrees(player.getYRot() + yawInc));

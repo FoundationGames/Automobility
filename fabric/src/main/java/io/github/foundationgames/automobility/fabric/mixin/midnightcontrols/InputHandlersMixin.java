@@ -21,7 +21,8 @@ public class InputHandlersMixin {
     @Inject(method = "inGame", at = @At("HEAD"), cancellable = true)
     private static void automobility$makeAutomobileInputsWork(@NotNull Minecraft client, @NotNull ButtonBinding binding, CallbackInfoReturnable<Boolean> cir) {
         var player = client.player;
-        if (!(player == null || !(player.getVehicle() instanceof AutomobileEntity))) {
+        if (player != null  && player.getVehicle() instanceof AutomobileEntity auto &&
+                auto.getControllingPassenger() == player && client.screen == null) {
             for (ButtonBinding ab : ((MidnightController) Platform.get().controller()).AUTOMOBILITY_BINDINGS) {
                 if (Arrays.equals(ab.getButton(), binding.getButton())) cir.setReturnValue(false);
             }

@@ -27,7 +27,8 @@ public abstract class ControllerBindingImplMixin implements ControllerBinding {
     private void automobility$makeAutomobileInputsWork(CallbackInfoReturnable<Boolean> cir) {
         var minecraft = Minecraft.getInstance();
         var player = minecraft.player;
-        if (minecraft.screen == null && player != null && player.getVehicle() instanceof AutomobileEntity) {
+        if (player != null && player.getVehicle() instanceof AutomobileEntity auto &&
+                auto.getControllingPassenger() == player && minecraft.screen == null) {
             var controller = this.controller;
             for (var supplier : ControlifyCompat.AUTOMOBILITY_BINDINGS) {
                 var binding = supplier.onController(controller);
