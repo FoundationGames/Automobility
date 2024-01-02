@@ -2,7 +2,6 @@
   "entity.automobility.automobile": "机动车",
 
   "itemGroup.automobility.automobility": "飞车奇匠",
-  "itemGroup.automobility.automobility_course_elements": "飞车奇匠: 赛道优选",
   "itemGroup.automobility.automobility_prefabs": "飞车奇匠: 先人佳作",
 
   "automobility.automobility": "飞车奇匠",
@@ -20,8 +19,10 @@
 
   "tooltip.item.automobility.crowbar": "对机动车使用以移除机动车",
   "tooltip.block.automobility.allow": "使处于冒险模式下的驾驶者获得收获/耕种的能力",
+  "tooltip.block.automobility.dash_panel": "可以在斜坡上放置",
 
   "container.automobility.auto_mechanic_table": "机动车部件",
+  "container.automobility.banner_post": "横幅",
 
   "part_category.automobility.frames": "外壳",
   "part_category.automobility.engines": "引擎",
@@ -81,6 +82,10 @@
   "prefab.automobility.standard_green": "绿色标准车",
   "prefab.automobility.standard_red": "红色标准车",
   "prefab.automobility.standard_black": "黑色标准车",
+  "prefab.automobility.amethyst_rickshaw": "紫晶人力车",
+  "prefab.automobility.quartz_rickshaw": "石英人力车",
+  "prefab.automobility.prismarine_rickshaw": "海晶人力车",
+  "prefab.automobility.echo_rickshaw": "回声人力车",
   "prefab.automobility.red_tractor": "红色拖拉机",
   "prefab.automobility.yellow_tractor": "黄色拖拉机",
   "prefab.automobility.green_tractor": "绿色拖拉机",
@@ -136,13 +141,17 @@
   "frame.automobility.standard_green": "绿色标准车",
   "frame.automobility.standard_red": "红色标准车",
   "frame.automobility.standard_black": "黑色标准车",
+  "frame.automobility.amethyst_rickshaw": "紫晶人力车",
+  "frame.automobility.quartz_rickshaw": "石英人力车",
+  "frame.automobility.prismarine_rickshaw": "海晶人力车",
+  "frame.automobility.echo_rickshaw": "回声人力车",
   "frame.automobility.red_tractor": "红色拖拉机",
   "frame.automobility.yellow_tractor": "黄色拖拉机",
   "frame.automobility.green_tractor": "绿色拖拉机",
   "frame.automobility.blue_tractor": "蓝色拖拉机",
   "frame.automobility.shopping_cart": "购物小推车",
   "frame.automobility.c_arr": "木几 云力 车",
-  "frame.automobility.dababy": "DaBaby",
+  "frame.automobility.dababy": "大宝贝",
   "frame.automobility.pineapple": "菠萝车",
 
   "wheel.automobility.standard": "标准",
@@ -173,6 +182,10 @@
   "attachment.rear.automobility.auto_mechanic_table": "机动车部件制造台",
   "attachment.rear.automobility.chest": "箱子",
   "attachment.rear.automobility.ender_chest": "末影箱",
+  "attachment.rear.automobility.saddled_barrel": "鞍桶",
+  "attachment.rear.automobility.banner_post": "横幅杆",
+  "attachment.rear.automobility.backhoe": "后锄头",
+  "attachment.rear.automobility.paver": "摊铺机",
 
   "attachment.front.automobility.mob_controller": "生物控制器",
   "attachment.front.automobility.crop_harvester": "作物收割器",
