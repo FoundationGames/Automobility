@@ -106,7 +106,7 @@ public record RearAttachmentType<T extends RearAttachment>(
     }
 
     public record RearAttachmentModel(Identifier texture, Identifier modelId, float pivotDistPx) {
-        @Environment(EnvType.CLIENT)
+        
         public Function<EntityRendererFactory.Context, Model> model() {
             return AutomobilityModels.MODELS.get(modelId);
         }

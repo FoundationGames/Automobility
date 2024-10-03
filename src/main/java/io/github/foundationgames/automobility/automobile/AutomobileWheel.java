@@ -93,7 +93,7 @@ public record AutomobileWheel(
         Identifier texture,
         Identifier modelId
     ) {
-        @Environment(EnvType.CLIENT)
+        
         public Function<EntityRendererFactory.Context, Model> model() {
             return AutomobilityModels.MODELS.get(modelId);
         }

@@ -23,7 +23,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 public enum PayloadPackets {;
-    @Environment(EnvType.CLIENT)
+    
     public static void sendSyncAutomobileInputPacket(AutomobileEntity entity, boolean fwd, boolean back, boolean left, boolean right, boolean space) {
         var buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeBoolean(fwd);
@@ -35,7 +35,7 @@ public enum PayloadPackets {;
         ClientPlayNetworking.send(Automobility.id("sync_automobile_inputs"), buf);
     }
 
-    @Environment(EnvType.CLIENT)
+    
     public static void requestSyncAutomobileComponentsPacket(AutomobileEntity entity) {
         var buf = new PacketByteBuf(Unpooled.buffer());
         buf.writeInt(entity.getId());
@@ -118,7 +118,7 @@ public enum PayloadPackets {;
         });
     }
 
-    @Environment(EnvType.CLIENT)
+    
     public static void initClient() {
         ClientPlayNetworking.registerGlobalReceiver(Automobility.id("sync_automobile_data"), (client, handler, buf, responseSender) -> {
             PacketByteBuf dup = PacketByteBufs.copy(buf);

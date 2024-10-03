@@ -41,11 +41,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-@Environment(EnvType.CLIENT)
+
 public enum AutomobilityModels {;
     public static final Map<Identifier, Function<EntityRendererFactory.Context, Model>> MODELS = new HashMap<>();
 
-    @Environment(EnvType.CLIENT)
+    
     public static void init() {
         MODELS.put(Automobility.id("empty"), EmptyModel::new);
 

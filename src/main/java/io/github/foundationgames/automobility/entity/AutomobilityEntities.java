@@ -57,7 +57,7 @@ public enum AutomobilityEntities {;
     public static void init() {
     }
 
-    @Environment(EnvType.CLIENT)
+
     public static void initClient() {
         EntityRendererRegistry.INSTANCE.register(AUTOMOBILE, AutomobileEntityRenderer::new);
 

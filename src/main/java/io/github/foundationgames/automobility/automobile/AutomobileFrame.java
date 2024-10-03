@@ -256,7 +256,7 @@ public record AutomobileFrame(
             float rearAttachmentPos,
             float frontAttachmentPos
     ) {
-        @Environment(EnvType.CLIENT)
+        
         public Function<EntityRendererFactory.Context, Model> model() {
             return AutomobilityModels.MODELS.get(modelId);
         }

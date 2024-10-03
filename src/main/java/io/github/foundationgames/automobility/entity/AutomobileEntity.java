@@ -91,15 +91,15 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     private final AutomobileStats stats = new AutomobileStats();
 
-    @Environment(EnvType.CLIENT)
+
     private Model frameModel = null;
-    @Environment(EnvType.CLIENT)
+    
     private Model wheelModel = null;
-    @Environment(EnvType.CLIENT)
+    
     private Model engineModel = null;
-    @Environment(EnvType.CLIENT)
+    
     private @Nullable Model rearAttachmentModel = null;
-    @Environment(EnvType.CLIENT)
+    
     private @Nullable Model frontAttachmentModel = null;
 
     public static final int SMALL_TURBO_TIME = 35;
@@ -310,7 +310,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         accelerating = (1 & d) > 0;
     }
 
-    @Environment(EnvType.CLIENT)
+    
     public boolean updateModels = true;
 
     public AutomobileEntity(EntityType<?> type, World world) {
@@ -1116,7 +1116,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         return (1 / ((300 * speed) + (18.5f - (stats.getAcceleration() * 5.3f)))) * (0.9f * ((stats.getAcceleration() + 1) / 2));
     }
 
-    @Environment(EnvType.CLIENT)
+    
     public void provideClientInput(boolean fwd, boolean back, boolean left, boolean right, boolean space) {
         // Receives inputs client-side and sends them to the server
         if (!(
@@ -1250,7 +1250,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         return ControllerUtils.inControllerMode();
     }
 
-    @Environment(EnvType.CLIENT)
+    
     private void updateModels(EntityRendererFactory.Context ctx) {
         if (updateModels) {
             this.frameModel = frame.model().model().apply(ctx);
@@ -1263,19 +1263,19 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
     }
 
-    @Environment(EnvType.CLIENT)
+    
     public Model getWheelModel(EntityRendererFactory.Context ctx) {
         updateModels(ctx);
         return wheelModel;
     }
 
-    @Environment(EnvType.CLIENT)
+    
     public Model getFrameModel(EntityRendererFactory.Context ctx) {
         updateModels(ctx);
         return frameModel;
     }
 
-    @Environment(EnvType.CLIENT)
+    
     public Model getEngineModel(EntityRendererFactory.Context ctx) {
         updateModels(ctx);
         return engineModel;

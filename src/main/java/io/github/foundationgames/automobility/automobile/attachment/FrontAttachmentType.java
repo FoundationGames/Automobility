@@ -71,7 +71,7 @@ public record FrontAttachmentType<T extends FrontAttachment>(
     }
 
     public record FrontAttachmentModel(Identifier texture, Identifier modelId, float scale) {
-        @Environment(EnvType.CLIENT)
+        
         public Function<EntityRendererFactory.Context, Model> model() {
             return AutomobilityModels.MODELS.get(modelId);
         }

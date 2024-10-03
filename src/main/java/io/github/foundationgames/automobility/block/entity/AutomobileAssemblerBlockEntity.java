@@ -49,11 +49,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutomobileAssemblerBlockEntity extends BlockEntity implements RenderableAutomobile {
-    @Environment(EnvType.CLIENT) private Model frameModel = null;
-    @Environment(EnvType.CLIENT) private Model engineModel = null;
-    @Environment(EnvType.CLIENT) private Model wheelModel = null;
-    @Environment(EnvType.CLIENT) private Model emptyRearAttModel = null;
-    @Environment(EnvType.CLIENT) private Model emptyFrontAttModel = null;
+    private Model frameModel = null;
+     private Model engineModel = null;
+     private Model wheelModel = null;
+     private Model emptyRearAttModel = null;
+     private Model emptyFrontAttModel = null;
     private boolean componentsUpdated = true;
 
     protected AutomobileFrame frame = AutomobileFrame.EMPTY;

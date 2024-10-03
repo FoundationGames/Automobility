@@ -75,7 +75,7 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
         }
     }
 
-    @Environment(EnvType.CLIENT)
+    
     protected boolean renders(T component) {
         return !component.isEmpty();
     }
@@ -84,7 +84,7 @@ public class AutomobileComponentItem<T extends AutomobileComponent<T>> extends I
         return !component.isEmpty();
     }
 
-    @Environment(EnvType.CLIENT)
+    
     public void registerItemRenderer(Function<T, Model> modelProvider, Function<T, Identifier> textureProvider, ToFloatFunction<T> scaleProvider) {
         BuiltinItemRendererRegistry.INSTANCE.register(this, (stack, mode, matrices, vertexConsumers, light, overlay) -> {
             var component = this.getComponent(stack);

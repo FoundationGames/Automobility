@@ -32,7 +32,7 @@ public class DriftSmokeParticle extends SpriteBillboardParticle {
         return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
     }
 
-    @Environment(EnvType.CLIENT)
+    
     public static class Factory implements ParticleFactory<DefaultParticleType> {
         private final SpriteProvider sprites;
 

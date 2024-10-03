@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
+	id 'fabric-loom' version '1.7-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -11,6 +11,7 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
+	mavenLocal()
 	maven { url = "https://maven.gegy.dev/" }
 	maven { url = "https://maven.terraformersmc.com/" }
 	maven { url = "https://aperlambda.github.io/maven" }
