@@ -3,6 +3,7 @@ package io.github.foundationgames.automobility.automobile.attachment.front;
 import io.github.foundationgames.automobility.automobile.attachment.FrontAttachmentType;
 import io.github.foundationgames.automobility.block.AutopilotSignBlock;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
+import io.github.foundationgames.automobility.entity.AutomobilityEntities;
 import io.github.foundationgames.automobility.entity.HitboxEntity;
 import io.github.foundationgames.automobility.item.AutopilotSignBlockItem;
 import net.minecraft.core.HolderLookup;
@@ -71,6 +72,11 @@ public class AutopilotFrontAttachment extends FrontAttachment {
                     this.honkTimer = 8 + world().getRandom().nextInt(5);
                 }
             } else for (var e : world().getEntitiesOfClass(LivingEntity.class, box.inflate(1.25, -0.5, 1.25))) {
+                if (e.getTags().contains("shouldHaltAutomobiles")) {
+                    somethingInTheWay = true;
+                    break;
+                }
+
                 if (e.isUsingItem() && e.getItemInHand(e.getUsedItemHand()).getItem() instanceof AutopilotSignBlockItem) {
                     var eLooking = e.getLookAngle();
                     var meToE = e.position().subtract(pos()).normalize();
