@@ -36,6 +36,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -48,6 +49,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -119,9 +121,12 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     public static final int MEDIUM_TURBO_TIME = 70;
     public static final int LARGE_TURBO_TIME = 115;
     public static final float TERMINAL_VELOCITY = -1.2f;
+    public static final float TRICK_MIN_VELOCITY = 0.4f;
 
     public final Input input = new Input();
     private boolean prevHoldDrift = input.holdingDrift;
+    private boolean prevPrevHoldDrift = input.holdingDrift;
+    private boolean prevPrevPrevHoldDrift = input.holdingDrift;
 
     private long clientTime;
 
@@ -714,6 +719,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         positionTrackingTick();
         collisionStateTick();
         steeringTick();
+        rampTrickTick();
         driftingTick();
         burnoutTick();
 
@@ -1318,6 +1324,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
 
         controllerAction(c -> c.updateBoostingRumbleState(true, power));
+        level().playLocalSound(getX(), getY(), getZ(), SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 0.6f, 1.0f, true);
     }
 
     private void steeringTick() {
@@ -1381,7 +1388,48 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             controllerAction(c -> c.updateMaxChargeRumbleState(false));
         }
 
+        if (turboCharge >= SMALL_TURBO_TIME && prevTurboCharge < SMALL_TURBO_TIME) {
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.15f, 1.5f, true);
+        } else if (turboCharge >= MEDIUM_TURBO_TIME && prevTurboCharge < MEDIUM_TURBO_TIME) {
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.175f, 1.75f, true);
+        } else if (turboCharge >= LARGE_TURBO_TIME && prevTurboCharge < LARGE_TURBO_TIME) {
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.2f, 2.0f, true);
+        }
+
+        this.prevPrevPrevHoldDrift = this.prevPrevHoldDrift;
+        this.prevPrevHoldDrift = this.prevHoldDrift;
         this.prevHoldDrift = input.holdingDrift;
+    }
+
+    private void rampTrickTick() {
+        if (wasOnGround && !automobileOnGround && !isFloorDirectlyBelow && hSpeed > TRICK_MIN_VELOCITY &&
+                ((!prevHoldDrift && input.holdingDrift) || (!prevPrevHoldDrift && prevHoldDrift) || (!prevPrevPrevHoldDrift && prevPrevHoldDrift))) {
+            setDrifting(false);
+            controllerAction(c -> c.updateMaxChargeRumbleState(false));
+            boost(0.20f, 9);
+            spawnTrickEffect();
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.5f, 1.5f, true);
+        }
+    }
+
+    private void spawnTrickEffect() {
+
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 6; j++) {
+                double xVel = Math.sin(i) * Math.cos(j) * 2;
+                double yVel = Math.sin(i) * Math.sin(j) * 2;
+                double zVel = Math.cos(i) * 2;
+
+                level().addParticle(
+                        ParticleTypes.CRIT,
+                        getX(),
+                        getY() + 0.5,
+                        getZ(),
+                        xVel,
+                        yVel,
+                        zVel);
+            }
+        }
     }
 
     private void endBurnout() {
