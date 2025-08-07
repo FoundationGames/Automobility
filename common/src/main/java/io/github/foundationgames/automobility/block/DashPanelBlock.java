@@ -116,7 +116,7 @@ public class DashPanelBlock extends HorizontalDirectionalBlock implements Simple
         }
 
         if (entity instanceof AutomobileEntity auto) {
-            auto.boost(0.45f, 50);
+            auto.boost(0.4f, 50);
         } else if (entity.getType().is(AutomobilityEntities.DASH_PANEL_BOOSTABLES)) {
             if (entity instanceof LivingEntity living) {
                 living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, 6, true, false, false));

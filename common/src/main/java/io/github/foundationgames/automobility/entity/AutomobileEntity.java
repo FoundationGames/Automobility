@@ -1335,11 +1335,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     private void consumeTurboCharge() {
         if (turboCharge > LARGE_TURBO_TIME) {
-            boost(0.38f, 38);
+            boost(0.33f, 38);
         } else if (turboCharge > MEDIUM_TURBO_TIME) {
-            boost(0.3f, 21);
+            boost(0.26f, 21);
         } else if (turboCharge > SMALL_TURBO_TIME) {
-            boost(0.23f, 9);
+            boost(0.20f, 9);
         }
         turboCharge = 0;
     }

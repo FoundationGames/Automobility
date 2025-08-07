@@ -28,7 +28,7 @@ public class LaunchGelBlock extends Block {
         super.entityInside(state, world, pos, entity);
 
         if (entity instanceof AutomobileEntity automobile && automobile.automobileOnGround()) {
-            automobile.boost(0.14f, 7);
+            automobile.boost(0.13f, 7);
         }
     }
 
