@@ -1324,7 +1324,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
 
         controllerAction(c -> c.updateBoostingRumbleState(true, power));
-        level().playLocalSound(getX(), getY(), getZ(), SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 0.6f, 1.0f, true);
+
+        float boostSoundPitch = 1.6f - (Math.clamp(power - 0.15f, 0f, 0.25f) * 3);
+        float boostSoundVolume = 0.5f;
+        level().playLocalSound(getX(), getY(), getZ(), SoundEvents.BLAZE_SHOOT, SoundSource.AMBIENT, boostSoundVolume, boostSoundPitch, true);
     }
 
     private void steeringTick() {
@@ -1389,11 +1392,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
 
         if (turboCharge >= SMALL_TURBO_TIME && prevTurboCharge < SMALL_TURBO_TIME) {
-            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.15f, 1.5f, true);
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.09f, 1.5f, true);
         } else if (turboCharge >= MEDIUM_TURBO_TIME && prevTurboCharge < MEDIUM_TURBO_TIME) {
-            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.175f, 1.75f, true);
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.10f, 1.75f, true);
         } else if (turboCharge >= LARGE_TURBO_TIME && prevTurboCharge < LARGE_TURBO_TIME) {
-            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.2f, 2.0f, true);
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.11f, 2.0f, true);
         }
 
         this.prevPrevPrevHoldDrift = this.prevPrevHoldDrift;
@@ -1408,7 +1411,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             controllerAction(c -> c.updateMaxChargeRumbleState(false));
             boost(0.20f, 9);
             spawnTrickEffect();
-            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.5f, 1.5f, true);
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.AMBIENT, 0.25f, 1.5f, true);
         }
     }
 

@@ -110,7 +110,7 @@ public abstract class AutomobileSoundInstance extends AbstractTickableSoundInsta
 
         @Override
         protected float getVolume(AutomobileEntity automobile) {
-            return 1;
+            return 0.7f;
         }
 
         @Override
@@ -140,7 +140,9 @@ public abstract class AutomobileSoundInstance extends AbstractTickableSoundInsta
 
         @Override
         protected float getVolume(AutomobileEntity automobile) {
-            return automobile.automobileOnGround() ? 1 : 0;
+            float volumeBoost = ((Math.clamp(automobile.getHSpeed(), 0.2f, 1.4f) - 0.2f) / 1.2f) * 3;
+            System.out.println(volumeBoost);
+            return automobile.automobileOnGround() ? 0.75f + volumeBoost : 0;
         }
 
         @Override
