@@ -49,7 +49,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -186,6 +185,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private boolean automobileOnGround = true;
     private boolean wasOnGround = automobileOnGround;
     private boolean isFloorDirectlyBelow = true;
+    private boolean isFloorWithinOneBlockBelow = true;
     private boolean touchingWall = false;
     private int hadVehicleCollision = 0;
 
@@ -210,10 +210,12 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private Vector3f debrisColor = new Vector3f();
 
     private int fallTicks = 0;
+    private int airTime = 0;
 
     private int despawnTime = -1;
     private int despawnCountdown = 0;
     private boolean decorative = false;
+    private boolean trickBuffered = false;
 
     private boolean wasEngineRunning = false;
 
@@ -221,6 +223,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     public void writeSyncStateData(FriendlyByteBuf buf) {
         buf.writeInt(boostTimer);
+        buf.writeInt(airTime);
         buf.writeFloat(steering);
         buf.writeFloat(wheelAngle);
         buf.writeInt(turboCharge);
@@ -229,11 +232,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         input.writePacket(buf);
 
         buf.writeBoolean(drifting);
+        buf.writeBoolean(trickBuffered);
         buf.writeBoolean(burningOut);
     }
 
     public void readSyncStateData(FriendlyByteBuf buf) {
         boostTimer = buf.readInt();
+        airTime = buf.readInt();
         steering = buf.readFloat();
         wheelAngle = buf.readFloat();
         turboCharge = buf.readInt();
@@ -242,6 +247,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         input.readPacket(buf);
 
         setDrifting(buf.readBoolean());
+        setTrickBuffered(buf.readBoolean());
         setBurningOut(buf.readBoolean());
 
         this.dataLerpTicks = CLIENT_SYNC_INTERVAL;
@@ -290,9 +296,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         input.holdingDrift = nbt.getBoolean("holdingDrift");
         input.holdingHorn = nbt.getBoolean("holdingHorn");
         fallTicks = nbt.getInt("fallTicks");
+        airTime = nbt.getInt("airTime");
         despawnTime = nbt.getInt("despawnTime");
         despawnCountdown = nbt.getInt("despawnCountdown");
         decorative = nbt.getBoolean("decorative");
+        trickBuffered = nbt.getBoolean("trickBuffered");
     }
 
     @Override
@@ -325,9 +333,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         nbt.putBoolean("holdingDrift", input.holdingDrift);
         nbt.putBoolean("holdingHorn", input.holdingHorn);
         nbt.putInt("fallTicks", fallTicks);
+        nbt.putInt("airTime", airTime);
         nbt.putInt("despawnTime", despawnTime);
         nbt.putInt("despawnCountdown", despawnCountdown);
         nbt.putBoolean("decorative", decorative);
+        nbt.putBoolean("trickBuffered", trickBuffered);
     }
 
     public AutomobileEntity(EntityType<?> type, Level world) {
@@ -497,6 +507,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         this.drifting = drifting;
     }
 
+    private void setTrickBuffered(boolean trickBuffered) {
+        this.trickBuffered = trickBuffered;
+    }
+
     private void setBurningOut(boolean burningOut) {
         if (this.level().isClientSide() && !this.drifting && !this.burningOut && burningOut) {
             skidSound.accept(this);
@@ -519,6 +533,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     public boolean isDrifting() {
         return this.drifting;
+    }
+
+    public boolean isTrickBuffered() {
+        return this.trickBuffered;
     }
 
     public boolean isBike() {
@@ -837,6 +855,10 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
              return;
          }
 
+         if(engineSpeed > stats.getComfortableSpeed() * 1.25f) {
+             speed = stats.getComfortableSpeed() * 1.25f;
+         }
+
          this.engineSpeed = speed;
     }
 
@@ -1106,6 +1128,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             fallTicks = 0;
         }
 
+        // Increment air time timer
+        if (!automobileOnGround) {
+            airTime += 1;
+        } else {
+            airTime = 0;
+        }
+
         // Handle launching off slopes
         double highestPrevYDisp = 0;
         for (double d : prevYDisplacements) {
@@ -1252,15 +1281,19 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         wasOnGround = automobileOnGround;
         automobileOnGround = false;
         isFloorDirectlyBelow = false;
+        isFloorWithinOneBlockBelow = false;
+
         var b = getBoundingBox();
         var groundBox = new AABB(b.minX, b.minY - 0.04, b.minZ, b.maxX, b.minY, b.maxZ);
         var wid = (b.getXsize() + b.getZsize()) * 0.5f;
         var floorBox = new AABB(b.minX + (wid * 0.94), b.minY - 0.05, b.minZ + (wid * 0.94), b.maxX - (wid * 0.94), b.minY, b.maxZ - (wid * 0.94));
+        var floorOneBlockBelowBox = new AABB(b.minX, b.minY - 1, b.minZ, b.maxX, b.minY, b.maxZ);
         var wallBox = b.deflate(0.05).move(this.lastVelocity.normalize().scale(0.12));
-        var start = new BlockPos((int) Math.floor(b.minX - 0.1), (int) Math.floor(b.minY - 0.2), (int) Math.floor(b.minZ - 0.1));
+        var start = new BlockPos((int) Math.floor(b.minX - 0.1), (int) Math.floor(b.minY - 1), (int) Math.floor(b.minZ - 0.1));
         var end = new BlockPos((int) Math.floor(b.maxX + 0.1), (int) Math.floor(b.maxY + 0.2 + this.maxUpStep()), (int) Math.floor(b.maxZ + 0.1));
         var groundCuboid = Shapes.create(groundBox);
         var floorCuboid = Shapes.create(floorBox);
+        var floorOneBlockBelowCuboid = Shapes.create(floorOneBlockBelowBox);
         var wallCuboid = Shapes.create(wallBox);
         var stepWallCuboid = wallCuboid.move(0, this.maxUpStep() - 0.05, 0);
         boolean wallHit = false;
@@ -1276,6 +1309,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                         var blockShape = state.getCollisionShape(this.level(), pos, shapeCtx).move(pos.getX(), pos.getY(), pos.getZ());
                         this.automobileOnGround |= Shapes.joinIsNotEmpty(blockShape, groundCuboid, BooleanOp.AND);
                         this.isFloorDirectlyBelow |= Shapes.joinIsNotEmpty(blockShape, floorCuboid, BooleanOp.AND);
+                        this.isFloorWithinOneBlockBelow |= Shapes.joinIsNotEmpty(blockShape, floorOneBlockBelowCuboid, BooleanOp.AND);
                         wallHit |= Shapes.joinIsNotEmpty(blockShape, wallCuboid, BooleanOp.AND);
                         stepWallHit |= Shapes.joinIsNotEmpty(blockShape, stepWallCuboid, BooleanOp.AND);
                     }
@@ -1351,7 +1385,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         int prevTurboCharge = turboCharge;
 
         // Handles starting a drift
-        if (!prevHoldDrift && input.holdingDrift) {
+        if ((!prevHoldDrift && input.holdingDrift) || (!prevPrevHoldDrift && prevHoldDrift) || (!prevPrevPrevHoldDrift && prevPrevHoldDrift)) {
             if (steering != 0 && !drifting && hSpeed > 0.4f && automobileOnGround) {
                 setDrifting(true);
                 controllerAction(AutomobileController::driftChargeRumble);
@@ -1405,13 +1439,29 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     }
 
     private void rampTrickTick() {
-        if (wasOnGround && !automobileOnGround && !isFloorDirectlyBelow && hSpeed > TRICK_MIN_VELOCITY &&
-                ((!prevHoldDrift && input.holdingDrift) || (!prevPrevHoldDrift && prevHoldDrift) || (!prevPrevPrevHoldDrift && prevPrevHoldDrift))) {
+        boolean trickCommandEarly = wasOnGround &&
+                !automobileOnGround &&
+                !isFloorDirectlyBelow &&
+                hSpeed > TRICK_MIN_VELOCITY &&
+                ((!prevHoldDrift && input.holdingDrift) || (!prevPrevHoldDrift && prevHoldDrift) || (!prevPrevPrevHoldDrift && prevPrevHoldDrift));
+
+        boolean trickCommandLate = !wasOnGround &&
+                !automobileOnGround &&
+                !isFloorDirectlyBelow &&
+                hSpeed > TRICK_MIN_VELOCITY &&
+                airTime < 2 &&
+                (!prevHoldDrift && input.holdingDrift);
+
+        if (trickCommandEarly || trickCommandLate) {
             setDrifting(false);
-            controllerAction(c -> c.updateMaxChargeRumbleState(false));
-            boost(0.20f, 9);
             spawnTrickEffect();
             level().playLocalSound(getX(), getY(), getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.AMBIENT, 0.25f, 1.5f, true);
+            trickBuffered = true;
+        }
+
+        if ((isFloorWithinOneBlockBelow || isFloorDirectlyBelow || automobileOnGround) && trickBuffered) {
+            boost(0.26f, 21);
+            trickBuffered = false;
         }
     }
 
