@@ -118,7 +118,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     public static final int SMALL_TURBO_TIME = 35;
     public static final int MEDIUM_TURBO_TIME = 70;
-    public static final int LARGE_TURBO_TIME = 115;
+    public static final int LARGE_TURBO_TIME = 125;
     public static final float TERMINAL_VELOCITY = -1.2f;
     public static final float TRICK_MIN_VELOCITY = 0.4f;
 
@@ -1372,11 +1372,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     private void consumeTurboCharge() {
         if (turboCharge > LARGE_TURBO_TIME) {
-            boost(0.33f, 38);
+            boost(0.25f, 38);
         } else if (turboCharge > MEDIUM_TURBO_TIME) {
-            boost(0.26f, 21);
+            boost(0.25f, 21);
         } else if (turboCharge > SMALL_TURBO_TIME) {
-            boost(0.20f, 9);
+            boost(0.25f, 9);
         }
         turboCharge = 0;
     }
@@ -1460,7 +1460,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
 
         if ((isFloorWithinOneBlockBelow || isFloorDirectlyBelow || automobileOnGround) && trickBuffered) {
-            boost(0.26f, 21);
+            boost(0.25f, 9);
             trickBuffered = false;
         }
     }
