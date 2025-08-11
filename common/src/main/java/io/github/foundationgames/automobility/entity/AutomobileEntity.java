@@ -902,6 +902,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             this.setSpeed(Math.max(this.getHSpeed(), 0.1f), Math.max(this.getVSpeed(), 0.9f));
             this.jumpCooldown = 5;
             this.automobileOnGround = false;
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.SLIME_JUMP, SoundSource.AMBIENT, 0.8f * getUnderwaterVolumeMultiplier(), getUnderwaterPitchMultiplier(), true);
         }
 
         // Track the last position of the automobile
