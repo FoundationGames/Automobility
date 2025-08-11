@@ -8,7 +8,6 @@
     "AABBMixin",
     "AbstractContainerMenuMixin",
     "BlockBehaviorAccess",
-    "EntityMixin",
     "ItemCombinerMenuMixin",
     "PlayerEnderChestContainerMixin",
     "ServerGamePacketListenerImplMixin",
@@ -17,6 +16,7 @@
   "client": [
     "EntityRenderDispatcherMixin",
     "EntityRenderersMixin",
+    "EntityMixin",
     "KeyMappingAccess",
     "LocalPlayerMixin",
     "MultiPlayerGameModeMixin",
