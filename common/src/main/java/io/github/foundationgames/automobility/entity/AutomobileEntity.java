@@ -1220,7 +1220,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                     BlockPos stepSoundPosition = getPrimaryStepSoundBlockPos(blockPosition().below());
                     BlockState stepSoundBlockState = level().getBlockState(stepSoundPosition);
                     SoundType soundType = stepSoundBlockState.getSoundType();
-                    this.playSound(soundType.getStepSound(), soundType.getVolume() * 0.09f * getUnderwaterVolumeMultiplier(), soundType.getPitch() * 0.8f * getUnderwaterPitchMultiplier());
+                    this.playSound(soundType.getStepSound(), soundType.getVolume() * 0.07f * getUnderwaterVolumeMultiplier(), soundType.getPitch() * 0.8f * getUnderwaterPitchMultiplier());
 
                     if(Math.abs(getHSpeed()) > 0.2f && !isReversing()) {
                         spawnGroundParticle();
