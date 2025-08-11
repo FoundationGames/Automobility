@@ -19,6 +19,7 @@ import io.github.foundationgames.automobility.block.*;
 import io.github.foundationgames.automobility.controller.AutomobileController;
 import io.github.foundationgames.automobility.item.AutomobileInteractable;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
+import io.github.foundationgames.automobility.mixin.BlockBehaviorAccess;
 import io.github.foundationgames.automobility.particle.AutomobilityParticles;
 import io.github.foundationgames.automobility.platform.Platform;
 import io.github.foundationgames.automobility.screen.AutomobileContainerLevelAccess;
@@ -33,6 +34,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -69,6 +71,9 @@ import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -218,6 +223,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
     private boolean wasEngineRunning = false;
 
     private float standStillTime = -1.3f;
+    private float stepSoundMovementDistance;
 
     public void writeSyncStateData(FriendlyByteBuf buf) {
         buf.writeInt(boostTimer);
@@ -1079,7 +1085,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                             .multiply(1, 0, 1));
 
             if (hadVehicleCollision <= 0) {
-                level().playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.COLLISION.require(), SoundSource.AMBIENT, 0.22f, 0.7f + (0.06f * (this.level().random.nextFloat() - 0.5f)), false);
+                level().playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.COLLISION.require(), SoundSource.AMBIENT, 0.22f * getUnderwaterVolumeMultiplier(), 0.7f + (0.06f * (this.level().random.nextFloat() - 0.5f)) * getUnderwaterPitchMultiplier(), false);
                 this.engineSpeed *= 0.6f;
                 hadVehicleCollision = 12;
             }
@@ -1106,7 +1112,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             double knockSpeed = ((-0.2 * hSpeed) - 0.5);
             addedVelocity = addedVelocity.add(Math.sin(angle) * knockSpeed, 0, Math.cos(angle) * knockSpeed);
 
-            level().playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.COLLISION.require(), SoundSource.AMBIENT, 0.76f, 0.65f + (0.06f * (this.level().random.nextFloat() - 0.5f)), true);
+            level().playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.COLLISION.require(), SoundSource.AMBIENT, 0.76f * getUnderwaterVolumeMultiplier(), 0.65f + (0.06f * (this.level().random.nextFloat() - 0.5f)) * getUnderwaterPitchMultiplier(), true);
 
             if (isVehicle() && level().isClientSide()) {
                 if (getPassengers().stream().anyMatch(p -> p instanceof LocalPlayer)) {
@@ -1197,11 +1203,93 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         if (this.automobileOnGround()) {
             this.smoothAngVel = Mth.lerp(0.34f, this.smoothAngVel, this.measuredAngVel);
         }
+
+        // Add step sounds and particles
+        if(automobileOnGround() && Math.abs(getHSpeed()) > 0.05f && !(level().getBlockState(blockPosition()).getBlock() instanceof OffroadBlock block)) {
+            stepSoundMovementDistance += Math.abs(getHSpeed());
+
+            if(stepSoundMovementDistance > 0.5f) {
+                if(isUnderWater()) {
+                    this.playSound(this.getSwimSound(), 0.04f, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.3F);
+
+                    if(Math.abs(getHSpeed()) > 0.2f && !isReversing()) {
+                        spawnBubbleParticle();
+                    }
+                } else {
+                    BlockPos stepSoundPosition = getPrimaryStepSoundBlockPos(blockPosition().below());
+                    BlockState stepSoundBlockState = level().getBlockState(stepSoundPosition);
+                    SoundType soundType = stepSoundBlockState.getSoundType();
+                    this.playSound(soundType.getStepSound(), soundType.getVolume() * 0.09f * getUnderwaterVolumeMultiplier(), soundType.getPitch() * 0.8f * getUnderwaterPitchMultiplier());
+
+                    if(Math.abs(getHSpeed()) > 0.2f && !isReversing()) {
+                        spawnGroundParticle();
+                    }
+                }
+
+                stepSoundMovementDistance = 0;
+            }
+        }
+    }
+
+    private void spawnGroundParticle() {
+        BlockPos blockPos = this.getOnPos();
+        BlockState blockState = this.level().getBlockState(blockPos);
+        BlockBehaviorAccess blockProperties = (BlockBehaviorAccess)blockState.getBlock().properties();
+        if(!blockProperties.getSpawnTerrainParticles()) return;
+
+        if (blockState.getRenderShape() != RenderShape.INVISIBLE) {
+            Vec3 deltaMovement = this.getDeltaMovement();
+            for (var wheel : this.getFrame().model().wheelBase().wheels()) {
+                float particleResistance = Math.clamp(blockProperties.getExplosionResistance(), 2, 9) * 0.11f;
+                particleResistance -= ((Math.clamp(Math.abs(getHSpeed()), 0.3f, 1f)) - 0.3f) * 0.25f;
+                if(isDrifting()) particleResistance *= 0.75f;
+                if(random.nextFloat() < particleResistance) continue;
+
+                if (wheel.end() == WheelBase.WheelEnd.BACK) {
+                    Vector3d pos = new Vector3d(wheel.right() + ((wheel.right() > 0 ? 1 : -1) * this.getWheels().model().width() * wheel.scale()), 0, wheel.forward()).mul(0.0625);
+                    localPosToWorldSpace(pos);
+                    pos.add(-deltaMovement.x * 0.9f, -0.025f, -deltaMovement.z * 0.9f);
+
+                    level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockState), pos.x(), pos.y(), pos.z(), deltaMovement.x * (double)-1.5f + (random.nextFloat() - 0.5f) * 2f, (double)1.5f, deltaMovement.z * (double)-1.5f + (random.nextFloat() - 0.5f) * 2f);
+                }
+            }
+        }
+    }
+
+    private void spawnBubbleParticle() {
+        BlockPos blockPos = this.getOnPos();
+        BlockState blockState = this.level().getBlockState(blockPos);
+        if (blockState.getRenderShape() != RenderShape.INVISIBLE) {
+            Vec3 deltaMovement = this.getDeltaMovement();
+            for (var wheel : this.getFrame().model().wheelBase().wheels()) {
+                if(random.nextFloat() < 0.2f) continue;
+
+                if (wheel.end() == WheelBase.WheelEnd.BACK) {
+                    Vector3d pos = new Vector3d(wheel.right() + ((wheel.right() > 0 ? 1 : -1) * this.getWheels().model().width() * wheel.scale()), 0, wheel.forward()).mul(0.0625);
+                    localPosToWorldSpace(pos);
+                    pos.add(-deltaMovement.x * 0.9f, 0, -deltaMovement.z * 0.9f);
+
+                    level().addParticle(ParticleTypes.BUBBLE, pos.x(), pos.y(), pos.z(), deltaMovement.x * (double)-1.5f + (random.nextFloat() - 0.5f) * 1.5f, 0.5f, deltaMovement.z * (double)-1.5f + (random.nextFloat() - 0.5f) * 1.5f);
+                }
+            }
+        }
     }
 
     public void whenRotated(float dYaw, Entity e) {
         e.setYRot(Mth.wrapDegrees(e.getYRot() + dYaw));
         e.setYBodyRot(Mth.wrapDegrees(e.getYRot() + dYaw));
+    }
+
+    public float getUnderwaterVolumeMultiplier() {
+        return isUnderWater() ? 0.8f : 1.0f;
+    }
+
+    public float getUnderwaterPitchMultiplier() {
+        return isUnderWater() ? 0.8f : 1.0f;
+    }
+
+    public boolean isReversing() {
+        return engineSpeed < 0;
     }
 
     private void whenRotatedSmooth(Entity passenger) {
@@ -1359,7 +1447,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
         float boostSoundPitch = 1.6f - (Math.clamp(power - 0.15f, 0f, 0.25f) * 3);
         float boostSoundVolume = 0.5f;
-        level().playLocalSound(getX(), getY(), getZ(), SoundEvents.BLAZE_SHOOT, SoundSource.AMBIENT, boostSoundVolume, boostSoundPitch, true);
+        level().playLocalSound(getX(), getY(), getZ(), SoundEvents.BLAZE_SHOOT, SoundSource.AMBIENT, boostSoundVolume * getUnderwaterVolumeMultiplier(), boostSoundPitch * getUnderwaterPitchMultiplier(), true);
     }
 
     private void steeringTick() {
@@ -1424,11 +1512,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
 
         if (turboCharge >= SMALL_TURBO_TIME && prevTurboCharge < SMALL_TURBO_TIME) {
-            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.09f, 1.5f, true);
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.09f * getUnderwaterVolumeMultiplier(), 1.5f * getUnderwaterPitchMultiplier(), true);
         } else if (turboCharge >= MEDIUM_TURBO_TIME && prevTurboCharge < MEDIUM_TURBO_TIME) {
-            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.10f, 1.75f, true);
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.10f * getUnderwaterVolumeMultiplier(), 1.75f * getUnderwaterPitchMultiplier(), true);
         } else if (turboCharge >= LARGE_TURBO_TIME && prevTurboCharge < LARGE_TURBO_TIME) {
-            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.11f, 2.0f, true);
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.11f * getUnderwaterVolumeMultiplier(), 2.0f * getUnderwaterPitchMultiplier(), true);
         }
 
         this.prevPrevPrevHoldDrift = this.prevPrevHoldDrift;
@@ -1453,7 +1541,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         if (trickCommandEarly || trickCommandLate) {
             setDrifting(false);
             spawnTrickEffect();
-            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.AMBIENT, 0.25f, 1.5f, true);
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.AMBIENT, 0.25f * getUnderwaterVolumeMultiplier(), 1.5f * getUnderwaterPitchMultiplier(), true);
             trickBuffered = true;
         }
 
@@ -1601,7 +1689,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     public void playHitSound(Vec3 pos) {
         level().gameEvent(this, GameEvent.ENTITY_DAMAGE, pos);
-        level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.COPPER_BREAK, SoundSource.AMBIENT, 1, 0.9f + (this.level().random.nextFloat() * 0.2f));
+        level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.COPPER_BREAK, SoundSource.AMBIENT, 1 * getUnderwaterVolumeMultiplier(), 0.9f + (this.level().random.nextFloat() * 0.2f) * getUnderwaterPitchMultiplier());
     }
 
     private void dropParts(Vec3 pos) {
@@ -1899,7 +1987,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
     public void bounce() {
         suspensionBounceTimer = 3;
-        level().playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.LANDING.require(), SoundSource.AMBIENT, 1, 1.5f + (0.15f * (this.level().random.nextFloat() - 0.5f)), true);
+        level().playLocalSound(this.getX(), this.getY(), this.getZ(), AutomobilitySounds.LANDING.require(), SoundSource.AMBIENT, 1 * getUnderwaterVolumeMultiplier(), 1.5f + (0.15f * (this.level().random.nextFloat() - 0.5f)) * getUnderwaterPitchMultiplier(), true);
         controllerAction(AutomobileController::groundThudRumble);
     }
 

@@ -7,6 +7,7 @@
   "mixins": [
     "AABBMixin",
     "AbstractContainerMenuMixin",
+    "BlockBehaviorAccess",
     "EntityMixin",
     "ItemCombinerMenuMixin",
     "PlayerEnderChestContainerMixin",

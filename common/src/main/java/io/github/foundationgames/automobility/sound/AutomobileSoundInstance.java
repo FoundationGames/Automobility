@@ -105,12 +105,12 @@ public abstract class AutomobileSoundInstance extends AbstractTickableSoundInsta
 
         @Override
         protected float getPitch(AutomobileEntity automobile) {
-            return (float) (Math.pow(4, (automobile.getEffectiveSpeed() - 0.9)) + 0.32);
+            return ((float) (Math.pow(4, (automobile.getEffectiveSpeed() - 0.9)) + 0.32)) * automobile.getUnderwaterPitchMultiplier();
         }
 
         @Override
         protected float getVolume(AutomobileEntity automobile) {
-            return 0.7f;
+            return 0.7f * automobile.getUnderwaterVolumeMultiplier();
         }
 
         @Override
@@ -134,14 +134,13 @@ public abstract class AutomobileSoundInstance extends AbstractTickableSoundInsta
 
         @Override
         protected float getPitch(AutomobileEntity automobile) {
-            return automobile.burningOut() ? 0.75f :
-                    1 + 0.056f * ((float)Math.min(automobile.getTurboCharge(), AutomobileEntity.LARGE_TURBO_TIME) / AutomobileEntity.LARGE_TURBO_TIME);
+            return (automobile.burningOut() ? 0.75f : 1 + 0.056f * ((float)Math.min(automobile.getTurboCharge(), AutomobileEntity.LARGE_TURBO_TIME) / AutomobileEntity.LARGE_TURBO_TIME)) * automobile.getUnderwaterPitchMultiplier();
         }
 
         @Override
         protected float getVolume(AutomobileEntity automobile) {
             float volumeBoost = ((Math.clamp(automobile.getHSpeed(), 0.2f, 1.4f) - 0.2f) / 1.2f) * 3;
-            return automobile.automobileOnGround() ? 0.75f + volumeBoost : 0;
+            return (automobile.automobileOnGround() ? 0.75f + volumeBoost : 0) * automobile.getUnderwaterVolumeMultiplier();
         }
 
         @Override
