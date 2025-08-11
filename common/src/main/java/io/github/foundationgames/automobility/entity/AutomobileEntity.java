@@ -15,10 +15,7 @@ import io.github.foundationgames.automobility.automobile.attachment.front.FrontA
 import io.github.foundationgames.automobility.automobile.attachment.rear.DeployableRearAttachment;
 import io.github.foundationgames.automobility.automobile.attachment.rear.RearAttachment;
 import io.github.foundationgames.automobility.automobile.render.RenderableAutomobile;
-import io.github.foundationgames.automobility.block.AutomobileAssemblerBlock;
-import io.github.foundationgames.automobility.block.LaunchGelBlock;
-import io.github.foundationgames.automobility.block.OffRoadBlock;
-import io.github.foundationgames.automobility.block.SpecialAutomobileColliderBlock;
+import io.github.foundationgames.automobility.block.*;
 import io.github.foundationgames.automobility.controller.AutomobileController;
 import io.github.foundationgames.automobility.item.AutomobileInteractable;
 import io.github.foundationgames.automobility.item.AutomobilityItems;
@@ -72,6 +69,7 @@ import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
@@ -962,11 +960,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         boolean wasOffRoad = this.offRoad && this.hSpeed > 0.01;
 
         // Handle being in off-road
-        if (boostSpeed < 0.4f && level().getBlockState(blockPosition()).getBlock() instanceof OffRoadBlock block) {
-            int layers = level().getBlockState(blockPosition()).getValue(OffRoadBlock.LAYERS);
-            float cap = stats.getComfortableSpeed() * (1 - ((float)layers / 3.5f));
+        if (boostSpeed < 0.4f && level().getBlockState(blockPosition()).getBlock() instanceof OffroadBlock block) {
+            BlockState blockState = level().getBlockState(blockPosition());
+            float cap = stats.getComfortableSpeed() * block.getSpeedMultiplier(blockState);
             this.updateEngineSpeed(Math.min(cap, engineSpeed));
-            this.debrisColor = block.color;
+            this.debrisColor = block.getDebrisColor(blockState);
             this.offRoad = true;
         } else this.offRoad = false;
 

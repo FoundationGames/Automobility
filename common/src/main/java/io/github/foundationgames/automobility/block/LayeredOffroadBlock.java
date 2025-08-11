@@ -16,7 +16,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-public class OffRoadBlock extends Block {
+public class LayeredOffroadBlock extends Block implements OffroadBlock {
     public static final VoxelShape ONE_LAYER_SHAPE = box(0, 0, 0, 16, 2, 16);
     public static final VoxelShape TWO_LAYER_SHAPE = box(0, 0, 0, 16, 4, 16);
     public static final VoxelShape THREE_LAYER_SHAPE = box(0, 0, 0, 16, 6, 16);
@@ -25,7 +25,7 @@ public class OffRoadBlock extends Block {
 
     public final Vector3f color;
 
-    public OffRoadBlock(Properties settings, Vector3f color) {
+    public LayeredOffroadBlock(Properties settings, Vector3f color) {
         super(settings.pushReaction(PushReaction.DESTROY));
         registerDefaultState(defaultBlockState().setValue(LAYERS, 1));
         this.color = color;
@@ -72,5 +72,16 @@ public class OffRoadBlock extends Block {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(LAYERS);
+    }
+
+    @Override
+    public float getSpeedMultiplier(BlockState blockState) {
+        int layers = blockState.getValue(LayeredOffroadBlock.LAYERS);
+        return 1 - (float)layers / 3.5f;
+    }
+
+    @Override
+    public Vector3f getDebrisColor(BlockState blockState) {
+        return color;
     }
 }
