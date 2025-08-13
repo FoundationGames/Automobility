@@ -1583,7 +1583,13 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                 if (this.addedVelocity.length() > 0.05 || Math.abs(this.angularSpeed) > 0.05) {
                     createDriftParticles();
                 }
+
+                int prevTurboCharge = turboCharge;
                 if (hSpeed < 0.08 && turboCharge <= SMALL_TURBO_TIME) turboCharge += 1;
+
+                if (turboCharge >= SMALL_TURBO_TIME && prevTurboCharge < SMALL_TURBO_TIME) {
+                    level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.08f * getUnderwaterVolumeMultiplier(), 1.5f * getUnderwaterPitchMultiplier(), true);
+                }
             }
             if (!input.braking) {
                 endBurnout();
