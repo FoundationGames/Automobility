@@ -7,7 +7,7 @@ modId="automobility"
 version="${version}"
 displayName="Automobility"
 logoFile="automobility.png"
-authors="FoundationGames" #optional
+authors="FoundationGames, Toastworth" #optional
 description='''
 Vehicles and whatnot
 '''
