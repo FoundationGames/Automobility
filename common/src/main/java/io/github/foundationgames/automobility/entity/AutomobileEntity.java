@@ -1211,7 +1211,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
 
             if(stepSoundMovementDistance > 0.5f) {
                 if(isUnderWater()) {
-                    this.playSound(this.getSwimSound(), 0.04f, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.3F);
+                    this.playSound(this.getSwimSound(), 0.035f, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.3F);
 
                     if(Math.abs(getHSpeed()) > 0.2f && !isReversing()) {
                         spawnBubbleParticle();
@@ -1251,7 +1251,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
                     localPosToWorldSpace(pos);
                     pos.add(-deltaMovement.x * 0.9f, -0.025f, -deltaMovement.z * 0.9f);
 
-                    level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockState), pos.x(), pos.y(), pos.z(), deltaMovement.x * (double)-1.5f + (random.nextFloat() - 0.5f) * 2f, (double)1.5f, deltaMovement.z * (double)-1.5f + (random.nextFloat() - 0.5f) * 2f);
+                    level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockState), pos.x(), pos.y(), pos.z(), deltaMovement.x * (double)-1.5f + (random.nextFloat() - 0.5f) * 2.5f, (double)1.5f, deltaMovement.z * (double)-1.5f + (random.nextFloat() - 0.5f) * 2.5f);
                 }
             }
         }
@@ -1513,11 +1513,11 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
         }
 
         if (turboCharge >= SMALL_TURBO_TIME && prevTurboCharge < SMALL_TURBO_TIME) {
-            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.09f * getUnderwaterVolumeMultiplier(), 1.5f * getUnderwaterPitchMultiplier(), true);
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.08f * getUnderwaterVolumeMultiplier(), 1.5f * getUnderwaterPitchMultiplier(), true);
         } else if (turboCharge >= MEDIUM_TURBO_TIME && prevTurboCharge < MEDIUM_TURBO_TIME) {
-            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.10f * getUnderwaterVolumeMultiplier(), 1.75f * getUnderwaterPitchMultiplier(), true);
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.09f * getUnderwaterVolumeMultiplier(), 1.75f * getUnderwaterPitchMultiplier(), true);
         } else if (turboCharge >= LARGE_TURBO_TIME && prevTurboCharge < LARGE_TURBO_TIME) {
-            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.11f * getUnderwaterVolumeMultiplier(), 2.0f * getUnderwaterPitchMultiplier(), true);
+            level().playLocalSound(getX(), getY(), getZ(), SoundEvents.WITHER_SHOOT, SoundSource.AMBIENT, 0.1f * getUnderwaterVolumeMultiplier(), 2.0f * getUnderwaterPitchMultiplier(), true);
         }
 
         this.prevPrevPrevHoldDrift = this.prevPrevHoldDrift;
