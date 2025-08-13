@@ -28,15 +28,23 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.model.Model;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.entity.NoopRenderer;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.GrassColor;
+import net.minecraft.world.level.block.LightBlock;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 
 public class AutomobilityClient {
@@ -68,6 +76,15 @@ public class AutomobilityClient {
                         )
                 )
         );
+
+        ClientLevel.MARKER_PARTICLE_ITEMS = new HashSet<>(ClientLevel.MARKER_PARTICLE_ITEMS);
+        ClientLevel.MARKER_PARTICLE_ITEMS.add(AutomobilityBlocks.OFF_ROAD_AREA.require().asItem());
+
+        //ItemProperties.register(Items.LIGHT, ResourceLocation.withDefaultNamespace("level"), (p_329788_, p_329789_, p_329790_, p_329791_) -> {
+        //    BlockItemStateProperties blockitemstateproperties = p_329788_.getOrDefault(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY);
+        //    Integer integer = blockitemstateproperties.get(LightBlock.LEVEL);
+        //    return integer != null ? (float)integer.intValue() / 16.0F : 1.0F;
+        //});
     }
 
     public static void initBlocks() {

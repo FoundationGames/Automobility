@@ -18,11 +18,17 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.MapColor;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -49,9 +55,8 @@ public enum AutomobilityBlocks {;
     public static final Eventual<Block> DIRT_OFF_ROAD = register("dirt_off_road", () -> new LayeredOffroadBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DIRT).noCollission(), AUtils.colorFromInt(0x594227)), Automobility.TAB);
     public static final Eventual<Block> SAND_OFF_ROAD = register("sand_off_road", () -> new LayeredOffroadBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SAND).noCollission(), AUtils.colorFromInt(0xC2B185)), Automobility.TAB);
     public static final Eventual<Block> SNOW_OFF_ROAD = register("snow_off_road", () -> new LayeredOffroadBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SNOW_BLOCK).noCollission(), AUtils.colorFromInt(0xD0E7ED)), Automobility.TAB);
-
     public static final Eventual<Block> LAUNCH_GEL = register("launch_gel", () -> new LaunchGelBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CLAY).strength(0.1f).sound(SoundType.HONEY_BLOCK).noCollission()), Automobility.TAB);
-
+    public static final Eventual<Block> OFF_ROAD_AREA = register("off_road_area", () -> new OffroadAreaBlock(BlockBehaviour.Properties.of().replaceable().strength(-1.0F, 3600000.8F).mapColor(waterloggedMapColor(MapColor.NONE)).noLootTable().noOcclusion()), (CreativeTabQueue) null);
     public static final Eventual<Block> ALLOW = register("allow", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK).sound(SoundType.METAL)),
             b -> new TooltipBlockItem(b, Component.translatable("tooltip.block.automobility.allow").withStyle(ChatFormatting.AQUA), new Item.Properties()));
 
@@ -61,6 +66,10 @@ public enum AutomobilityBlocks {;
             Automobility.rl("autopilot_sign"), () -> Platform.get().blockEntity(AutopilotSignBlockEntity::new, AUTOPILOT_SIGN.require()));
 
     public static void init() {
+        for (int i = 1; i < 9; i++) {
+            int finalI = i;
+            Automobility.TAB.queueStack(() -> OffroadAreaBlock.setStrengthOnStack(new ItemStack(OFF_ROAD_AREA.require().asItem()), finalI));
+        }
     }
 
     public static Eventual<Block> register(String name, Supplier<Block> block) {
@@ -84,5 +93,9 @@ public enum AutomobilityBlocks {;
 
     public static Eventual<Block> register(String name, Supplier<Block> block, Function<Block, BlockItem> item) {
         return register(name, block, item, null);
+    }
+
+    private static Function<BlockState, MapColor> waterloggedMapColor(MapColor unwaterloggedMapColor) {
+        return (blockState) -> (Boolean)blockState.getValue(BlockStateProperties.WATERLOGGED) ? MapColor.WATER : unwaterloggedMapColor;
     }
 }

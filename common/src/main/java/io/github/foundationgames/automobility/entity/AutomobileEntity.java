@@ -971,7 +971,7 @@ public class AutomobileEntity extends Entity implements RenderableAutomobile, En
             BlockState blockState = level().getBlockState(blockPosition());
             float cap = stats.getComfortableSpeed() * block.getSpeedMultiplier(blockState);
             this.updateEngineSpeed(Math.min(cap, engineSpeed));
-            this.debrisColor = block.getDebrisColor(blockState);
+            this.debrisColor = block.getDebrisColor(blockState, blockPosition(), level());
             this.offRoad = true;
         } else this.offRoad = false;
 

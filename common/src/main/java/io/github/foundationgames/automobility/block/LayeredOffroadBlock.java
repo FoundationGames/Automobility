@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -84,12 +85,11 @@ public class LayeredOffroadBlock extends Block implements OffroadBlock {
     @Override
     public float getSpeedMultiplier(BlockState blockState) {
         int layers = blockState.getValue(LayeredOffroadBlock.LAYERS);
-        // return 1 - (float)layers / 4.5f;
         return 1.0f / (layers + 0.5f);
     }
 
     @Override
-    public Vector3f getDebrisColor(BlockState blockState) {
+    public Vector3f getDebrisColor(BlockState blockState, BlockPos position, BlockGetter level) {
         return color;
     }
 

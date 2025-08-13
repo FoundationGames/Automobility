@@ -1,7 +1,9 @@
 package io.github.foundationgames.automobility.fabric;
 
+import io.github.foundationgames.automobility.Automobility;
 import io.github.foundationgames.automobility.AutomobilityClient;
 import io.github.foundationgames.automobility.block.AutomobilityBlocks;
+import io.github.foundationgames.automobility.block.OffroadAreaBlock;
 import io.github.foundationgames.automobility.block.model.SlopeBakedModel;
 import io.github.foundationgames.automobility.block.model.SlopeUnbakedModel;
 import io.github.foundationgames.automobility.entity.AutomobileEntity;
@@ -31,11 +33,16 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.BlockItemStateProperties;
 
 public class AutomobilityClientFabric implements ClientModInitializer {
     private static boolean wasRidingAutomobile = false;
@@ -99,5 +106,12 @@ public class AutomobilityClientFabric implements ClientModInitializer {
 
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(FabricAutomobileModels.INSTANCE);
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(FabricObjLoader.INSTANCE);
+
+        ItemProperties.register(AutomobilityBlocks.OFF_ROAD_AREA.require().asItem(),
+                ResourceLocation.fromNamespaceAndPath(Automobility.MOD_ID, "strength"), (stack, level, living, id) -> {
+                    BlockItemStateProperties blockitemstateproperties = stack.getOrDefault(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY);
+                    Integer integer = blockitemstateproperties.get(OffroadAreaBlock.STRENGTH);
+                    return integer != null ? (float)integer/OffroadAreaBlock.MAX_STRENGTH : 1;
+        });
     }
 }
