@@ -41,7 +41,7 @@ public class OffroadAreaBlock extends Block implements SimpleWaterloggedBlock, O
 
     public OffroadAreaBlock(BlockBehaviour.Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false).setValue(STRENGTH, 1));
+        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false).setValue(STRENGTH, 2));
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
