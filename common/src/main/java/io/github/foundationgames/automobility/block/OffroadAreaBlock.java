@@ -97,7 +97,7 @@ public class OffroadAreaBlock extends Block implements SimpleWaterloggedBlock, O
     @Override
     public float getSpeedMultiplier(BlockState blockState) {
         int strength = blockState.getValue(OffroadAreaBlock.STRENGTH);
-        return 1.0f / (strength + 0.5f);
+        return (float) ((-40 * strength) + 333) / ((50 * strength) + 365);
     }
 
     @Override

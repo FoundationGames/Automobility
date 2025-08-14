@@ -83,7 +83,7 @@ public class LayeredOffroadBlock extends Block implements OffroadBlock {
     @Override
     public float getSpeedMultiplier(BlockState blockState) {
         int layers = blockState.getValue(LayeredOffroadBlock.LAYERS);
-        return 1.0f / (layers + 0.5f);
+        return (float) ((-40 * layers) + 333) / ((50 * layers) + 365);
     }
 
     @Override
