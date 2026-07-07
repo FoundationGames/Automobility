@@ -1,0 +1,16 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "automobility:item/off_road_area"
+  },
+  "overrides": [
+    { "predicate": { "automobility:strength": 0.125 }, "model": "automobility:item/off_road_area_0" },
+    { "predicate": { "automobility:strength": 0.25 }, "model": "automobility:item/off_road_area_1" },
+    { "predicate": { "automobility:strength": 0.375 }, "model": "automobility:item/off_road_area_2" },
+    { "predicate": { "automobility:strength": 0.5 }, "model": "automobility:item/off_road_area_3" },
+    { "predicate": { "automobility:strength": 0.625 }, "model": "automobility:item/off_road_area_4" },
+    { "predicate": { "automobility:strength": 0.75 }, "model": "automobility:item/off_road_area_5" },
+    { "predicate": { "automobility:strength": 0.875 }, "model": "automobility:item/off_road_area_6" },
+    { "predicate": { "automobility:strength": 1.0 }, "model": "automobility:item/off_road_area_7" }
+  ]
+}

@@ -96,7 +96,7 @@ public abstract class SlicedLoopingAutomobileSoundInstance extends AutomobileSou
 
         @Override
         protected float getVolume(AutomobileEntity automobile) {
-            return 2;
+            return 2 * automobile.getUnderwaterVolumeMultiplier();
         }
 
         @Override

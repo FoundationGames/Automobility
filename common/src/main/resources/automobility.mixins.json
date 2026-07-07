@@ -7,13 +7,14 @@
   "mixins": [
     "AABBMixin",
     "AbstractContainerMenuMixin",
-    "EntityMixin",
+    "BlockBehaviorAccess",
     "ItemCombinerMenuMixin",
     "PlayerEnderChestContainerMixin",
     "ServerGamePacketListenerImplMixin",
     "ShovelItemAccess"
   ],
   "client": [
+    "EntityMixin",
     "EntityRenderDispatcherMixin",
     "EntityRenderersMixin",
     "KeyMappingAccess",

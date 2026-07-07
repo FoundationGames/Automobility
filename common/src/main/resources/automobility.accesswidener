@@ -5,3 +5,5 @@ accessible method net/minecraft/world/entity/Entity collectColliders (Lnet/minec
 accessible method net/minecraft/world/entity/Entity collectCandidateStepUpHeights (Lnet/minecraft/world/phys/AABB;Ljava/util/List;FF)[F
 accessible method net/minecraft/world/entity/Entity collideWithShapes (Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Ljava/util/List;)Lnet/minecraft/world/phys/Vec3;
 accessible field net/minecraft/world/entity/Entity passengers Lcom/google/common/collect/ImmutableList;
+accessible field net/minecraft/client/multiplayer/ClientLevel MARKER_PARTICLE_ITEMS Ljava/util/Set;
+mutable field net/minecraft/client/multiplayer/ClientLevel MARKER_PARTICLE_ITEMS Ljava/util/Set;

@@ -13,6 +13,8 @@ repositories {
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
     maven { url = uri("https://jitpack.io") }
     maven { url = uri("https://maven.isxander.dev/releases") }
+
+    maven { url = uri("https://maven.quiltmc.org/repository/release") }
 }
 
 dependencies {

@@ -16,16 +16,21 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-public class OffRoadBlock extends Block {
-    public static final VoxelShape ONE_LAYER_SHAPE = box(0, 0, 0, 16, 2, 16);
-    public static final VoxelShape TWO_LAYER_SHAPE = box(0, 0, 0, 16, 4, 16);
-    public static final VoxelShape THREE_LAYER_SHAPE = box(0, 0, 0, 16, 6, 16);
-
-    public static final IntegerProperty LAYERS = IntegerProperty.create("layers", 1, 3);
+public class LayeredOffroadBlock extends Block implements OffroadBlock {
+    public static final int MAX_LAYERS = 8;
+    public static final IntegerProperty LAYERS = IntegerProperty.create("layers", 1, MAX_LAYERS);
 
     public final Vector3f color;
+    private static final VoxelShape[] SHAPES_BY_LAYER;
 
-    public OffRoadBlock(Properties settings, Vector3f color) {
+    static {
+        SHAPES_BY_LAYER = new VoxelShape[MAX_LAYERS];
+        for (int i = 0; i < SHAPES_BY_LAYER.length; i++) {
+            SHAPES_BY_LAYER[i] = getShapeForLayerCount(i + 1);
+        }
+    }
+
+    public LayeredOffroadBlock(Properties settings, Vector3f color) {
         super(settings.pushReaction(PushReaction.DESTROY));
         registerDefaultState(defaultBlockState().setValue(LAYERS, 1));
         this.color = color;
@@ -35,7 +40,7 @@ public class OffRoadBlock extends Block {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         var state = ctx.getLevel().getBlockState(ctx.getClickedPos());
-        if (state.is(this) && state.getValue(LAYERS) < 3) {
+        if (state.is(this) && state.getValue(LAYERS) < MAX_LAYERS) {
             return state.setValue(LAYERS, state.getValue(LAYERS) + 1);
         }
         return super.getStateForPlacement(ctx);
@@ -43,7 +48,7 @@ public class OffRoadBlock extends Block {
 
     @Override
     public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
-        return state.getValue(LAYERS) < 3 && context.getItemInHand().is(this.asItem());
+        return state.getValue(LAYERS) < MAX_LAYERS && context.getItemInHand().is(this.asItem());
     }
 
     @Override
@@ -61,16 +66,32 @@ public class OffRoadBlock extends Block {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(LAYERS)) {
-            case 2 -> TWO_LAYER_SHAPE;
-            case 3 -> THREE_LAYER_SHAPE;
-            default -> ONE_LAYER_SHAPE;
-        };
+        int shapeIndex = state.getValue(LAYERS) - 1;
+        if(shapeIndex >= 0 && shapeIndex < SHAPES_BY_LAYER.length) {
+            return SHAPES_BY_LAYER[shapeIndex];
+        } else {
+            return SHAPES_BY_LAYER[0];
+        }
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(LAYERS);
+    }
+
+    @Override
+    public float getSpeedMultiplier(BlockState blockState) {
+        int layers = blockState.getValue(LayeredOffroadBlock.LAYERS);
+        return (float) ((-40 * layers) + 333) / ((50 * layers) + 365);
+    }
+
+    @Override
+    public Vector3f getDebrisColor(BlockState blockState, BlockPos position, BlockGetter level) {
+        return color;
+    }
+
+    private static VoxelShape getShapeForLayerCount(int layers) {
+        return box(0, 0, 0, 16, 2 * layers, 16);
     }
 }

@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "strength=1": {
+      "model": "automobility:block/off_road_area_0"
+    },
+    "strength=2": {
+      "model": "automobility:block/off_road_area_1"
+    },
+    "strength=3": {
+      "model": "automobility:block/off_road_area_2"
+    },
+    "strength=4": {
+      "model": "automobility:block/off_road_area_3"
+    },
+    "strength=5": {
+      "model": "automobility:block/off_road_area_4"
+    },
+    "strength=6": {
+      "model": "automobility:block/off_road_area_5"
+    },
+    "strength=7": {
+      "model": "automobility:block/off_road_area_6"
+    },
+    "strength=8": {
+      "model": "automobility:block/off_road_area_7"
+    }
+  }
+}
