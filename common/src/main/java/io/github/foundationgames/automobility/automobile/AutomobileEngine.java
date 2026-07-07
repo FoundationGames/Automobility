@@ -98,7 +98,7 @@ public record AutomobileEngine(
     ));
 
     public static final ResourceKey<AutomobileEngine> GOLD = BOOTSTRAP.register(Automobility.rl("gold"), of(
-            0.8f, 0.75f,
+            0.8f, 0.8f,
             AutomobilitySounds.GOLD_ENGINE::require,
             model(
                     Automobility.rl("textures/entity/automobile/engine/gold.png"), Automobility.rl("engine/gold"),
